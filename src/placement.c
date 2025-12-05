@@ -33,6 +33,7 @@ void Dist_Init_n(void)
         {
             Node[i].n_X = randAxAy();
             Node[i].n_Y = center_y - 2 * i;
+			int s=0;
         } while (((sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) < area_disaster) || (sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) > area_disaster + 2)) || (Node[i].n_X > center_x || Node[i].n_Y > center_y));
     }
     for (int i = 8; i < 10; i++)

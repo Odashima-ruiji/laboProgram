@@ -59,9 +59,9 @@ double free_variable;
 double sum = 0;
 int d[4][2] = {{10, 10}, {10, 50}, {50, 50}, {50, 10}};
 
-double area_disaster;
-double area_evacuation;
-double center_x;
-double center_y;
+double area_disaster = (Ax - 2*Ax_d)/2; //避難区域
+double area_evacuation = Ax/2;
+double center_x  = Ax/2;
+double center_y  = Ay/2;
 int count_same = 0;
-int count_off = 0;
+int count_off= 0;
