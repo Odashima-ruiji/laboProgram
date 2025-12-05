@@ -1,384 +1,1080 @@
 /*
-	Common_func.c : 共通関数の実装
+    Common_func.c : 共通関数の実装
 */
 
+#include "config.h"
+#include "base_struct.h"
 #include "globals.h"
+#include "base_func.h"
+#include "Common_func.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
 
-/* allrideon関数の実装 */
-void allrideon(){
-	for(int l=0; l<N_ALL_NUM; l++){
-		if(Node[l].n_X == (double)Node[l].n_insec_X && Node[l].n_Y == (double)Node[l].n_insec_Y){
-			if(Trans[(int)Node[l].n_X][(int)Node[l].n_Y].wp_Exist == 1 && Node[l].p_on == 0 ){  
+/* ------------------------------------------------------------------------------------ *
+ *	関数名 : allrideon										 							*
+ *  機能 : ノードに乗客を乗せる. すべての交差点の待ち乗客がいるかいないか判定し,		*
+ * 		客のいる交差点に車がいる, かつ車が満車でない場合に乗せる. 一つの交差点に		*
+ * 		複数人が待っていても,車が複数台あれば対応する.									*
+ *  仮引数 : なし											 							*
+ * ------------------------------------------------------------------------------------ */
+void allrideon()
+{
+    /*新しい方法*/
+    for (int l = 0; l < N_ALL_NUM; l++)
+    {
+        if (Node[l].n_X == (double)Node[l].n_insec_X && Node[l].n_Y == (double)Node[l].n_insec_Y)
+        {
+            /* 乗客が一人も乗っていない状態 */
+            if (Trans[(int)Node[l].n_X][(int)Node[l].n_Y].wp_Exist == 1 && Node[l].p_on == 0)
+            {
 
-				count_ride1 += 1;
+                count_ride1 += 1;
 
-				Node[l].p_num = dequeue(Node[l].n_X,Node[l].n_Y);
-				Node[l].p_on = 1;
-				Pass[Node[l].p_num].p_ride = 1;
-				Node[l].n_xD = Pass[Node[l].p_num].p_xD;
-				Node[l].n_yD = Pass[Node[l].p_num].p_yD;
-				Node[l].d_length = sqrt2(Node[l].n_xD - Node[l].n_X , Node[l].n_yD - Node[l].n_Y );
-				if(Trans[(int)Node[l].n_X][(int)Node[l].n_Y].wp_Exist == 1){
-					Node[l].Map[(int)Node[l].n_X][(int)Node[l].n_Y].info = 1;
-				}else{
-					Node[l].Map[(int)Node[l].n_X][(int)Node[l].n_Y].info = 0;
-				}
-				for(int i=0; i<Ax; i++){
-					for(int j=0; j<Ay; j++){
-						Node[l].Map[i][j].no_D = 0;
-					}
-				}
-			}else if(Trans[(int)Node[l].n_X][(int)Node[l].n_Y].wp_Exist == 1 && Node[l].p_on == 3 ){  
+                Node[l].p_num = dequeue(Node[l].n_X, Node[l].n_Y);                                // 乗客の番号をノード情報に入力
+                Node[l].p_on = 1;                                                                 // ノードの乗客状況を変更　複数人の乗れる場合はここを変更
+                Pass[Node[l].p_num].p_ride = 1;                                                   // 乗客の乗車状態の変更
+                Node[l].n_xD = Pass[Node[l].p_num].p_xD;                                          // 乗客の目的地情報をノードの目的地情報に入力(x座標)
+                Node[l].n_yD = Pass[Node[l].p_num].p_yD;                                          // 乗客の目的地情報をノードの目的地情報に入力(y座標)
+                Node[l].d_length = sqrt2(Node[l].n_xD - Node[l].n_X, Node[l].n_yD - Node[l].n_Y); // 目的地との距離を入力
+                if (Trans[(int)Node[l].n_X][(int)Node[l].n_Y].wp_Exist == 1)
+                {
+                    Node[l].Map[(int)Node[l].n_X][(int)Node[l].n_Y].info = 1;
+                }
+                else
+                {
+                    Node[l].Map[(int)Node[l].n_X][(int)Node[l].n_Y].info = 0;
+                }
+                for (int i = 0; i < Ax; i++)
+                {
+                    for (int j = 0; j < Ay; j++)
+                    {
+                        Node[l].Map[i][j].no_D = 0;
+                    }
+                }
+            }
+            else if (Trans[(int)Node[l].n_X][(int)Node[l].n_Y].wp_Exist == 1 && Node[l].p_on == 3)
+            {
+                /* 乗客が一人も乗っていない状態　かつ　ifより得た情報がある場合 */
 
-				if(Node[l].n_xD == Node[l].n_X && Node[l].n_yD == Node[l].n_Y ){
-					if(transmit__[l][Node[l].p_num] == 0){
-						ride_transmit += 1;
-					}
-					count_ride3 += 1;
-				}else{
-					count_ride1 += 1;
-				}
+                if (Node[l].n_xD == Node[l].n_X && Node[l].n_yD == Node[l].n_Y)
+                { // 情報フローティングで得た情報をもとに乗客を載せた場合
+                    if (transmit__[l][Node[l].p_num] == 0)
+                    {
+                        ride_transmit += 1;
+                    }
+                    count_ride3 += 1;
+                }
+                else
+                {
+                    count_ride1 += 1;
+                }
 
-				Node[l].p_num = dequeue(Node[l].n_X,Node[l].n_Y);
-				Node[l].p_on = 1;
-				Pass[Node[l].p_num].p_ride = 1;
-				Node[l].n_xD = Pass[Node[l].p_num].p_xD;
-				Node[l].n_yD = Pass[Node[l].p_num].p_yD;
-				Node[l].d_length = sqrt2(Node[l].n_xD - Node[l].n_X , Node[l].n_yD - Node[l].n_Y );
-				if(Trans[(int)Node[l].n_X][(int)Node[l].n_Y].wp_Exist == 1){
-					Node[l].Map[(int)Node[l].n_X][(int)Node[l].n_Y].info = 1;
-				}else{
-					Node[l].Map[(int)Node[l].n_X][(int)Node[l].n_Y].info = 0;
-				}
-				for(int i=0; i<Ax; i++){
-					for(int j=0; j<Ay; j++){
-						Node[l].Map[i][j].no_D = 0;
-					}
-				}
-			}
+                Node[l].p_num = dequeue(Node[l].n_X, Node[l].n_Y);                                // 乗客の番号をノード情報に入力
+                Node[l].p_on = 1;                                                                 // ノードの乗客状況を変更　複数人の乗れる場合はここを変更
+                Pass[Node[l].p_num].p_ride = 1;                                                   // 乗客の乗車状態の変更
+                Node[l].n_xD = Pass[Node[l].p_num].p_xD;                                          // 乗客の目的地情報をノードの目的地情報に入力(x座標)
+                Node[l].n_yD = Pass[Node[l].p_num].p_yD;                                          // 乗客の目的地情報をノードの目的地情報に入力(y座標)
+                Node[l].d_length = sqrt2(Node[l].n_xD - Node[l].n_X, Node[l].n_yD - Node[l].n_Y); // 目的地との距離を入力
+                if (Trans[(int)Node[l].n_X][(int)Node[l].n_Y].wp_Exist == 1)
+                {
+                    Node[l].Map[(int)Node[l].n_X][(int)Node[l].n_Y].info = 1;
+                }
+                else
+                {
+                    Node[l].Map[(int)Node[l].n_X][(int)Node[l].n_Y].info = 0;
+                }
+                for (int i = 0; i < Ax; i++)
+                {
+                    for (int j = 0; j < Ay; j++)
+                    {
+                        Node[l].Map[i][j].no_D = 0;
+                    }
+                }
+            }
 
-			#ifdef two
-			if(Trans[(int)Node[l].n_X][(int)Node[l].n_Y].wp_Exist == 1 && Node[l].p_on == 1 ){  
-				count_ride2 += 1;
-				Node[l].p_num2 = dequeue(Node[l].n_X,Node[l].n_Y);
-				Node[l].p_on += 1;
-				Pass[Node[l].p_num2].p_ride = 1;
-				Node[l].n_xD2 = Pass[Node[l].p_num2].p_xD;
-				Node[l].n_yD2 = Pass[Node[l].p_num2].p_yD;
-				Node[l].d_length2 = sqrt2(Node[l].n_xD2 - Node[l].n_X , Node[l].n_yD2 - Node[l].n_Y );
-				if(Trans[(int)Node[l].n_X][(int)Node[l].n_Y].wp_Exist == 1){
-					Node[l].Map[Node[l].n_X][Node[l].n_Y].info = 1;
-				}else{
-					Node[l].Map[Node[l].n_X][Node[l].n_Y].info = 0;
-				}
-				for(int i=0; i<Ax; i++){
-					for(int j=0; j<Ay; j++){
-						Node[l].Map[i][j].no_D = 0;
-					}
-				}
-			}
-			#endif
-		}
-	}
+#ifdef two
+            /* 乗客が一人乗っている状態 */
+            if (Trans[(int)Node[l].n_X][(int)Node[l].n_Y].wp_Exist == 1 && Node[l].p_on == 1)
+            {
+                count_ride2 += 1;
+                Node[l].p_num2 = dequeue(Node[l].n_X, Node[l].n_Y);                                  // 乗客の番号をノード情報に入力
+                Node[l].p_on += 1;                                                                   // ノードの乗客状況を変更　複数人の乗れる場合はここを変更
+                Pass[Node[l].p_num2].p_ride = 1;                                                     // 乗客の乗車状態の変更
+                Node[l].n_xD2 = Pass[Node[l].p_num2].p_xD;                                           // 乗客の目的地情報をノードの目的地情報2に入力(x座標)
+                Node[l].n_yD2 = Pass[Node[l].p_num2].p_yD;                                           // 乗客の目的地情報をノードの目的地情報2に入力(y座標)
+                Node[l].d_length2 = sqrt2(Node[l].n_xD2 - Node[l].n_X, Node[l].n_yD2 - Node[l].n_Y); // 目的地との距離を入力
+                if (Trans[(int)Node[l].n_X][(int)Node[l].n_Y].wp_Exist == 1)
+                {
+                    Node[l].Map[Node[l].n_X][Node[l].n_Y].info = 1;
+                }
+                else
+                {
+                    Node[l].Map[Node[l].n_X][Node[l].n_Y].info = 0;
+                }
+                for (int i = 0; i < Ax; i++)
+                {
+                    for (int j = 0; j < Ay; j++)
+                    {
+                        Node[l].Map[i][j].no_D = 0;
+                    }
+                }
+            }
+#endif
+        }
+    }
 }
 
-/* D_check関数 - 移動後、乗客の目的地判定 */
-void D_check(){
-	for(int i=0 ; i < N_ALL_NUM ; i++){
-		#ifdef two
-		if(Node[i].p_on == 2){
-			if(Node[i].n_X == Node[i].n_xD2 && Node[i].n_Y == Node[i].n_yD2 ){   
-				if(Node[i].n_X == Node[i].n_xD && Node[i].n_Y == Node[i].n_yD ) {
-					count_same += 1;
-				}
-				Node[i].move_flag += 1;
-				Pass[Node[i].p_num2].p_Exist = 0;
-				Node[i].p_on -= 1;
-				Pass[Node[i].p_num2].p_ride = 0;
-				Pass[Node[i].p_num2].p_X = Pass[Node[i].p_num2].p_xD;
-				Pass[Node[i].p_num2].p_Y = Pass[Node[i].p_num2].p_yD;
-				Pass[Node[i].p_num2].p_wait = Twait;
-				Node[i].p_num2 = -1;
-				Node[i].n_xD2 = -1;
-				Node[i].n_yD2 = -1;
-				goalstep[o] = Twait;
-				o++;
-				allstep += Twait;
-			}
+/* -------------------------------------------- *
+ *	関数名 : D_check 							*
+ *  機能 : 移動後, 乗客の目的地判定を行う関数	*
+ *  仮引数 : なし								*
+ * -------------------------------------------- */
+void D_check()
+{
+    for (int i = 0; i < N_ALL_NUM; i++)
+    {
+#ifdef two
+        if (Node[i].p_on == 2)
+        { // ノードに乗客が二人いる場合
 
-			if(Node[i].n_X == Node[i].n_xD && Node[i].n_Y == Node[i].n_yD ){    
-				Pass[Node[i].p_num].p_Exist = 0;
-				Node[i].p_on -= 1;
-				Pass[Node[i].p_num].p_ride = 0;
-				Pass[Node[i].p_num].p_X = Pass[Node[i].p_num].p_xD;
-				Pass[Node[i].p_num].p_Y = Pass[Node[i].p_num].p_yD;
-				Pass[Node[i].p_num].p_wait = Twait;
-				Node[i].p_num = Node[i].p_num2;
-				Node[i].n_xD = Node[i].n_xD2;
-				Node[i].n_yD = Node[i].n_yD2;
-				Node[i].d_length = sqrt2(Node[i].n_xD - Node[i].n_X , Node[i].n_yD - Node[i].n_Y );
-				Node[i].p_num2 = -1;
-				Node[i].n_xD2 = -1;
-				Node[i].n_yD2 = -1;
-				goalstep[o] = Twait;
-				o++;
-				allstep += Twait;
-			}
-		}
-		#endif
-		
-		if(Node[i].p_on == 1){
-			if(Node[i].n_X == Node[i].n_xD && Node[i].n_Y == Node[i].n_yD ){  
-				Pass[Node[i].p_num].p_Exist = 0;
-				Node[i].p_on = 0;
-				Pass[Node[i].p_num].p_ride = 0;
-				Pass[Node[i].p_num].p_X = Pass[Node[i].p_num].p_xD;
-				Pass[Node[i].p_num].p_Y = Pass[Node[i].p_num].p_yD;
-				Pass[Node[i].p_num].p_wait = Twait;
-				Node[i].p_num = -1;
-				Node[i].n_xD = -1;
-				Node[i].n_yD = -1;
-				Node[i].d_length = -1;
-				Node[i].move_flag += 1;
-				goalstep[o] = Twait;
-				o++;
-				allstep += Twait;
-			}
-		}
+            // 乗客２の目的地とノードの現在位置が一致する場合
+            if (Node[i].n_X == Node[i].n_xD2 && Node[i].n_Y == Node[i].n_yD2)
+            {
+                if (Node[i].n_X == Node[i].n_xD && Node[i].n_Y == Node[i].n_yD)
+                {
+                    count_same += 1;
+                }
+                Node[i].move_flag += 1;
+                // printf("3:  乗客が2人乗っている車から乗客2の %d 番目のお客様が到着されました!!\n",Node[i].p_num2);
+                Pass[Node[i].p_num2].p_Exist = 0;                     // 乗客の存在を消去
+                Node[i].p_on -= 1;                                    // ノードの乗車情報を変更
+                Pass[Node[i].p_num2].p_ride = 0;                      // 乗客の乗車情報を変更
+                Pass[Node[i].p_num2].p_X = Pass[Node[i].p_num2].p_xD; // 乗客の現在位置を更新
+                Pass[Node[i].p_num2].p_Y = Pass[Node[i].p_num2].p_yD;
+                Pass[Node[i].p_num2].p_wait = Twait;
+                Node[i].p_num2 = -1; // ノードの乗客番号情報を -1に変更
+                Node[i].n_xD2 = -1;  // ノードの目的地(x座標)情報を -1に変更
+                Node[i].n_yD2 = -1;  // ノードの目的地情報(y座標)情報を -1に変更
+                goalstep[o] = Twait;
+                o++;
+                allstep += Twait;
+            }
 
-		if(Node[i].p_on == 3){
-			if(Node[i].n_xD == Node[i].n_X && Node[i].n_yD == Node[i].n_Y && Trans[Node[i].n_insec_X][Node[i].n_insec_Y].wp_Exist == 0){ 	
-				pushnopos(i,Ax*Node[i].n_X+Node[i].n_Y);
-				Node[i].p_on = 0;
-				Node[i].p_num = 0;
-				Node[i].n_xD = -2;
-				Node[i].n_yD = -2;
-				count_p_no += 1;		
-			}
-		}
-		if(Node[i].p_on == 5){
-			int gather_area = Node[i].move_flag * 5;
-			if(gather_area >= area_disaster){
-				gather_area = area_disaster;
-			}
-			if(sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) <= gather_area){
-				Node[i].p_on = 0;
-				Node[i].n_xD = -2;
-				Node[i].n_yD = -2;
-			}
-            if(Node[i].n_X == Node[i].n_xD && Node[i].n_Y == Node[i].n_yD ){  
+            // 乗客1の目的地とノードの現在位置が一致する場合
+            if (Node[i].n_X == Node[i].n_xD && Node[i].n_Y == Node[i].n_yD)
+            {
+                // printf("2:  乗客が2人乗っている車から乗客1の %d 番目のお客様が到着されました!!\n",Node[i].p_num);
+                Pass[Node[i].p_num].p_Exist = 0;                    // 乗客の存在を消去
+                Node[i].p_on -= 1;                                  // ノードの乗車情報を変更
+                Pass[Node[i].p_num].p_ride = 0;                     // 乗客の乗車情報を変更
+                Pass[Node[i].p_num].p_X = Pass[Node[i].p_num].p_xD; // 乗客の現在位置を更新
+                Pass[Node[i].p_num].p_Y = Pass[Node[i].p_num].p_yD;
+                Pass[Node[i].p_num].p_wait = Twait;
+                Node[i].p_num = Node[i].p_num2; // ノードの乗客番号情報を -1に変更
+                Node[i].n_xD = Node[i].n_xD2;   // ノードの目的地(x座標)情報を -1に変更
+                Node[i].n_yD = Node[i].n_yD2;
+                Node[i].d_length = sqrt2(Node[i].n_xD - Node[i].n_X, Node[i].n_yD - Node[i].n_Y);
+                Node[i].p_num2 = -1; // ノードの乗客番号情報を -1に変更
+                Node[i].n_xD2 = -1;  // ノードの目的地(x座標)情報を -1に変更
+                Node[i].n_yD2 = -1;  // ノードの目的地情報(y座標)情報を -1に変更
+                goalstep[o] = Twait;
+                o++;
+                allstep += Twait;
+
+                if (Node[i].stack_num > 0 && Node[i].p_on == 0 && i < po)
+                {
+                    int count = 0;
+                    do
+                    {
+                        count += 1;
+                        int numdata = peek(i);
+                        // stack_sort();
+                        if (search(i, numdata) == 0)
+                        { // 同じデータがなければ
+
+                            int numdata_x = (numdata % (Ax * Ax)) / Ax;
+                            int numdata_y = numdata % Ax;
+                            if ((Twait * Ax * Ax - numdata > reftime * Ax * Ax) || (numdata_x - Node[i].n_X > refdistance || Node[i].n_X - numdata_x > refdistance) || (numdata_y - Node[i].n_Y > refdistance || Node[i].n_Y - numdata_y > refdistance) || Node[i].Map[numdata_x][numdata_y].no_D == 1)
+                            { // 長い時間と距離経過しているとき参照しない
+
+                                pop(i);
+                                stack_sort();
+                                Node[i].p_on = 0;
+                                // printf("現在時刻 %d %d番ノード: %ds前\n",Twait,i,(Twait*10000 - numdata)/10000);
+                                // printf("本来目指す目的地(%d,%d)\n\n",Node[i].n_xD,Node[i].n_yD);
+
+                                Node[i].n_xD = -1;
+                                Node[i].n_yD = -1;
+
+                                int pattern_1 = rand() % 4 + 1;
+
+#ifdef dis_center
+                                pattern_1 = 0;
+#endif
+                                if (Node[i].n_X < center_x && Node[i].n_Y < center_y)
+                                {
+                                    if (pattern_1 == 0)
+                                    {
+                                        // Node[i].move_flag += 1;
+                                        Node[i].n_xD = center_x;
+                                        Node[i].n_yD = center_y;
+                                        Node[i].p_on = 5;
+                                        Node[i].d_length = sqrt2(Node[i].n_xD - Node[i].n_X, Node[i].n_yD - Node[i].n_Y);
+                                    }
+                                    else if (pattern_1 == 1 || pattern_1 == 2)
+                                    {
+                                        Node[i].move_flag += 1;
+                                        Node[i].n_xD = center_x - 12;
+                                        Node[i].n_yD = center_y;
+                                        Node[i].p_on = 5;
+                                        Node[i].d_length = sqrt2(Node[i].n_xD - Node[i].n_X, Node[i].n_yD - Node[i].n_Y);
+                                    }
+                                    else if (pattern_1 == 3 || pattern_1 == 4)
+                                    {
+                                        Node[i].move_flag += 1;
+                                        Node[i].n_xD = center_x;
+                                        Node[i].n_yD = center_y - 12;
+                                        Node[i].p_on = 5;
+                                        Node[i].d_length = sqrt2(Node[i].n_xD - Node[i].n_X, Node[i].n_yD - Node[i].n_Y);
+                                    }
+                                }
+                                else if (Node[i].n_X < center_x && Node[i].n_Y > center_y)
+                                {
+                                    if (pattern_1 == 0)
+                                    {
+                                        // Node[i].move_flag += 1;
+                                        Node[i].n_xD = center_x;
+                                        Node[i].n_yD = center_y;
+                                        Node[i].p_on = 5;
+                                        Node[i].d_length = sqrt2(Node[i].n_xD - Node[i].n_X, Node[i].n_yD - Node[i].n_Y);
+                                    }
+                                    else if (pattern_1 == 1 || pattern_1 == 2)
+                                    {
+                                        Node[i].move_flag += 1;
+                                        Node[i].n_xD = center_x - 12;
+                                        Node[i].n_yD = center_y;
+                                        Node[i].p_on = 5;
+                                        Node[i].d_length = sqrt2(Node[i].n_xD - Node[i].n_X, Node[i].n_yD - Node[i].n_Y);
+                                    }
+                                    else if (pattern_1 == 3 || pattern_1 == 4)
+                                    {
+                                        Node[i].move_flag += 1;
+                                        Node[i].n_xD = center_x;
+                                        Node[i].n_yD = center_y + 12;
+                                        Node[i].p_on = 5;
+                                        Node[i].d_length = sqrt2(Node[i].n_xD - Node[i].n_X, Node[i].n_yD - Node[i].n_Y);
+                                    }
+                                }
+                                else if (Node[i].n_X > center_x && Node[i].n_Y > center_y)
+                                {
+                                    if (pattern_1 == 0)
+                                    {
+                                        // Node[i].move_flag += 1;
+                                        Node[i].n_xD = center_x;
+                                        Node[i].n_yD = center_y;
+                                        Node[i].p_on = 5;
+                                        Node[i].d_length = sqrt2(Node[i].n_xD - Node[i].n_X, Node[i].n_yD - Node[i].n_Y);
+                                    }
+                                    else if (pattern_1 == 1 || pattern_1 == 2)
+                                    {
+                                        Node[i].move_flag += 1;
+                                        Node[i].n_xD = center_x + 12;
+                                        Node[i].n_yD = center_y;
+                                        Node[i].p_on = 5;
+                                        Node[i].d_length = sqrt2(Node[i].n_xD - Node[i].n_X, Node[i].n_yD - Node[i].n_Y);
+                                    }
+                                    else if (pattern_1 == 3 || pattern_1 == 4)
+                                    {
+                                        Node[i].move_flag += 1;
+                                        Node[i].n_xD = center_x;
+                                        Node[i].n_yD = center_y + 12;
+                                        Node[i].p_on = 5;
+                                        Node[i].d_length = sqrt2(Node[i].n_xD - Node[i].n_X, Node[i].n_yD - Node[i].n_Y);
+                                    }
+                                }
+                                else if (Node[i].n_X > center_x && Node[i].n_Y < center_y)
+                                {
+                                    if (pattern_1 == 0)
+                                    {
+                                        // Node[i].move_flag += 1;
+                                        Node[i].n_xD = center_x;
+                                        Node[i].n_yD = center_y;
+                                        Node[i].p_on = 5;
+                                        Node[i].d_length = sqrt2(Node[i].n_xD - Node[i].n_X, Node[i].n_yD - Node[i].n_Y);
+                                    }
+                                    else if (pattern_1 == 1 || pattern_1 == 2)
+                                    {
+                                        Node[i].move_flag += 1;
+                                        Node[i].n_xD = center_x + 12;
+                                        Node[i].n_yD = center_y;
+                                        Node[i].p_on = 5;
+                                        Node[i].d_length = sqrt2(Node[i].n_xD - Node[i].n_X, Node[i].n_yD - Node[i].n_Y);
+                                    }
+                                    else if (pattern_1 == 3 || pattern_1 == 4)
+                                    {
+                                        Node[i].move_flag += 1;
+                                        Node[i].n_xD = center_x;
+                                        Node[i].n_yD = center_y - 12;
+                                        Node[i].p_on = 5;
+                                        Node[i].d_length = sqrt2(Node[i].n_xD - Node[i].n_X, Node[i].n_yD - Node[i].n_Y);
+                                    }
+                                }
+
+                                pushnopos(i, numdata);
+                                continue;
+                            }
+                            else
+                            {
+                                pop(i);
+                                stack_sort();
+                                Node[i].p_on = 3;
+                                Node[i].n_xD = (numdata % (Ax * Ax)) / Ax;
+                                Node[i].n_yD = numdata % Ax;
+                                Node[i].Map[Node[i].n_xD][Node[i].n_yD].no_D = 1;
+                                count_p_on_3 += 1;
+                            }
+
+                            // count_ifgo += 1;
+                            pushnopos(i, numdata);
+
+                            count = 0;
+                            break;
+                        }
+
+                        // if(search(i,Ax*Node[i].n_xD+Node[i].n_yD)>0){
+                        // printf("BB\n");
+                        //}
+                        // 客が生成されるために一度訪れたところでも行く
+                    } while (/*search(i,Ax*Node[i].n_yD+Node[i].n_yD)>0 &&*/ count < Node[i].stack_num + 1);
+
+                    if (Node[i].n_yD < 0)
+                    {
+                        Node[i].p_on = 0;
+                    }
+                    if (Node[i].stack_num == 0)
+                    {
+                        Node[i].n_xD = center_x;
+                        Node[i].n_yD = center_y;
+                        Node[i].p_on = 5;
+                        Node[i].d_length = sqrt2(Node[i].n_xD - Node[i].n_X, Node[i].n_yD - Node[i].n_Y);
+                    }
+
+                    // printf("目的地は(%d.%d)\n",Node[i].n_xD,Node[i].n_yD);
+                    Node[i].p_num = -1;
+                    Node[i].p_num2 = -1;
+                    Node[i].d_length = sqrt2(Node[i].n_xD - Node[i].n_X, Node[i].n_yD - Node[i].n_Y); // 目的地との距離を入力
+                                                                                                      // printf("ABBBBBB\n");
+                }
+            }
+        }
+#endif
+
+        if (Node[i].p_on == 1)
+        { // ノードに乗客がいる場合の乗客１の判定
+
+            if (Node[i].n_X == Node[i].n_xD && Node[i].n_Y == Node[i].n_yD)
+            { // ノードの目的地とノードの現在位置が一致する場合
+
+                int count1 = 0;
+                // printf("1:  乗客が1人乗っている車から乗客1の %d 番目のお客様が到着されました!!\n",Node[i].p_num);
+                Pass[Node[i].p_num].p_Exist = 0;                    // 乗客の存在を消去
+                Node[i].p_on = 0;                                   // ノードの乗車情報を変更
+                Pass[Node[i].p_num].p_ride = 0;                     // 乗客の乗車情報を変更
+                Pass[Node[i].p_num].p_X = Pass[Node[i].p_num].p_xD; // 乗客の現在位置を更新
+                Pass[Node[i].p_num].p_Y = Pass[Node[i].p_num].p_yD;
+                Pass[Node[i].p_num].p_wait = Twait;
+                Node[i].p_num = -1; // ノードの乗客番号情報を -1に変更
+                Node[i].n_xD = -1;  // ノードの目的地(x座標)情報を -1に変更
+                Node[i].n_yD = -1;  // ノードの目的地情報(y座標)情報を -1に変更
+                Node[i].d_length = -1;
+                Node[i].move_flag += 1;
+                goalstep[o] = Twait;
+                o++;
+                allstep += Twait;
+
+                if (Node[i].stack_num > 0 && Node[i].p_on == 0 && i <= po)
+                {
+                    int count1 = 0;
+                    do
+                    {
+                        count1 += 1;
+                        int numdata = peek(i);
+                        // stack_sort();
+                        if (search(i, numdata) == 0)
+                        { // 同じデータがなければ
+
+                            int numdata_x = (numdata % (Ax * Ax)) / Ax;
+                            int numdata_y = numdata % Ax;
+                            if ((Twait * Ax * Ax - numdata > reftime * Ax * Ax) || (numdata_x - Node[i].n_X > refdistance || Node[i].n_X - numdata_x > refdistance) || (numdata_y - Node[i].n_Y > refdistance || Node[i].n_Y - numdata_y > refdistance) || Node[i].Map[numdata_x][numdata_y].no_D == 1)
+                            { // 長い時間と距離経過しているとき参照しない
+
+                                pop(i);
+                                stack_sort();
+                                Node[i].p_on = 0;
+                                // printf("現在時刻 %d %d番ノード: %ds前\n",Twait,i,(Twait*10000 - numdata)/10000);
+                                // printf("本来目指す目的地(%d,%d)\n\n",Node[i].n_xD,Node[i].n_yD);
+
+                                Node[i].n_xD = -1;
+                                Node[i].n_yD = -1;
+
+#ifdef dis_center
+                                int pattern_1 = 0;
+#else
+                                int pattern_1 = rand() % 4 + 1;
+#endif
+                                if (Node[i].n_X < center_x && Node[i].n_Y <= center_y)
+                                {
+                                    if (pattern_1 == 0)
+                                    {
+                                        // Node[i].move_flag += 1;
+                                        Node[i].n_xD = center_x;
+                                        Node[i].n_yD = center_y;
+                                        Node[i].p_on = 5;
+                                        Node[i].d_length = sqrt2(Node[i].n_xD - Node[i].n_X, Node[i].n_yD - Node[i].n_Y);
+                                    }
+                                    else if (pattern_1 == 1 || pattern_1 == 2)
+                                    {
+                                        // Node[i].move_flag += 1;
+                                        Node[i].n_xD = center_x - 5;
+                                        Node[i].n_yD = center_y;
+                                        Node[i].p_on = 5;
+                                        Node[i].d_length = sqrt2(Node[i].n_xD - Node[i].n_X, Node[i].n_yD - Node[i].n_Y);
+                                    }
+                                    else if (pattern_1 == 3 || pattern_1 == 4)
+                                    {
+                                        // Node[i].move_flag += 1;
+                                        Node[i].n_xD = center_x;
+                                        Node[i].n_yD = center_y - 5;
+                                        Node[i].p_on = 5;
+                                        Node[i].d_length = sqrt2(Node[i].n_xD - Node[i].n_X, Node[i].n_yD - Node[i].n_Y);
+                                    }
+                                }
+                                else if (Node[i].n_X <= center_x && Node[i].n_Y > center_y)
+                                {
+                                    if (pattern_1 == 0)
+                                    {
+                                        // Node[i].move_flag += 1;
+                                        Node[i].n_xD = center_x;
+                                        Node[i].n_yD = center_y;
+                                        Node[i].p_on = 5;
+                                        Node[i].d_length = sqrt2(Node[i].n_xD - Node[i].n_X, Node[i].n_yD - Node[i].n_Y);
+                                    }
+                                    else if (pattern_1 == 1 || pattern_1 == 2)
+                                    {
+                                        // Node[i].move_flag += 1;
+                                        Node[i].n_xD = center_x - 5;
+                                        Node[i].n_yD = center_y;
+                                        Node[i].p_on = 5;
+                                        Node[i].d_length = sqrt2(Node[i].n_xD - Node[i].n_X, Node[i].n_yD - Node[i].n_Y);
+                                    }
+                                    else if (pattern_1 == 3 || pattern_1 == 4)
+                                    {
+                                        // Node[i].move_flag += 1;
+                                        Node[i].n_xD = center_x;
+                                        Node[i].n_yD = center_y + 5;
+                                        Node[i].p_on = 5;
+                                        Node[i].d_length = sqrt2(Node[i].n_xD - Node[i].n_X, Node[i].n_yD - Node[i].n_Y);
+                                    }
+                                }
+                                else if (Node[i].n_X > center_x && Node[i].n_Y >= center_y)
+                                {
+                                    if (pattern_1 == 0)
+                                    {
+                                        // Node[i].move_flag += 1;
+                                        Node[i].n_xD = center_x;
+                                        Node[i].n_yD = center_y;
+                                        Node[i].p_on = 5;
+                                        Node[i].d_length = sqrt2(Node[i].n_xD - Node[i].n_X, Node[i].n_yD - Node[i].n_Y);
+                                    }
+                                    else if (pattern_1 == 1 || pattern_1 == 2)
+                                    {
+                                        // Node[i].move_flag += 1;
+                                        Node[i].n_xD = center_x + 5;
+                                        Node[i].n_yD = center_y;
+                                        Node[i].p_on = 5;
+                                        Node[i].d_length = sqrt2(Node[i].n_xD - Node[i].n_X, Node[i].n_yD - Node[i].n_Y);
+                                    }
+                                    else if (pattern_1 == 3 || pattern_1 == 4)
+                                    {
+                                        // Node[i].move_flag += 1;
+                                        Node[i].n_xD = center_x;
+                                        Node[i].n_yD = center_y + 5;
+                                        Node[i].p_on = 5;
+                                        Node[i].d_length = sqrt2(Node[i].n_xD - Node[i].n_X, Node[i].n_yD - Node[i].n_Y);
+                                    }
+                                }
+                                else if (Node[i].n_X >= center_x && Node[i].n_Y < center_y)
+                                {
+                                    if (pattern_1 == 0)
+                                    {
+                                        // Node[i].move_flag += 1;
+                                        Node[i].n_xD = center_x;
+                                        Node[i].n_yD = center_y;
+                                        Node[i].p_on = 5;
+                                        Node[i].d_length = sqrt2(Node[i].n_xD - Node[i].n_X, Node[i].n_yD - Node[i].n_Y);
+                                    }
+                                    else if (pattern_1 == 1 || pattern_1 == 2)
+                                    {
+                                        // Node[i].move_flag += 1;
+                                        Node[i].n_xD = center_x + 5;
+                                        Node[i].n_yD = center_y;
+                                        Node[i].p_on = 5;
+                                        Node[i].d_length = sqrt2(Node[i].n_xD - Node[i].n_X, Node[i].n_yD - Node[i].n_Y);
+                                    }
+                                    else if (pattern_1 == 3 || pattern_1 == 4)
+                                    {
+                                        // Node[i].move_flag += 1;
+                                        Node[i].n_xD = center_x;
+                                        Node[i].n_yD = center_y - 5;
+                                        Node[i].p_on = 5;
+                                        Node[i].d_length = sqrt2(Node[i].n_xD - Node[i].n_X, Node[i].n_yD - Node[i].n_Y);
+                                    }
+                                }
+
+                                pushnopos(i, numdata);
+                                continue;
+                            }
+                            else
+                            {
+                                pop(i);
+                                stack_sort();
+                                Node[i].p_on = 3;
+                                Node[i].n_xD = (numdata % (Ax * Ax)) / Ax;
+                                Node[i].n_yD = numdata % Ax;
+                                Node[i].Map[Node[i].n_xD][Node[i].n_yD].no_D = 1;
+                                count_p_on_3 += 1;
+                            }
+
+                            // count_ifgo += 1;
+                            pushnopos(i, numdata);
+
+                            count1 = 0;
+                            break;
+                        }
+
+                        // if(search(i,Ax*Node[i].n_xD+Node[i].n_yD)>0){
+                        // printf("BBBB\n");
+                        //}
+                        // 客が生成されるため
+                    } while (/*search(i,Ax*Node[i].n_xD+Node[i].n_yD)>0 && */ count1 < Node[i].stack_num);
+
+                    if (Node[i].n_yD < 0)
+                    {
+                        Node[i].p_on = 0;
+                    }
+
+                    // printf("目的地は(%d.%d)\n",Node[i].n_xD,Node[i].n_yD);
+                    Node[i].p_num = -1;
+                    Node[i].p_num2 = -1;
+                    Node[i].d_length = sqrt2(Node[i].n_xD - Node[i].n_X, Node[i].n_yD - Node[i].n_Y); // 目的地との距離を入力
+                                                                                                      // printf("ABBBBBB\n");
+                }
+                if (Node[i].p_on == 0)
+                {
+                    Node[i].n_xD = center_x;
+                    Node[i].n_yD = center_y;
+                    Node[i].p_on = 5;
+                    Node[i].d_length = sqrt2(Node[i].n_xD - Node[i].n_X, Node[i].n_yD - Node[i].n_Y);
+                }
+            }
+        }
+
+        if (Node[i].p_on == 3)
+        {
+            // 移動後に情報に従うノードが目的地に到着しかし待ち客はいなかった
+            if (Node[i].n_xD == Node[i].n_X && Node[i].n_yD == Node[i].n_Y && Trans[Node[i].n_insec_X][Node[i].n_insec_Y].wp_Exist == 0)
+            {
+
+                pushnopos(i, Ax * Node[i].n_X + Node[i].n_Y);
+
+                Node[i].p_on = 0;
+                Node[i].p_num = 0;
+                Node[i].n_xD = -2;
+                Node[i].n_yD = -2;
+                count_p_no += 1;
+            }
+        }
+        if (Node[i].p_on == 5)
+        {
+            int gather_area = Node[i].move_flag * 5;
+            if (gather_area >= area_disaster)
+            {
+                gather_area = area_disaster;
+            }
+            if (/*Node[i].move_flag >= 1 && */ sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) <= gather_area)
+            {
+                Node[i].p_on = 0;
+                Node[i].n_xD = -2;
+                Node[i].n_yD = -2;
+                // printf("flag %d\n", Node[i].move_flag);
+            }
+            // 移動後、中心に到着したかの確認と、目的とする乗客の設定
+            if (Node[i].n_X == Node[i].n_xD && Node[i].n_Y == Node[i].n_yD)
+            {
+                // Node[i].move_flag = 1;
+                Node[i].p_on = 0; // ノードの乗車情報を変更
+
+                if (Node[i].stack_num > 0 && Node[i].p_on == 0 && i <= po)
+                {
+                    int count = 0;
+                    do
+                    {
+                        count += 1;
+                        int numdata = peek(i);
+                        // stack_sort();
+                        if (search(i, numdata) == 0)
+                        { // 同じデータがなければ
+
+                            int numdata_x = (numdata % (Ax * Ax)) / Ax;
+                            int numdata_y = numdata % Ax;
+                            if ((Twait * Ax * Ax - numdata > reftime * Ax * Ax) || (numdata_x - Node[i].n_X > refdistance || Node[i].n_X - numdata_x > refdistance) || (numdata_y - Node[i].n_Y > refdistance || Node[i].n_Y - numdata_y > refdistance) || Node[i].Map[numdata_x][numdata_y].no_D == 1)
+                            { // 長い時間と距離経過しているとき参照しない
+
+                                pop(i);
+                                stack_sort();
+                                Node[i].p_on = 0;
+                                // printf("現在時刻 %d %d番ノード: %ds前\n",Twait,i,(Twait*10000 - numdata)/10000);
+                                // printf("本来目指す目的地(%d,%d)\n\n",Node[i].n_xD,Node[i].n_yD);
+
+                                Node[i].n_xD = -1;
+                                Node[i].n_yD = -1;
+
+                                pushnopos(i, numdata);
+                                continue;
+                            }
+                            else
+                            {
+                                pop(i);
+                                stack_sort();
+                                Node[i].p_on = 3;
+                                Node[i].n_xD = (numdata % (Ax * Ax)) / Ax;
+                                Node[i].n_yD = numdata % Ax;
+                                Node[i].Map[Node[i].n_xD][Node[i].n_yD].no_D = 1;
+                                count_p_on_3 += 1;
+                            }
+
+                            // count_ifgo += 1;
+                            pushnopos(i, numdata);
+
+                            count = 0;
+                            break;
+                        }
+
+                        // if(search(i,Ax*Node[i].n_xD+Node[i].n_yD)>0){
+                        // printf("BB\n");
+                        //}
+                        // 客が生成されるために一度訪れたところでも行く
+                    } while (/*search(i,Ax*Node[i].n_yD+Node[i].n_yD)>0 &&*/ count < Node[i].stack_num + 1);
+
+                    if (Node[i].n_yD < 0)
+                    {
+                        Node[i].p_on = 0;
+                    }
+
+                    // printf("目的地は(%d.%d)\n",Node[i].n_xD,Node[i].n_yD);
+                    Node[i].p_num = -1;
+                    Node[i].p_num2 = -1;
+                    Node[i].d_length = sqrt2(Node[i].n_xD - Node[i].n_X, Node[i].n_yD - Node[i].n_Y); // 目的地との距離を入力
+                    // printf("ABBBBBB\n");
+                }
+            }
+        }
+
+        // 変更の余地あり
+
+        if (Node[i].stack_num > 0 && Node[i].p_on == 0 && i <= po)
+        {
+            int count2 = 0;
+            do
+            {
+                count2 += 1;
+                int numdata = peek(i);
+                // stack_sort();
+                if (search(i, numdata) == 0)
+                { // 同じデータがなければ
+
+                    int numdata_x = (numdata % (Ax * Ax)) / Ax;
+                    int numdata_y = numdata % Ax;
+                    if ((Twait * Ax * Ax - numdata > reftime * Ax * Ax) || (numdata_x - Node[i].n_X > refdistance || Node[i].n_X - numdata_x > refdistance) || (numdata_y - Node[i].n_Y > refdistance || Node[i].n_Y - numdata_y > refdistance) || Node[i].Map[numdata_x][numdata_y].no_D == 1)
+                    { // 長い時間と距離経過しているとき参照しない
+
+                        pop(i);
+                        stack_sort();
+                        Node[i].p_on = 0;
+                        // printf("現在時刻 %d %d番ノード: %ds前\n",Twait,i,(Twait*10000 - numdata)/10000);
+                        // printf("本来目指す目的地(%d,%d)\n\n",Node[i].n_xD,Node[i].n_yD);
+
+                        Node[i].n_xD = -1;
+                        Node[i].n_yD = -1;
+
+                        pushnopos(i, numdata);
+                        continue;
+                    }
+                    else
+                    {
+                        pop(i);
+                        stack_sort();
+                        Node[i].p_on = 3;
+                        Node[i].n_xD = (numdata % (Ax * Ax)) / Ax;
+                        Node[i].n_yD = numdata % Ax;
+                        Node[i].Map[Node[i].n_xD][Node[i].n_yD].no_D = 1;
+                        count_p_on_3 += 1;
+                    }
+
+                    // count_ifgo += 1;
+                    pushnopos(i, numdata);
+
+                    count2 = 0;
+                    break;
+                }
+
+                // if(search(i,Ax*Node[i].n_xD+Node[i].n_yD)>0){
+                // printf("BBB\n");
+                // }
+                // 客が生成されるため
+            } while (/*search(i,Ax*Node[i].n_xD+Node[i].n_yD)>0&&*/ count2 < Node[i].stack_num);
+
+            if (Node[i].n_yD < 0)
+            {
                 Node[i].p_on = 0;
             }
-		}
-	}
+
+            // printf("目的地は(%d.%d)\n",Node[i].n_xD,Node[i].n_yD);
+            Node[i].p_num = -1;
+            Node[i].p_num2 = -1;
+            Node[i].d_length = sqrt2(Node[i].n_xD - Node[i].n_X, Node[i].n_yD - Node[i].n_Y); // 目的地との距離を入力
+                                                                                              // printf("ABBBBBB\n");
+        }
+    }
 }
 
-/* P_check関数 */
-int P_check(){
-	 check = 0;
-	 check_1 = 0;
-	 check_2 = 0;
-	 check_3 = 0;
-	 check_4 = 0;
-	for(int i=0 ; i < P_ALL_NUM+p_add_count; i++){
-		if(Pass[i].p_Exist == 0){
-			check += 1;
-			if(Pass[i].p_X == d[0][0] && Pass[i].p_Y == d[0][1]){
-				check_1 += 1;
-			}if(Pass[i].p_X == d[1][0] && Pass[i].p_Y == d[1][1]){
-				check_2 += 1;
-			}if(Pass[i].p_X == d[2][0] && Pass[i].p_Y == d[2][1]){
-				check_3 += 1;
-			}if(Pass[i].p_X == d[3][0] && Pass[i].p_Y == d[3][1]){
-				check_4 += 1;
-			}
-		}
-	}
-	printf("到着人数 %d\n",check);
-	return check;
+/* --------------------------------------------------------- *
+ *	関数名 : P_check										 *
+ *  機能 : 到着した人数をカウントする関数					 *
+ *  仮引数 : なし					 						 *
+ * --------------------------------------------------------- */
+int P_check()
+{
+    check = 0;
+    check_1 = 0;
+    check_2 = 0;
+    check_3 = 0;
+    check_4 = 0;
+    for (int i = 0; i < P_ALL_NUM + p_add_count; i++)
+    {
+        if (Pass[i].p_Exist == 0)
+        {
+            check += 1;
+            if (Pass[i].p_X == d[0][0] && Pass[i].p_Y == d[0][1])
+            {
+                check_1 += 1;
+            }
+            if (Pass[i].p_X == d[1][0] && Pass[i].p_Y == d[1][1])
+            {
+                check_2 += 1;
+            }
+            if (Pass[i].p_X == d[2][0] && Pass[i].p_Y == d[2][1])
+            {
+                check_3 += 1;
+            }
+            if (Pass[i].p_X == d[3][0] && Pass[i].p_Y == d[3][1])
+            {
+                check_4 += 1;
+            }
+        }
+    }
+    printf("到着人数 %d\n", check);
+    return check;
 }
 
-/* flooding関数 */
-void flooding(){
-	int i;
-	int flooding_end;
+/* --------------------------------------------------------- *
+ *	関数名 : flooding										 *
+ *  機能 : フラッディングする関数							 *
+ *  仮引数 : なし					 						 *
+ * --------------------------------------------------------- */
+void flooding()
+{
+    int i;
+    int flooding_end;
 
-	while ( TRUE ){	
-		flooding_end	= TRUE;
-		
-		for(i=0;i<N_ALL_NUM;i++){
-			if ( Node[i].stack_num < 1 )
-				continue;
-			
-			if ( transmit(i) > 0 )
-				flooding_end	= FALSE;
-		}
-		if ( flooding_end == TRUE)
-			break;
-	}
+    // 無限ループ
+    while (TRUE)
+    {
+        flooding_end = TRUE;
+
+        // 全てのノードを辿る
+        for (i = 0; i < N_ALL_NUM; i++)
+        {
+            // iNodeが情報を持っていなかったら、continue
+            if (Node[i].stack_num < 1)
+                continue;
+
+            // 1回でも情報を送信したら、フラッディングを終了しない
+            // printf("%d\n",h);
+            if (transmit(i) > 0)
+                flooding_end = FALSE;
+        }
+        if (flooding_end == TRUE)
+            break;
+    }
 }
 
-/* transmit関数 */
-int transmit(int k){
-	int i;
-	double x_a_iNode = Node[k].n_X;
-	double y_a_iNode = Node[k].n_Y;
-	double x_iNode;
-	double y_iNode;
-	
-	int num_transmit = 0;
+/* --------------------------------------------------------- *
+ *	関数名 : transmit										 *
+ *  機能 : 輸送した回数を返す関数							 *
+ *  仮引数 : なし					 						 *
+ * --------------------------------------------------------- */
+int transmit(int k)
+{ // kは送信側のノード番号
 
-	for(i=0;i<N_ALL_NUM;i++){
-		x_iNode	= Node[i].n_X;
-		y_iNode	= Node[i].n_Y;
-		
-		if(search2(i,k,Twait) == 0){
-			if ( (sqrt2( x_a_iNode - x_iNode, y_a_iNode - y_iNode )*Td <= r )){ 
-				for(int l=0; l < Ax; l++){
-					for(int m=0; m < Ay; m++){
-						if(Node[i].Map[l][m].info_time < Node[k].Map[l][m].info_time){
-							Node[i].Map[l][m].info = Node[k].Map[l][m].info;
-							Node[i].Map[l][m].info_time = Node[k].Map[l][m].info_time;
-						}
-					}
-				}
-				if((Node[k].stack_data[0] > Node[i].stack_data[0]) && Node[k].stack_data[0] != 0 && (Node[k].n_X==Node[i].n_X || Node[k].n_Y==Node[i].n_Y)) {
-					stack_sort();
-					int numdata = peek(k);
-					push(i,numdata);
-					push2(i,k,Twait);
-					stack_sort();
-					num_transmit ++;
-					total_transmit += num_transmit;
-				}
-			}
-		}
-		
+    int i;
+    double x_a_iNode = Node[k].n_X; // 送信側Nodeの位置
+    double y_a_iNode = Node[k].n_Y;
+    double x_iNode; // iNodeの位置
+    double y_iNode;
 
-		if((sqrt2( x_a_iNode - x_iNode, y_a_iNode - y_iNode )*Td <= r) && (Node[k].n_X==Node[i].n_X || Node[k].n_Y==Node[i].n_Y)){
-			if(Node[i].p_on == 3 && Node[k].p_on == 3 && Node[i].n_xD == Node[k].n_xD && Node[i].n_yD == Node[k].n_yD){
-				if(i>k){
-					Node[k].p_on = 0;
-					Node[k].p_num = -1;
-					Node[k].n_xD = -2;
-					Node[k].n_yD = -2;
-				}else if(i<k){
-					Node[i].p_on = 0;
-					Node[i].p_num = -1;
-					Node[i].n_xD = -2;
-					Node[i].n_yD = -2;
-				}
-			}
-		}
-	}
-	return	num_transmit;
+    int num_transmit = 0; // 送った回数
+
+    // 全てのノードを辿る
+    for (i = 0; i < N_ALL_NUM; i++)
+    {
+
+        // iNodeの位置
+        x_iNode = Node[i].n_X;
+        y_iNode = Node[i].n_Y;
+
+        /* 直線上通信可能距離による通信 */
+        if (search2(i, k, Twait) == 0)
+        {
+            if ((sqrt2(x_a_iNode - x_iNode, y_a_iNode - y_iNode) * Td <= r))
+            {
+                for (int l = 0; l < Ax; l++)
+                {
+                    for (int m = 0; m < Ay; m++)
+                    {
+                        if (Node[i].Map[l][m].info_time < Node[k].Map[l][m].info_time)
+                        {
+                            Node[i].Map[l][m].info = Node[k].Map[l][m].info;
+                            Node[i].Map[l][m].info_time = Node[k].Map[l][m].info_time;
+                        }
+                    }
+                }
+                if ((Node[k].stack_data[0] > Node[i].stack_data[0]) && Node[k].stack_data[0] != 0 && (Node[k].n_X == Node[i].n_X || Node[k].n_Y == Node[i].n_Y))
+                {
+                    // printf("ノード%d番からノード%d番へ情報が送られました!!\n",k,i);
+                    stack_sort();
+                    int numdata = peek(k);
+                    push(i, numdata);
+                    push2(i, k, Twait);
+                    stack_sort();
+                    // printf("        %d == %d      \n\n",Node[i].stack_data[0],Node[k].stack_data[0]);
+                    num_transmit++;
+                    total_transmit += num_transmit;
+                }
+            }
+        }
+
+        // 分散
+        // if((Node[k].n_X == (double)Node[k].n_insec_X) && (Node[k].n_Y == (double)Node[k].n_insec_Y)){
+        if ((sqrt2(x_a_iNode - x_iNode, y_a_iNode - y_iNode) * Td <= r) && (Node[k].n_X == Node[i].n_X || Node[k].n_Y == Node[i].n_Y))
+        { // rの範囲内
+
+            if (Node[i].p_on == 3 && Node[k].p_on == 3 && Node[i].n_xD == Node[k].n_xD && Node[i].n_yD == Node[k].n_yD)
+            { /// ノードが情報に従う同士で目的地が一致する場合 同じ　分散
+
+                if (i > k)
+                {
+                    Node[k].p_on = 0;
+                    Node[k].p_num = -1;
+                    // printf("(%d,%d)に向かう%dを変更！\n",Node[k].n_xD,Node[k].n_yD,k);
+                    Node[k].n_xD = -2;
+                    Node[k].n_yD = -2;
+                }
+                else if (i < k)
+                {
+                    Node[i].p_on = 0;
+                    Node[i].p_num = -1;
+                    // printf("%d,%dに向かう%dを変更！\n",Node[k].n_xD,Node[k].n_yD,i);
+                    Node[i].n_xD = -2;
+                    Node[i].n_yD = -2;
+                }
+            }
+        }
+    }
+    // 送った回数を返す
+    return num_transmit;
 }
 
-/* detect_trans関数 */
-void detect_trans(){
-	int data =0;
-	for(int i=0 ;i<N_ALL_NUM ;i++){
-		
-		if((double)Node[i].n_insec_X==Node[i].n_X && (double)Node[i].n_insec_Y==Node[i].n_Y){
-			for(int j=0; j<P_ALL_NUM; j++){
-				if(transmit__[i][j] == 0){
-					if(Node[i].n_Y == Pass[j].p_Y && (fabs(Node[i].n_X - Pass[j].p_X)*Td <= r)){		
-						if(Pass[j].p_Exist == 1){
-							Node[i].Map[Pass[j].p_X][Pass[j].p_Y].info = 1;
-							Node[i].Map[Pass[j].p_X][Pass[j].p_Y].info_time = Twait;
-							data = Ax*Ax*Twait + Ax*(Pass[j].p_X) + Pass[j].p_Y;  
-							push(i,data);
-							get_info += 1;
-							transmit__[i][j] = Twait;
-						}
-					}
-					else if(Node[i].n_X == Pass[j].p_X && (fabs(Node[i].n_Y - Pass[j].p_Y)*Td <= r)){
-						if(Pass[j].p_Exist == 1){
-							Node[i].Map[Pass[j].p_X][Pass[j].p_Y].info = 1;
-							Node[i].Map[Pass[j].p_X][Pass[j].p_Y].info_time = Twait;
-							data = Ax*Ax*Twait + Ax*(Pass[j].p_X) + Pass[j].p_Y;
-							push(i,data);
-							get_info += 1;
-							transmit__[i][j] = Twait;
-						}
-					}
-				}
-			}
-		}else{
-			if(ceil(Node[i].n_X) != floor(Node[i].n_X) || Node[i].n_Y == Node[i].n_insec_Y){
-				for(int j=0; j<P_ALL_NUM; j++){
-					if(transmit__[i][j] == 0){
-						if(Node[i].n_Y == Pass[j].p_Y && (fabs(Node[i].n_X - Pass[j].p_X)*Td <= r)){		
-							if(Pass[j].p_Exist == 1){
-								Node[i].Map[Pass[j].p_X][Pass[j].p_Y].info = 1;
-								Node[i].Map[Pass[j].p_X][Pass[j].p_Y].info_time = Twait;
-								data = Ax*Ax*Twait + Ax*(Pass[j].p_X) + Pass[j].p_Y;
-								push(i,data);
-								get_info += 1;
-								transmit__[i][j] = Twait;
-							}
-						}
-					}
-				}
-			}else if(ceil(Node[i].n_Y) != floor(Node[i].n_Y) || Node[i].n_X == Node[i].n_insec_X){
-				for(int j=0; j<P_ALL_NUM; j++){
-					if(transmit__[i][j] == 0){
-						if(Node[i].n_X == Pass[j].p_X && (fabs(Node[i].n_Y - Pass[j].p_Y)*Td <= r)){
-							if(Pass[j].p_Exist == 1){
-								Node[i].Map[Pass[j].p_X][Pass[j].p_Y].info = 1;
-								Node[i].Map[Pass[j].p_X][Pass[j].p_Y].info_time = Twait;
-								data = Ax*Ax*Twait + Ax*(Pass[j].p_X) + Pass[j].p_Y;
-								push(i,data);
-								get_info += 1;
-								transmit__[i][j] = Twait;
-							}
-						}
-					}
-				}
-			}
-		}
-	}
+/* ------------------------------------------------------------------------------------- *
+ *	関数名 : detect_trans																 *
+ *  機能 : ノードのいる交差点に待ち行列があるか判定し, ある場合はノードのスタックにpush	 *
+ *         情報を取得する関数															 *
+ *  仮引数 : なし					 													 *
+ * ------------------------------------------------------------------------------------- */
+void detect_trans()
+{
+
+    int data = 0;
+    for (int i = 0; i < N_ALL_NUM; i++)
+    {
+
+        // ノードが交差点にいるとき---------------------------------------------------------------------------------
+        if ((double)Node[i].n_insec_X == Node[i].n_X && (double)Node[i].n_insec_Y == Node[i].n_Y)
+        {
+
+            for (int j = 0; j < P_ALL_NUM; j++)
+            {
+                if (transmit__[i][j] == 0)
+                {
+                    // y座標が等しく, x座標が通信可能距離内であるとき
+                    if (Node[i].n_Y == Pass[j].p_Y && (fabs(Node[i].n_X - Pass[j].p_X) * Td <= r))
+                    {
+                        if (Pass[j].p_Exist == 1)
+                        {
+                            Node[i].Map[Pass[j].p_X][Pass[j].p_Y].info = 1;
+                            Node[i].Map[Pass[j].p_X][Pass[j].p_Y].info_time = Twait;
+                            data = Ax * Ax * Twait + Ax * (Pass[j].p_X) + Pass[j].p_Y;
+                            push(i, data);
+                            get_info += 1; // 情報を取得したカウント
+                            transmit__[i][j] = Twait;
+                        }
+                    }
+                    // x座標が等しく, y座標が通信可能距離内であるとき
+                    else if (Node[i].n_X == Pass[j].p_X && (fabs(Node[i].n_Y - Pass[j].p_Y) * Td <= r))
+                    {
+                        if (Pass[j].p_Exist == 1)
+                        {
+                            Node[i].Map[Pass[j].p_X][Pass[j].p_Y].info = 1;
+                            Node[i].Map[Pass[j].p_X][Pass[j].p_Y].info_time = Twait;
+                            data = Ax * Ax * Twait + Ax * (Pass[j].p_X) + Pass[j].p_Y;
+                            push(i, data);
+                            get_info += 1; // 情報を取得したカウント
+                            transmit__[i][j] = Twait;
+                        }
+                    }
+                }
+            }
+        }
+        else
+        { // ノードが交差点でなく, 道路上にいるとき
+
+            // x軸方向に移動を行っているとき
+            if (ceil(Node[i].n_X) != floor(Node[i].n_X) || Node[i].n_Y == Node[i].n_insec_Y)
+            {
+                for (int j = 0; j < P_ALL_NUM; j++)
+                {
+                    if (transmit__[i][j] == 0)
+                    {
+
+                        // y座標が等しく, x座標が通信可能距離内であるとき
+                        if (Node[i].n_Y == Pass[j].p_Y && (fabs(Node[i].n_X - Pass[j].p_X) * Td <= r))
+                        {
+                            if (Pass[j].p_Exist == 1)
+                            {
+                                Node[i].Map[Pass[j].p_X][Pass[j].p_Y].info = 1;
+                                Node[i].Map[Pass[j].p_X][Pass[j].p_Y].info_time = Twait;
+                                data = Ax * Ax * Twait + Ax * (Pass[j].p_X) + Pass[j].p_Y;
+                                push(i, data);
+                                get_info += 1; // 情報を取得したカウント
+                                transmit__[i][j] = Twait;
+                            }
+                        }
+                    }
+                }
+
+                // y軸方向に移動を行っているとき
+            }
+            else if (ceil(Node[i].n_Y) != floor(Node[i].n_Y) || Node[i].n_X == Node[i].n_insec_X)
+            {
+                for (int j = 0; j < P_ALL_NUM; j++)
+                {
+                    if (transmit__[i][j] == 0)
+                    {
+
+                        // x座標が等しく, y座標が通信可能距離内であるとき
+                        if (Node[i].n_X == Pass[j].p_X && (fabs(Node[i].n_Y - Pass[j].p_Y) * Td <= r))
+                        {
+                            if (Pass[j].p_Exist == 1)
+                            {
+                                Node[i].Map[Pass[j].p_X][Pass[j].p_Y].info = 1;
+                                Node[i].Map[Pass[j].p_X][Pass[j].p_Y].info_time = Twait;
+                                data = Ax * Ax * Twait + Ax * (Pass[j].p_X) + Pass[j].p_Y;
+                                push(i, data);
+                                get_info += 1; // 情報を取得したカウント
+                                transmit__[i][j] = Twait;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
-/* syokika関数 */
-int syokika(){ 
-	for(int count=0;count<N_ALL_NUM;count++){
-		for(int i=0;i<ssize;i++){
-			Node[count].stack_data[i] = 0;
-			Node[count].stack_nopos[i] = 0;
-		}
-		for(int j=0; j<P_ALL_NUM; j++){
-			transmit__[count][j] = 0;
-		}
-		Node[count].prog_d_surp = 0;
-		Node[count].stack_num = 0;
-		Node[count].stack_num2 = 0;
-		Node[count].all_stack_num = 0;	
-		Node[count].move_flag = 0;
-		for(int i=0; i<Ax; i++){
-			for(int j=0; j<Ay; j++){
-				Node[count].Map[i][j].info = 0;
-				Node[count].Map[i][j].no_D = 0;
-			}
-		}
-	}
-	for(int i=0; i<Ax; i++){
-		for(int j=0; j<Ay; j++){
-			queue_num[i][j]=0;
-			queue_head[i][j]=0;
-			Trans[i][j].wp_Exist=0;
-		}
-	}
-	o = 0;
+/* --------------------------------------------------------- *
+ *	関数名 : syokika										 *
+ *  機能 : ノードの保持データを初期化する					 *
+ *  仮引数 : なし					 						 *
+ * --------------------------------------------------------- */
+int syokika()
+{
+    for (int count = 0; count < N_ALL_NUM; count++)
+    {
+        for (int i = 0; i < ssize; i++)
+        {
+            Node[count].stack_data[i] = 0;
+            Node[count].stack_nopos[i] = 0;
+        }
+        for (int j = 0; j < P_ALL_NUM; j++)
+        {
+            transmit__[count][j] = 0;
+        }
+        Node[count].prog_d_surp = 0;
+        Node[count].stack_num = 0;
+        Node[count].stack_num2 = 0;
+        Node[count].all_stack_num = 0;
+        Node[count].move_flag = 0;
+        for (int i = 0; i < Ax; i++)
+        {
+            for (int j = 0; j < Ay; j++)
+            {
+                Node[count].Map[i][j].info = 0;
+                Node[count].Map[i][j].no_D = 0;
+            }
+        }
+    }
+    for (int i = 0; i < Ax; i++)
+    {
+        for (int j = 0; j < Ay; j++)
+        {
+            queue_num[i][j] = 0;
+            queue_head[i][j] = 0;
+            Trans[i][j].wp_Exist = 0;
+        }
+    }
+    o = 0;
+    return 0;
 }
 
-/* check_ride関数 */
-int check_ride(){ 
-	for(int y=0;y<P_ALL_NUM+p_add_count;y++){
-		if(Pass[y].p_Exist == 1 && Pass[y].p_ride == 1){
-			ridecount++;
-		}else if(Pass[y].p_Exist == 1 && Pass[y].p_ride == 0){
-			waitcount++;
-		}
-	}
+/* --------------------------------------------------------- *
+ *	関数名 : check_ride										 *
+ *  機能 : 乗客の車待ち状況を調べる							 *
+ *  仮引数 : なし					 						 *
+ * --------------------------------------------------------- */
+int check_ride()
+{
+
+    for (int y = 0; y < P_ALL_NUM + p_add_count; y++)
+    {
+        if (Pass[y].p_Exist == 1 && Pass[y].p_ride == 1)
+        {
+            ridecount++;
+        }
+        else if (Pass[y].p_Exist == 1 && Pass[y].p_ride == 0)
+        {
+            waitcount++;
+        }
+    }
+    return 0;
 }

@@ -1,10 +1,11 @@
 add_library(carshare
   SHARED
-    base_func.c
-    Common_func.c
-    move.c
-    my_func.c
-    placement.c
+  base_func.c
+  Common_func.c
+  globals.c
+  move.c
+  my_func.c
+  placement.c
   )
 # greetingライブラリのインクルードディレクトリを教えてあげる
 # PROJECT_SOURCE_DIRはこのプロジェクトのルートディレクトリの絶対パス
