@@ -20,6 +20,7 @@ typedef struct
 	int no_D;	   // すでに目的地とした座標
 	int m_X;
 	int m_Y;
+	//変えたよ
 } SMap;
 
 // ノード
