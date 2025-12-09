@@ -15,8 +15,11 @@
 typedef struct
 {
 	int info;
+	int p_num;
 	int info_time; // マップの最終更新時間
 	int no_D;	   // すでに目的地とした座標
+	int m_X;
+	int m_Y;
 } SMap;
 
 // ノード
