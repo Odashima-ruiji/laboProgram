@@ -37,14 +37,14 @@ void allrideon()
                 Node[l].n_xD = Pass[Node[l].p_num].p_xD;                                          // 乗客の目的地情報をノードの目的地情報に入力(x座標)
                 Node[l].n_yD = Pass[Node[l].p_num].p_yD;                                          // 乗客の目的地情報をノードの目的地情報に入力(y座標)
                 Node[l].d_length = sqrt2(Node[l].n_xD - Node[l].n_X, Node[l].n_yD - Node[l].n_Y); // 目的地との距離を入力
-                if (Trans[(int)Node[l].n_X][(int)Node[l].n_Y].wp_Exist == 1)
-                {
-                    Node[l].Map[(int)Node[l].n_X][(int)Node[l].n_Y].info = 1;
-                }
-                else
-                {
-                    Node[l].Map[(int)Node[l].n_X][(int)Node[l].n_Y].info = 0;
-                }
+                // if (Trans[(int)Node[l].n_X][(int)Node[l].n_Y].wp_Exist == 1)
+                // {
+                //     Node[l].Map[(int)Node[l].n_X][(int)Node[l].n_Y].info = 1;
+                // }
+                // else
+                // {
+                //     Node[l].Map[(int)Node[l].n_X][(int)Node[l].n_Y].info = 0;
+                // }
                 for (int i = 0; i < Ax; i++)
                 {
                     for (int j = 0; j < Ay; j++)
@@ -59,7 +59,7 @@ void allrideon()
 
                 if (Node[l].n_xD == Node[l].n_X && Node[l].n_yD == Node[l].n_Y)
                 { // 情報フローティングで得た情報をもとに乗客を載せた場合
-                    if (transmit__[l][Node[l].p_num] == 0)
+                    if (transmit__[l][Node[l].p_num] != 0)
                     {
                         ride_transmit += 1;
                     }
@@ -76,14 +76,14 @@ void allrideon()
                 Node[l].n_xD = Pass[Node[l].p_num].p_xD;                                          // 乗客の目的地情報をノードの目的地情報に入力(x座標)
                 Node[l].n_yD = Pass[Node[l].p_num].p_yD;                                          // 乗客の目的地情報をノードの目的地情報に入力(y座標)
                 Node[l].d_length = sqrt2(Node[l].n_xD - Node[l].n_X, Node[l].n_yD - Node[l].n_Y); // 目的地との距離を入力
-                if (Trans[(int)Node[l].n_X][(int)Node[l].n_Y].wp_Exist == 1)
-                {
-                    Node[l].Map[(int)Node[l].n_X][(int)Node[l].n_Y].info = 1;
-                }
-                else
-                {
-                    Node[l].Map[(int)Node[l].n_X][(int)Node[l].n_Y].info = 0;
-                }
+                // if (Trans[(int)Node[l].n_X][(int)Node[l].n_Y].wp_Exist == 1)
+                // {
+                //     Node[l].Map[(int)Node[l].n_X][(int)Node[l].n_Y].info = 1;
+                // }
+                // else
+                // {
+                //     Node[l].Map[(int)Node[l].n_X][(int)Node[l].n_Y].info = 0;
+                // }
                 for (int i = 0; i < Ax; i++)
                 {
                     for (int j = 0; j < Ay; j++)
@@ -853,11 +853,25 @@ int transmit(int k)
                 {
                     for (int m = 0; m < Ay; m++)
                     {
-                        if (Node[i].Map[l][m].info_time < Node[k].Map[l][m].info_time)
+                        //if(Node[i].Map[l][m].info == 1 && Node[k].Map[l][m].info == 1)
                         {
-                            Node[i].Map[l][m].info = Node[k].Map[l][m].info;
-                            Node[i].Map[l][m].info_time = Node[k].Map[l][m].info_time;
+                            if (Node[i].Map[l][m].info_time < Node[k].Map[l][m].info_time)
+                            {
+                                Node[i].Map[l][m].info = Node[k].Map[l][m].info;
+                                Node[i].Map[l][m].p_num = Node[k].Map[l][m].p_num;
+                                Node[i].Map[l][m].info_time = Node[k].Map[l][m].info_time;
+                            }
                         }
+                        // else if (Node[i].Map[l][m].info == 0 && Node[k].Map[l][m].info == 1)
+                        // {
+                        //     if ((Node[i].Map[l][m].info_time < Node[k].Map[l][m].info_time))
+                        //     {
+                        //         Node[i].Map[l][m].info = Node[k].Map[l][m].info;
+                        //         Node[i].Map[l][m].info_time = Node[k].Map[l][m].info_time;
+                        //     }
+                        // }
+                        
+                        
                     }
                 }
                 if ((Node[k].stack_data[0] > Node[i].stack_data[0]) && Node[k].stack_data[0] != 0 && (Node[k].n_X == Node[i].n_X || Node[k].n_Y == Node[i].n_Y))
@@ -933,6 +947,7 @@ void detect_trans()
                         if (Pass[j].p_Exist == 1)
                         {
                             Node[i].Map[Pass[j].p_X][Pass[j].p_Y].info = 1;
+                            Node[i].Map[Pass[j].p_X][Pass[j].p_Y].p_num = j;
                             Node[i].Map[Pass[j].p_X][Pass[j].p_Y].info_time = Twait;
                             data = Ax * Ax * Twait + Ax * (Pass[j].p_X) + Pass[j].p_Y;
                             push(i, data);
@@ -946,6 +961,7 @@ void detect_trans()
                         if (Pass[j].p_Exist == 1)
                         {
                             Node[i].Map[Pass[j].p_X][Pass[j].p_Y].info = 1;
+                            Node[i].Map[Pass[j].p_X][Pass[j].p_Y].p_num = j;
                             Node[i].Map[Pass[j].p_X][Pass[j].p_Y].info_time = Twait;
                             data = Ax * Ax * Twait + Ax * (Pass[j].p_X) + Pass[j].p_Y;
                             push(i, data);
@@ -953,6 +969,46 @@ void detect_trans()
                             transmit__[i][j] = Twait;
                         }
                     }
+                }
+            }
+            for(int k=0;k<Ax;k++)
+            {
+                for(int l=0;l<Ay;l++)
+                {
+                    if(Node[i].Map[k][l].info == 1)
+                    {
+                        if (Node[i].n_Y == Node[i].Map[k][l].m_Y && (fabs(Node[i].n_X - Node[i].Map[k][l].m_X) * Td <= r))
+                        {
+                            if(Node[i].n_Y == Pass[Node[i].Map[k][l].p_num].p_Y && (fabs(Node[i].n_X - Pass[Node[i].Map[k][l].p_num].p_X) * Td <= r)){
+
+                            }
+                            else
+                            {
+                                Node[i].Map[k][l].info = 0;
+                                Node[i].Map[k][l].p_num = -2;
+                                Node[i].Map[k][l].info_time = Twait;
+
+                            }
+                        }
+                        else if(Node[i].n_X == Node[i].Map[k][l].m_X && (fabs(Node[i].n_Y - Node[i].Map[k][l].m_Y) * Td <= r))
+                        {
+                            if(Node[i].n_X == Pass[Node[i].Map[k][l].p_num].p_X && (fabs(Node[i].n_Y - Pass[Node[i].Map[k][l].p_num].p_Y) * Td <= r)){
+
+                            }
+                            else
+                            {
+                                Node[i].Map[k][l].info = 0;
+                                Node[i].Map[k][l].p_num = -2;
+                                Node[i].Map[k][l].info_time = Twait;
+
+                            }
+                        }
+                    }
+                    //直前でinfoは1になっているはずだから、infoが0の場合はいらない
+                        // else if(Node[i].Map[k][l].info == 0)
+                        // {
+                        //     Node[i].Map[k][l].no_D = 0;
+                        // }
                 }
             }
         }
@@ -973,6 +1029,7 @@ void detect_trans()
                             if (Pass[j].p_Exist == 1)
                             {
                                 Node[i].Map[Pass[j].p_X][Pass[j].p_Y].info = 1;
+                                Node[i].Map[Pass[j].p_X][Pass[j].p_Y].p_num = j;
                                 Node[i].Map[Pass[j].p_X][Pass[j].p_Y].info_time = Twait;
                                 data = Ax * Ax * Twait + Ax * (Pass[j].p_X) + Pass[j].p_Y;
                                 push(i, data);
@@ -982,9 +1039,9 @@ void detect_trans()
                         }
                     }
                 }
-
-                // y軸方向に移動を行っているとき
             }
+                // y軸方向に移動を行っているとき
+            
             else if (ceil(Node[i].n_Y) != floor(Node[i].n_Y) || Node[i].n_X == Node[i].n_insec_X)
             {
                 for (int j = 0; j < P_ALL_NUM; j++)
@@ -998,6 +1055,7 @@ void detect_trans()
                             if (Pass[j].p_Exist == 1)
                             {
                                 Node[i].Map[Pass[j].p_X][Pass[j].p_Y].info = 1;
+                                Node[i].Map[Pass[j].p_X][Pass[j].p_Y].p_num = j;
                                 Node[i].Map[Pass[j].p_X][Pass[j].p_Y].info_time = Twait;
                                 data = Ax * Ax * Twait + Ax * (Pass[j].p_X) + Pass[j].p_Y;
                                 push(i, data);
@@ -1040,7 +1098,11 @@ int syokika()
             for (int j = 0; j < Ay; j++)
             {
                 Node[count].Map[i][j].info = 0;
+                Node[count].Map[i][j].p_num = -1;
                 Node[count].Map[i][j].no_D = 0;
+                Node[count].Map[i][j].info_time = 0;
+                Node[count].Map[i][j].m_X = i;
+                Node[count].Map[i][j].m_Y = j;
             }
         }
     }
