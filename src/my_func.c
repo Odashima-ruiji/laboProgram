@@ -15,43 +15,124 @@
 
 void Dist_Init_n_D()
 {
-    for (int i = 0; i < N_ALL_NUM; i++)
+    for(int i = 0; i < N_ALL_NUM; i++)
     {
 
         if (Node[i].move_flag == 0)
         {
-            int dif = 0;
-            if (Node[i].n_X < center_x && Node[i].n_Y <= center_y)
-            {
-                Node[i].n_xD = center_x - dif;
-                Node[i].n_yD = center_y - dif;
-                Node[i].p_on = 5;
-                Node[i].d_length = sqrt2(Node[i].n_xD - Node[i].n_X, Node[i].n_yD - Node[i].n_Y);
-            }
-            else if (Node[i].n_X <= center_x && Node[i].n_Y > center_y)
-            {
-                Node[i].n_xD = center_x - dif;
-                Node[i].n_yD = center_y + dif;
-                Node[i].p_on = 5;
-                Node[i].d_length = sqrt2(Node[i].n_xD - Node[i].n_X, Node[i].n_yD - Node[i].n_Y);
-            }
-            else if (Node[i].n_X > center_x && Node[i].n_Y >= center_y)
-            {
-                Node[i].n_xD = center_x + dif;
-                Node[i].n_yD = center_y + dif;
-                Node[i].p_on = 5;
-                Node[i].d_length = sqrt2(Node[i].n_xD - Node[i].n_X, Node[i].n_yD - Node[i].n_Y);
-            }
-            else if (Node[i].n_X >= center_x && Node[i].n_Y < center_y)
-            {
-                Node[i].n_xD = center_x + dif;
-                Node[i].n_yD = center_y - dif;
-                Node[i].p_on = 5;
-                Node[i].d_length = sqrt2(Node[i].n_xD - Node[i].n_X, Node[i].n_yD - Node[i].n_Y);
-            }
-        }
+			//int dif = rand()%10;
+			int dif = 0;
+			if(Node[i].n_X < center_x && Node[i].n_Y <= center_y){
+				Node[i].n_xD = center_x-dif;
+				Node[i].n_yD = center_y-dif;
+				Node[i].p_on = 5;
+				Node[i].d_length = sqrt2(Node[i].n_xD - Node[i].n_X , Node[i].n_yD - Node[i].n_Y );
+			}else if(Node[i].n_X <= center_x && Node[i].n_Y > center_y){
+					//Node[i].move_flag += 1;
+					Node[i].n_xD = center_x - dif;
+					Node[i].n_yD = center_y + dif;
+					Node[i].p_on = 5;
+					Node[i].d_length = sqrt2(Node[i].n_xD - Node[i].n_X , Node[i].n_yD - Node[i].n_Y );
+			}else if(Node[i].n_X > center_x && Node[i].n_Y >= center_y){
+					//Node[i].move_flag += 1;
+					Node[i].n_xD = center_x + dif;
+					Node[i].n_yD = center_y + dif;
+					Node[i].p_on = 5;
+					Node[i].d_length = sqrt2(Node[i].n_xD - Node[i].n_X , Node[i].n_yD - Node[i].n_Y );
+			}else if(Node[i].n_X >= center_x && Node[i].n_Y < center_y){
+					//Node[i].move_flag += 1;
+					Node[i].n_xD = center_x + dif;
+					Node[i].n_yD = center_y - dif;
+					Node[i].p_on = 5;
+					Node[i].d_length = sqrt2(Node[i].n_xD - Node[i].n_X , Node[i].n_yD - Node[i].n_Y );
+			}
+			// int dif = rand()%4;
+			// //int dif = 0;
+			// if(dif == 0 ){
+			// 	dif = 0;
+			// 	if(Node[i].n_X < center_x && Node[i].n_Y <= center_y){
+			// 		Node[i].n_xD = center_x-dif;
+			// 		Node[i].n_yD = center_y-dif;
+			// 		Node[i].p_on = 5;
+			// 		Node[i].d_length = sqrt2(Node[i].n_xD - Node[i].n_X , Node[i].n_yD - Node[i].n_Y );
+			// 	}else if(Node[i].n_X <= center_x && Node[i].n_Y > center_y){
+			// 			//Node[i].move_flag += 1;
+			// 			Node[i].n_xD = center_x - dif;
+			// 			Node[i].n_yD = center_y + dif;
+			// 			Node[i].p_on = 5;
+			// 			Node[i].d_length = sqrt2(Node[i].n_xD - Node[i].n_X , Node[i].n_yD - Node[i].n_Y );
+			// 	}else if(Node[i].n_X > center_x && Node[i].n_Y >= center_y){
+			// 			//Node[i].move_flag += 1;
+			// 			Node[i].n_xD = center_x + dif;
+			// 			Node[i].n_yD = center_y + dif;
+			// 			Node[i].p_on = 5;
+			// 			Node[i].d_length = sqrt2(Node[i].n_xD - Node[i].n_X , Node[i].n_yD - Node[i].n_Y );
+			// 	}else if(Node[i].n_X >= center_x && Node[i].n_Y < center_y){
+			// 			//Node[i].move_flag += 1;
+			// 			Node[i].n_xD = center_x + dif;
+			// 			Node[i].n_yD = center_y - dif;
+			// 			Node[i].p_on = 5;
+			// 			Node[i].d_length = sqrt2(Node[i].n_xD - Node[i].n_X , Node[i].n_yD - Node[i].n_Y );
+			// 	}
+			
+			// }else if(dif == 1 || dif == 2){
+			// 	dif = 5;
+			// 	if(Node[i].n_X < center_x && Node[i].n_Y <= center_y){
+			// 		Node[i].n_xD = center_x-dif;
+			// 		Node[i].n_yD = center_y-dif;
+			// 		Node[i].p_on = 5;
+			// 		Node[i].d_length = sqrt2(Node[i].n_xD - Node[i].n_X , Node[i].n_yD - Node[i].n_Y );
+			// 	}else if(Node[i].n_X <= center_x && Node[i].n_Y > center_y){
+			// 			//Node[i].move_flag += 1;
+			// 			Node[i].n_xD = center_x - dif;
+			// 			Node[i].n_yD = center_y + dif;
+			// 			Node[i].p_on = 5;
+			// 			Node[i].d_length = sqrt2(Node[i].n_xD - Node[i].n_X , Node[i].n_yD - Node[i].n_Y );
+			// 	}else if(Node[i].n_X > center_x && Node[i].n_Y >= center_y){
+			// 			//Node[i].move_flag += 1;
+			// 			Node[i].n_xD = center_x + dif;
+			// 			Node[i].n_yD = center_y + dif;
+			// 			Node[i].p_on = 5;
+			// 			Node[i].d_length = sqrt2(Node[i].n_xD - Node[i].n_X , Node[i].n_yD - Node[i].n_Y );
+			// 	}else if(Node[i].n_X >= center_x && Node[i].n_Y < center_y){
+			// 			//Node[i].move_flag += 1;
+			// 			Node[i].n_xD = center_x + dif;
+			// 			Node[i].n_yD = center_y - dif;
+			// 			Node[i].p_on = 5;
+			// 			Node[i].d_length = sqrt2(Node[i].n_xD - Node[i].n_X , Node[i].n_yD - Node[i].n_Y );
+			// 	}
+			// }else if(dif == 3){
+			// 	dif = 10;
+			// 	if(Node[i].n_X < center_x && Node[i].n_Y <= center_y){
+			// 		Node[i].n_xD = center_x-dif;
+			// 		Node[i].n_yD = center_y-dif;
+			// 		Node[i].p_on = 5;
+			// 		Node[i].d_length = sqrt2(Node[i].n_xD - Node[i].n_X , Node[i].n_yD - Node[i].n_Y );
+			// 	}else if(Node[i].n_X <= center_x && Node[i].n_Y > center_y){
+			// 			//Node[i].move_flag += 1;
+			// 			Node[i].n_xD = center_x - dif;
+			// 			Node[i].n_yD = center_y + dif;
+			// 			Node[i].p_on = 5;
+			// 			Node[i].d_length = sqrt2(Node[i].n_xD - Node[i].n_X , Node[i].n_yD - Node[i].n_Y );
+			// 	}else if(Node[i].n_X > center_x && Node[i].n_Y >= center_y){
+			// 			//Node[i].move_flag += 1;
+			// 			Node[i].n_xD = center_x + dif;
+			// 			Node[i].n_yD = center_y + dif;
+			// 			Node[i].p_on = 5;
+			// 			Node[i].d_length = sqrt2(Node[i].n_xD - Node[i].n_X , Node[i].n_yD - Node[i].n_Y );
+			// 	}else if(Node[i].n_X >= center_x && Node[i].n_Y < center_y){
+			// 			//Node[i].move_flag += 1;
+			// 			Node[i].n_xD = center_x + dif;
+			// 			Node[i].n_yD = center_y - dif;
+			// 			Node[i].p_on = 5;
+			// 			Node[i].d_length = sqrt2(Node[i].n_xD - Node[i].n_X , Node[i].n_yD - Node[i].n_Y );
+			// 	}
+			// }
+		}
     }
 }
+
+
 
 /* ------------------------------------------------------------------------------------ *
  *	関数名 : initial_move										 						*
