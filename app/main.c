@@ -33,7 +33,7 @@ int main()
     // csv出力のための設定----------------------------------------------------------------------------------------------
     // csv出力するための数値
     FILE *fp;
-    char *fname = "test_30.csv";
+    char *fname = "test_100_0.csv";
 
     char *node = "node";
     char *node0 = "node0";
@@ -63,8 +63,9 @@ int main()
     // for(int l =0;l<100;l++){
     /* gnuplotで出力-------------------------------------------------------------------------------------------------- */
     // gnuplotで描画する
+    //シミュレーションgif
     FILE *gp;
-    gp = popen("gnuplot -persist", "w"); // パイプを開きgnuplotを立ち上げ
+    gp = popen("gnuplot", "w"); // パイプを開きgnuplotを立ち上げ（batch モード）
     // パイプを通してgnuplotにコマンドを送る
     fprintf(gp, "set term gif animate delay 2\n"); // 出力ターミナルをgif, animateオプションを付ける
 #ifdef EPIDEMIC
@@ -95,6 +96,36 @@ int main()
     fprintf(gp, "set arrow 4 from %d,%d to %d,%d nohead lc rgb \"black\" lw 2\n", Ax_d, Ay - Ay_d, Ax_d, Ay_d);
 #endif
     fprintf(gp, "set title \"model animation  count:0 time:0\"\n");
+    //Mapgif
+    FILE *gp_map;
+    gp_map = popen("gnuplot", "w");
+    fprintf(gp_map, "set term gif animate delay 2\n");
+    fprintf(gp_map, "set output 'node_map_animation.gif'\n");
+    fprintf(gp_map, "set size square\n");
+    fprintf(gp_map, "set xrange[0:%d]\n", Ax);
+    fprintf(gp_map, "set yrange[0:%d]\n", Ay);
+    fprintf(gp_map, "set xlabel \"x\"\n");
+    fprintf(gp_map, "set ylabel \"y\"\n");
+    fprintf(gp_map, "set cblabel \"Info (0=no passenger, 1=passenger waiting)\"\n");
+    fprintf(gp_map, "set palette defined (0 'blue', 1 'red')\n");
+    fprintf(gp_map, "set cbrange[0:1]\n");
+    fprintf(gp_map, "unset key\n");
+    // 円を表示
+    fprintf(gp_map, "set object 1 circle at %f,%f size %f border rgb 'black' lw 2 fillstyle empty\n", center_x, center_y, area_disaster);
+
+    // 待ち客とノード位置を表示する別のGIF
+    FILE *gp_waiting;
+    gp_waiting = popen("gnuplot", "w");
+    fprintf(gp_waiting, "set term gif animate delay 2\n");
+    fprintf(gp_waiting, "set output 'waiting_passengers_animation.gif'\n");
+    fprintf(gp_waiting, "set size square\n");
+    fprintf(gp_waiting, "set xrange[0:%d]\n", Ax);
+    fprintf(gp_waiting, "set yrange[0:%d]\n", Ay);
+    fprintf(gp_waiting, "set xlabel \"x\"\n");
+    fprintf(gp_waiting, "set ylabel \"y\"\n");
+    fprintf(gp_waiting, "unset key\n");
+    // 円を表示
+    fprintf(gp_waiting, "set object 1 circle at %f,%f size %f border rgb 'black' lw 2 fillstyle empty\n", center_x, center_y, area_disaster);
 
     // --------------------------------------------------------------------------------------------------------------------
     for (int jc = 0; jc < 1; jc++)
@@ -208,6 +239,37 @@ int main()
                 }
             }
             fprintf(gp, "e\n");
+
+            fprintf(gp_map, "set title \"Node[0] Map Info - Time:%d Position:(%.1f,%.1f)\"\n", Twait, Node[0].n_X, Node[0].n_Y);
+            fprintf(gp_map, "plot '-' using 1:2:3 with image, '-' using 1:2 with points pt 7 ps 2 lc rgb 'green' title 'Node[0]'\n");
+            for (int i = 0; i < Ax; i++) {
+                for (int j = 0; j < Ay; j++) {
+                    fprintf(gp_map, "%d %d %d\n", i, j, Node[0].Map[i][j].info);
+                }
+                fprintf(gp_map, "\n"); // 行の区切り
+            }
+            fprintf(gp_map, "e\n");
+            // ノードの位置をプロット
+            fprintf(gp_map, "%f %f\n", Node[50].n_X, Node[50].n_Y);
+            fprintf(gp_map, "e\n");
+
+            // 待ち客とノードの位置を表示（別のGIF）
+            fprintf(gp_waiting, "set title \"Waiting Passengers - Time:%d\"\n", Twait);
+            fprintf(gp_waiting, "plot '-' using 1:2 with points pt 5 ps 1.5 lc rgb 'black' title 'Waiting', '-' using 1:2 with points pt 7 ps 2 lc rgb 'green' title 'Node[50]'\n");
+            // 待ち客の位置をプロット（黒色）
+            for (int i = 0; i < Ax; i++) {
+                for (int j = 0; j < Ay; j++) {
+                    if (Trans[i][j].wp_Exist == 1) {
+                        fprintf(gp_waiting, "%d %d\n", i, j);
+                    }
+                }
+            }
+            fprintf(gp_waiting, "e\n");
+            // ノードの位置をプロット（緑色）
+            fprintf(gp_waiting, "%f %f\n", Node[50].n_X, Node[50].n_Y);
+            fprintf(gp_waiting, "e\n");
+
+            
 
             // fprintf( fp2, "%d,%f,%f,\n", Twait,Node[0].n_X,Node[0].n_Y); //ノードの座標 csvファイル出力
 
@@ -365,7 +427,7 @@ int main()
         // printf("map_points.png が生成されました。\n");
 
         // 待ち客の初期位置分布
-        FILE *gp_1 = popen("gnuplot -persist", "w");
+        FILE *gp_1 = popen("gnuplot", "w");
         if (gp_1 == NULL)
         {
             printf("Gnuplot cannot be opened.\n");
@@ -418,6 +480,10 @@ int main()
 
         n += 1;
     }
+
+    // GIFパイプを閉じる
+    pclose(gp_map);
+    pclose(gp_waiting);
 
     double average = sum / n;
     fprintf(fp, "平均到着時間 %lf\n", average);
