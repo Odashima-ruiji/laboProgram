@@ -20,8 +20,14 @@ typedef struct
 	int no_D;	   // すでに目的地とした座標
 	int m_X;
 	int m_Y;
+	
 	//変えたよ
 } SMap;
+
+typedef struct
+{
+	int W_map;
+} SMap_grid;
 
 // ノード
 typedef struct
@@ -43,6 +49,7 @@ typedef struct
 	int stack_data[ssize];	// ノードが保持する客の待つ交差点情報
 	int stack_nopos[ssize]; // 不必要なデータ保管スタック
 	SMap Map[Ax][Ay];
+	SMap_grid Map_grid[grid_size][grid_size];
 	int stack_num;	   // スタック内のデータ数
 	int stack_num2;	   // スタック内のデータ数2
 	int all_stack_num; // すべての得た情報数
@@ -52,8 +59,14 @@ typedef struct
 	int stack_num3;
 	double d_length;  // 乗客１の宛先地点までの距離　乗客１の目的地がノード自体の目的地となる
 	double d_length2; // 乗客２の乗客２自体の宛先地点までの距離
+	double W_grid[grid_size][grid_size];   // グリッドの重み
+
 
 	int move_pattern; // ランダム移動の際のパターン決定
+	
+	// p_on==0のときの目的地（スコアベース）
+	int target_grid_x; // 目標グリッドのX座標
+	int target_grid_y; // 目標グリッドのY座標
 } SNode;
 
 // 乗客
