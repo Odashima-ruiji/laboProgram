@@ -69,6 +69,7 @@ int count_same = 0;
 int count_off= 0;
 
 /* P_map関数用のグローバル変数 */
-int smoothed_count[20][20];
+int grid_count[grid_size][grid_size];
+int smoothed_count[grid_size][grid_size];
 int cell_width = Ax / 20;
 int cell_height = Ay / 20;

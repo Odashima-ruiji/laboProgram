@@ -1178,7 +1178,6 @@ void P_map(int node_index)
     // グリッドサイズとセルサイズはグローバル変数として定義済み
     
     // グリッドのカウント配列を初期化
-    int grid_count[grid_size][grid_size];
     for (int i = 0; i < grid_size; i++) {
         for (int j = 0; j < grid_size; j++) {
             grid_count[i][j] = 0;

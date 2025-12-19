@@ -33,7 +33,7 @@ int main()
     // csv出力のための設定----------------------------------------------------------------------------------------------
     // csv出力するための数値
     FILE *fp;
-    char *fname = "test_40_60_map.csv";
+    char *fname = "test_80_20_map_grid.csv";
 
     char *node = "node";
     char *node0 = "node0";
@@ -128,7 +128,7 @@ int main()
     fprintf(gp_waiting, "set object 1 circle at %f,%f size %f border rgb 'black' lw 2 fillstyle empty\n", center_x, center_y, area_disaster);
 
     // --------------------------------------------------------------------------------------------------------------------
-    for (int jc = 0; jc < 1; jc++)
+    for (int jc = 0; jc < 5; jc++)
     {
         // 各ループで乱数シードを設定
         srand((int)RANDOM_SEED + jc + 1);

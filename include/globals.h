@@ -73,7 +73,8 @@ extern int count_same;
 extern int count_off;
 
 /* P_map関数用のグローバル変数 */
-extern int smoothed_count[20][20];
+extern int grid_count[grid_size][grid_size];
+extern int smoothed_count[grid_size][grid_size];
 extern int cell_width;
 extern int cell_height;
 

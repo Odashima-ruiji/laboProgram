@@ -55,9 +55,6 @@ static double calculate_direction_score(int node_index, int target_x, int target
     
     // スコア = (W_dens × 混雑度) - (W_dist × 距離)
     score = (W_dens * density)  + (Node[node_index].Map_grid[grid_x][grid_y].W_map) - (W_dist * distance) - (Node[node_index].W_grid[grid_x][grid_y]);
-    if(score > 0){
-                    //count_map += 1;
-    }
     
     return score;
 }
@@ -793,89 +790,164 @@ void move_new_direction()
                         count += 1;
                     }
                 } else {
-  
-                    // 全マップで最もスコアが高いグリッドを目的地として設定
-                    find_best_grid_in_all_map(count);
-                    count_map += 1;
-                    // マップ情報がある場合はスコアベースで移動
-                    // 目的地グリッドに向かって移動する方向を選択
-                    int target_x = Node[count].target_grid_x;
-                    int target_y = Node[count].target_grid_y;
+                    int current_grid_x = (int)(Node[count].n_X / cell_width);
+                    int current_grid_y = (int)(Node[count].n_Y / cell_height);
                     
-                    // target_x, target_yからグリッド位置を計算してW_gridに加算
-                    int grid_x = target_x / cell_width;
-                    int grid_y = target_y / cell_height;
-                    
-                    // 範囲チェックとW_gridへの加算
-                    if (grid_x >= 0 && grid_x < grid_size && grid_y >= 0 && grid_y < grid_size) {
-                        Node[count].W_grid[grid_x][grid_y] += 100.0;
-                    }
-                    
-                    // 現在位置から目的地への方向を計算
-                    int dx = target_x - Node[count].n_insec_X;
-                    int dy = target_y - Node[count].n_insec_Y;
-                    
-                    // まだ目的地に到達していない場合
-                    if (dx != 0 || dy != 0) {
+                    if(grid_count[current_grid_x][current_grid_y] > 0){
+                        // 現在のグリッド内にinfo==1の交差点が存在する場合
+                        // グリッドの境界を計算
+                        int grid_min_x = current_grid_x * cell_width;
+                        int grid_max_x = (current_grid_x + 1) * cell_width - 1;
+                        int grid_min_y = current_grid_y * cell_height;
+                        int grid_max_y = (current_grid_y + 1) * cell_height - 1;
                         
-                        // X方向とY方向のどちらを優先するか決定
-                        if (abs(dx) > abs(dy)) {
-                            // X方向を優先
-                            if (dx > 0) {
-                                // 右に移動
-                                Node[count].n_insec_X += 1;
-                            } else {
-                                // 左に移動
-                                Node[count].n_insec_X -= 1;
-                            }
-                        } else {
-                            // Y方向を優先
-                            if (dy > 0) {
-                                // 下に移動
-                                Node[count].n_insec_Y += 1;
-                            } else {
-                                // 上に移動
-                                Node[count].n_insec_Y -= 1;
+                        // グリッド内で最も近いinfo==1の座標を探す
+                        int nearest_x = -1;
+                        int nearest_y = -1;
+                        double min_distance = 99999999.0;
+                        
+                        for (int i = grid_min_x; i <= grid_max_x && i < Ax; i++) {
+                            for (int j = grid_min_y; j <= grid_max_y && j < Ay; j++) {
+                                if (Node[count].Map[i][j].info == 1) {
+                                    double dist = sqrt2(i - Node[count].n_X, j - Node[count].n_Y);
+                                    if (dist < min_distance) {
+                                        min_distance = dist;
+                                        nearest_x = i;
+                                        nearest_y = j;
+                                    }
+                                }
                             }
                         }
-                    } else {
-                        // 目的地に到達した場合、新しい目的地を探す
-                        re_find_best_grid_in_all_map(count);
-                        count_map += 1;
                         
-                        // 新しい目的地へ移動開始
-                        target_x = Node[count].target_grid_x;
-                        target_y = Node[count].target_grid_y;
+                        if (nearest_x != -1 && nearest_y != -1) {
+                            // 最も近いinfo==1の座標に向かって移動
+                            int dx = nearest_x - Node[count].n_insec_X;
+                            int dy = nearest_y - Node[count].n_insec_Y;
+                            
+                            if (dx != 0 || dy != 0) {
+                                // X方向とY方向のどちらを優先するか決定
+                                if (abs(dx) >= abs(dy)) {
+                                    // X方向を優先
+                                    if (dx > 0) {
+                                        Node[count].n_insec_X += 1;
+                                    } else {
+                                        Node[count].n_insec_X -= 1;
+                                    }
+                                } else {
+                                    // Y方向を優先
+                                    if (dy > 0) {
+                                        Node[count].n_insec_Y += 1;
+                                    } else {
+                                        Node[count].n_insec_Y -= 1;
+                                    }
+                                }
+                            } else {
+                                // 目的地（info==1の座標）に到達した場合
+                                // info=0にして次のinfo==1を探すか、グリッド外へ
+                                Node[count].Map[nearest_x][nearest_y].info = 0;
+                                
+                                // グリッド内にまだinfo==1の座標があるか再チェック
+                                // （次のステップでgrid_countが更新されるので、ここでは移動のみ）
+                                // 一歩だけランダムに移動してグリッド内に留まる
+                                int random_dir = rand() % 4;
+                                if (random_dir == 0 && Node[count].n_insec_X < grid_max_x) {
+                                    Node[count].n_insec_X += 1;
+                                } else if (random_dir == 1 && Node[count].n_insec_Y > grid_min_y) {
+                                    Node[count].n_insec_Y -= 1;
+                                } else if (random_dir == 2 && Node[count].n_insec_X > grid_min_x) {
+                                    Node[count].n_insec_X -= 1;
+                                } else if (random_dir == 3 && Node[count].n_insec_Y < grid_max_y) {
+                                    Node[count].n_insec_Y += 1;
+                                }
+                            }
+                        }
+                    }
+                    else{
+                        // 全マップで最もスコアが高いグリッドを目的地として設定
+                        find_best_grid_in_all_map(count);
+                        count_map += 1;
+                        // マップ情報がある場合はスコアベースで移動
+                        // 目的地グリッドに向かって移動する方向を選択
+                        int target_x = Node[count].target_grid_x;
+                        int target_y = Node[count].target_grid_y;
                         
                         // target_x, target_yからグリッド位置を計算してW_gridに加算
-                        grid_x = target_x / cell_width;
-                        grid_y = target_y / cell_height;
+                        int grid_x = target_x / cell_width;
+                        int grid_y = target_y / cell_height;
                         
                         // 範囲チェックとW_gridへの加算
                         if (grid_x >= 0 && grid_x < grid_size && grid_y >= 0 && grid_y < grid_size) {
                             Node[count].W_grid[grid_x][grid_y] += 100.0;
                         }
                         
-                        dx = target_x - Node[count].n_insec_X;
-                        dy = target_y - Node[count].n_insec_Y;
+                        // 現在位置から目的地への方向を計算
+                        int dx = target_x - Node[count].n_insec_X;
+                        int dy = target_y - Node[count].n_insec_Y;
                         
-                        // X方向とY方向のどちらを優先するか決定
-                        if (abs(dx) > abs(dy)) {
-                            // X方向を優先
-                            if (dx > 0) {
-                                Node[count].n_insec_X += 1;
+                        // まだ目的地に到達していない場合
+                        if (dx != 0 || dy != 0) {
+                            
+                            // X方向とY方向のどちらを優先するか決定
+                            if (abs(dx) > abs(dy)) {
+                                // X方向を優先
+                                if (dx > 0) {
+                                    // 右に移動
+                                    Node[count].n_insec_X += 1;
+                                } else {
+                                    // 左に移動
+                                    Node[count].n_insec_X -= 1;
+                                }
                             } else {
-                                Node[count].n_insec_X -= 1;
+                                // Y方向を優先
+                                if (dy > 0) {
+                                    // 下に移動
+                                    Node[count].n_insec_Y += 1;
+                                } else {
+                                    // 上に移動
+                                    Node[count].n_insec_Y -= 1;
+                                }
                             }
                         } else {
-                            // Y方向を優先
-                            if (dy > 0) {
-                                Node[count].n_insec_Y += 1;
+                            // 目的地に到達した場合、新しい目的地を探す
+                            re_find_best_grid_in_all_map(count);
+                            count_map += 1;
+                            
+                            // 新しい目的地へ移動開始
+                            target_x = Node[count].target_grid_x;
+                            target_y = Node[count].target_grid_y;
+                            
+                            // target_x, target_yからグリッド位置を計算してW_gridに加算
+                            grid_x = target_x / cell_width;
+                            grid_y = target_y / cell_height;
+                            
+                            // 範囲チェックとW_gridへの加算
+                            if (grid_x >= 0 && grid_x < grid_size && grid_y >= 0 && grid_y < grid_size) {
+                                Node[count].W_grid[grid_x][grid_y] += 100.0;
+                            }
+                            
+                            dx = target_x - Node[count].n_insec_X;
+                            dy = target_y - Node[count].n_insec_Y;
+                            
+                            // X方向とY方向のどちらを優先するか決定
+                            if (abs(dx) > abs(dy)) {
+                                // X方向を優先
+                                if (dx > 0) {
+                                    Node[count].n_insec_X += 1;
+                                } else {
+                                    Node[count].n_insec_X -= 1;
+                                }
                             } else {
-                                Node[count].n_insec_Y -= 1;
+                                // Y方向を優先
+                                if (dy > 0) {
+                                    Node[count].n_insec_Y += 1;
+                                } else {
+                                    Node[count].n_insec_Y -= 1;
+                                }
                             }
                         }
                     }
+  
+                    
                     
                     count += 1;
                 }
