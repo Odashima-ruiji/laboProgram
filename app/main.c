@@ -33,7 +33,7 @@ int main()
     // csv出力のための設定----------------------------------------------------------------------------------------------
     // csv出力するための数値
     FILE *fp;
-    char *fname = "test_30.csv";
+    char *fname = "test_40_60_EPI.csv";
 
     char *node = "node";
     char *node0 = "node0";
@@ -97,9 +97,9 @@ int main()
     fprintf(gp, "set title \"model animation  count:0 time:0\"\n");
 
     // --------------------------------------------------------------------------------------------------------------------
-    for (int jc = 0; jc < 1; jc++)
+    for (int jc = 0; jc < 5; jc++)
     {
-        srand((int)RANDOM_SEED + jc);
+        srand((int)RANDOM_SEED + jc + 1);
         Twait = 0;
         allstep = 0;
         count_ifgo = 0;  // 情報に従うノードがデータをもとに目的地を設定した回数
@@ -108,6 +108,7 @@ int main()
         count_ride3 = 0; // 情報フローティングで得た情報をもとに乗客を拾った回数
         ride_transmit = 0;
         count_p_no = 0; // 情報に従うノードが目的地に到着したが乗客がいなかった回数
+        count_p_on_3 = 0;
         ridecount = 0;  // 乗客が乗っていたステップ
         waitcount = 0;  // 乗客が待っていたステップ
         distancemass = 0;
@@ -294,11 +295,16 @@ int main()
         //     sum_all10count[k] += all10count[k*10] - all10count[(k-1)*10];
         //     //printf("%d\n",traffic_counter2[k] - traffic_counter2[k-1]);
         // }
-        for(int i = 0; i < P_ALL_NUM; i++){
-            if(Pass[i].p_wait > 0){
+        
+         for(int i = 0; i < P_ALL_NUM; i++){
+            if (Pass[i].p_wait > 0)
+            {
                 sum_P_Twait += Pass[i].p_wait;
             }
         }
+        fprintf(fp, "乗客一人あたりの平均待ち時間 %f\n", sum_P_Twait / (double)P_ALL_NUM);
+
+
         printf("sum_P_Twait=%f\n",sum_P_Twait);
 
         for (int k = 1; k <= 300; k++)
@@ -318,15 +324,7 @@ int main()
             }
         }
         
-        for(int i = 0; i < P_ALL_NUM; i++){
-            if (Pass[i].p_wait > 0)
-            {
-                sum_P_Twait += Pass[i].p_wait;
-            }
-        }
-        fprintf(fp, "乗客一人あたりの平均待ち時間 %f\n", sum_P_Twait / (double)P_ALL_NUM);
-
-
+       
         // 指定区間内の交通量
         sum_Twait += Twait;
 
