@@ -33,7 +33,7 @@ int main()
     // csv出力のための設定----------------------------------------------------------------------------------------------
     // csv出力するための数値
     FILE *fp;
-    char *fname = "test_100_0.csv";
+    char *fname = "test_40_60_map.csv";
 
     char *node = "node";
     char *node0 = "node0";
@@ -56,8 +56,8 @@ int main()
 
     // 乱数の種を与える
     // srand( ( unsigned int )time( NULL ) );
-    srand((int)RANDOM_SEED + n);
-    // srand(2);
+    //srand((int)RANDOM_SEED + n);
+    //srand(2);
     syokika();
 
     // for(int l =0;l<100;l++){
@@ -130,6 +130,9 @@ int main()
     // --------------------------------------------------------------------------------------------------------------------
     for (int jc = 0; jc < 1; jc++)
     {
+        // 各ループで乱数シードを設定
+        srand((int)RANDOM_SEED + jc + 1);
+        
         Twait = 0;
         allstep = 0;
         count_ifgo = 0;  // 情報に従うノードがデータをもとに目的地を設定した回数
@@ -138,9 +141,11 @@ int main()
         count_ride3 = 0; // 情報フローティングで得た情報をもとに乗客を拾った回数
         ride_transmit = 0;
         count_p_no = 0; // 情報に従うノードが目的地に到着したが乗客がいなかった回数
+        count_p_on_3 = 0;
         ridecount = 0;  // 乗客が乗っていたステップ
         waitcount = 0;  // 乗客が待っていたステップ
         distancemass = 0;
+        sum_P_Twait = 0;
         for (int i = 0; i < 10000; i++)
         {
             all_count[i] = P_ALL_NUM;
@@ -157,6 +162,7 @@ int main()
         Dist_Init_p(); // 乗客の初期配置
         Dist_Init_n(); // ノードの初期配置
         Dist_Init_n_D();
+        Init_W_map(); // ノードのW_map初期化
 
         fprintf(gp, "plot '-' with points pointtype 5\n");
         for (int i = 0; i < N_ALL_NUM; i++)
@@ -240,8 +246,9 @@ int main()
             }
             fprintf(gp, "e\n");
 
+            //車両と乗客の情報マップ表示GIF
             fprintf(gp_map, "set title \"Node[0] Map Info - Time:%d Position:(%.1f,%.1f)\"\n", Twait, Node[0].n_X, Node[0].n_Y);
-            fprintf(gp_map, "plot '-' using 1:2:3 with image, '-' using 1:2 with points pt 7 ps 2 lc rgb 'green' title 'Node[0]'\n");
+            fprintf(gp_map, "plot '-' using 1:2:3 with image, '-' using 1:2:($3) with points pt 7 ps 2 lc rgb variable\n");
             for (int i = 0; i < Ax; i++) {
                 for (int j = 0; j < Ay; j++) {
                     fprintf(gp_map, "%d %d %d\n", i, j, Node[0].Map[i][j].info);
@@ -249,8 +256,27 @@ int main()
                 fprintf(gp_map, "\n"); // 行の区切り
             }
             fprintf(gp_map, "e\n");
-            // ノードの位置をプロット
-            fprintf(gp_map, "%f %f\n", Node[50].n_X, Node[50].n_Y);
+            // Node[0]の位置のみをプロット（p_onに応じて色分け）
+            if (Node[0].p_on == 0) {
+                // 無人探索時：黒
+                fprintf(gp_map, "%f %f 0x000000\n", Node[0].n_X, Node[0].n_Y);
+            }
+            else if (Node[0].p_on == 1) {
+                // 乗客を乗せて目的地へ向かっているとき：赤
+                fprintf(gp_map, "%f %f 0xFF0000\n", Node[0].n_X, Node[0].n_Y);
+            }
+            else if (Node[0].p_on == 2) {
+                // 乗客を２人乗せているとき：水色
+                fprintf(gp_map, "%f %f 0x43A1FF\n", Node[0].n_X, Node[0].n_Y);
+            }
+            else if (Node[0].p_on == 3) {
+                // 情報を得て待ち客がいる目的地へ移動しているとき：黄緑
+                fprintf(gp_map, "%f %f 0x3BCE00\n", Node[0].n_X, Node[0].n_Y);
+            }
+            else if (Node[0].p_on == 5) {
+                // p_on==5のとき：水色
+                fprintf(gp_map, "%f %f 0x43A1FF\n", Node[0].n_X, Node[0].n_Y);
+            }
             fprintf(gp_map, "e\n");
 
             // 待ち客とノードの位置を表示（別のGIF）
@@ -347,13 +373,21 @@ int main()
         // n, get_info, total_transmit, Twait
         fprintf(fp, "実行回数 %d, get_info %d, total_transmit %d, Twait %d, 1 x=%d y=%d, 2 x=%d y=%d, 3 x=%d y=%d, 4 x=%d y=%d\n", jc, get_info, total_transmit, Twait, d[0][0], d[0][1], d[1][0], d[1][1], d[2][0], d[2][1], d[3][0], d[3][1]);
         // fprintf(fp,"\n");
-        fprintf(fp, "一人目を乗せた数 %d, 二人目を乗せた数 %d, 情報フローティングによる乗車数 %d, 通信による乗車数 %d, p_on == 3になる回数 %d\n", count_ride1, count_ride2, count_ride3, ride_transmit, count_p_on_3);
+        fprintf(fp, "一人目を乗せた数 %d, 二人目を乗せた数 %d, 情報フローティングによる乗車数 %d, 通信による乗車数 %d, p_on == 3になる回数 %d, マップによる移動 %d\n", count_ride1, count_ride2, count_ride3, ride_transmit, count_p_on_3, count_map);
         fprintf(fp, "%d\n", count_same);
 
         // for(int k = 1 ; k <= Twait/10 ; k++){
         //     sum_all10count[k] += all10count[k*10] - all10count[(k-1)*10];
         //     //printf("%d\n",traffic_counter2[k] - traffic_counter2[k-1]);
         // }
+
+        for(int i = 0; i < P_ALL_NUM; i++){
+            if (Pass[i].p_wait > 0)
+            {
+                sum_P_Twait += Pass[i].p_wait;
+            }
+        }
+        fprintf(fp, "乗客一人あたりの平均待ち時間 %f\n", sum_P_Twait / (double)P_ALL_NUM);
 
         for (int k = 1; k <= 300; k++)
         {
@@ -377,7 +411,7 @@ int main()
         }
 
         // 指定区間内の交通量
-        sum += Twait;
+        sum_Twait += Twait;
 
         // printf("%d,%d\n",Node[1].stack_num,Node[1].stack_num2);
 
@@ -485,7 +519,7 @@ int main()
     pclose(gp_map);
     pclose(gp_waiting);
 
-    double average = sum / n;
+    double average = sum_Twait / n;
     fprintf(fp, "平均到着時間 %lf\n", average);
 
     // for(int k = 1; k<=250; k++){
