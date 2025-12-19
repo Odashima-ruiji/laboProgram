@@ -56,7 +56,8 @@ double speed_counter = 0;
 double v_f = 40;
 double d_j = 0.12;
 double free_variable;
-double sum = 0;
+double sum_Twait = 0;
+double sum_P_Twait = 0;
 int d[4][2] = {{10, 10}, {10, 50}, {50, 50}, {50, 10}};
 
 double area_disaster = (Ax - 2*Ax_d)/2; //避難区域

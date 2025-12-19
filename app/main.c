@@ -56,7 +56,7 @@ int main()
 
     // 乱数の種を与える
     // srand( ( unsigned int )time( NULL ) );
-    srand((int)RANDOM_SEED + n);
+    // srand((int)RANDOM_SEED + n);
     // srand(2);
     syokika();
 
@@ -99,6 +99,7 @@ int main()
     // --------------------------------------------------------------------------------------------------------------------
     for (int jc = 0; jc < 1; jc++)
     {
+        srand((int)RANDOM_SEED + jc);
         Twait = 0;
         allstep = 0;
         count_ifgo = 0;  // 情報に従うノードがデータをもとに目的地を設定した回数
@@ -110,6 +111,7 @@ int main()
         ridecount = 0;  // 乗客が乗っていたステップ
         waitcount = 0;  // 乗客が待っていたステップ
         distancemass = 0;
+        sum_P_Twait = 0;
         for (int i = 0; i < 10000; i++)
         {
             all_count[i] = P_ALL_NUM;
@@ -236,7 +238,7 @@ int main()
             // ノード対利用客の情報交換記録を一定時間ごとに初期化
             for (int i = 0; i < N_ALL_NUM; i++)
             {
-                for (int j; j < P_ALL_NUM; j++)
+                for (int j = 0; j < P_ALL_NUM; j++)
                 {
                     if (Twait - transmit__[i][j] > reftime)
                     {
@@ -292,6 +294,12 @@ int main()
         //     sum_all10count[k] += all10count[k*10] - all10count[(k-1)*10];
         //     //printf("%d\n",traffic_counter2[k] - traffic_counter2[k-1]);
         // }
+        for(int i = 0; i < P_ALL_NUM; i++){
+            if(Pass[i].p_wait > 0){
+                sum_P_Twait += Pass[i].p_wait;
+            }
+        }
+        printf("sum_P_Twait=%f\n",sum_P_Twait);
 
         for (int k = 1; k <= 300; k++)
         {
@@ -309,13 +317,18 @@ int main()
                 }
             }
         }
-        for (int i = 0; i < 15; i++)
-        {
-            fprintf(fp, "中心からの距離 %d-%d ,%f\n", i, i + 1, range[i] / range_count[i]);
+        
+        for(int i = 0; i < P_ALL_NUM; i++){
+            if (Pass[i].p_wait > 0)
+            {
+                sum_P_Twait += Pass[i].p_wait;
+            }
         }
+        fprintf(fp, "乗客一人あたりの平均待ち時間 %f\n", sum_P_Twait / (double)P_ALL_NUM);
+
 
         // 指定区間内の交通量
-        sum += Twait;
+        sum_Twait += Twait;
 
         // printf("%d,%d\n",Node[1].stack_num,Node[1].stack_num2);
 
@@ -419,7 +432,7 @@ int main()
         n += 1;
     }
 
-    double average = sum / n;
+    double average = sum_Twait / n;
     fprintf(fp, "平均到着時間 %lf\n", average);
 
     // for(int k = 1; k<=250; k++){
