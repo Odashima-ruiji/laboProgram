@@ -47,6 +47,7 @@ int count_ride3 = 0;
 int ride_transmit = 0;
 int count_p_no = 0;
 int count_p_on_3 = 0;
+int count_map = 0;
 int ridecount = 0;
 int waitcount = 0;
 int distancemass = 0;
@@ -56,7 +57,8 @@ double speed_counter = 0;
 double v_f = 40;
 double d_j = 0.12;
 double free_variable;
-double sum = 0;
+double sum_Twait = 0;
+double sum_P_Twait = 0;
 int d[4][2] = {{10, 10}, {10, 50}, {50, 50}, {50, 10}};
 
 double area_disaster = (Ax - 2*Ax_d)/2; //避難区域
@@ -65,3 +67,8 @@ double center_x  = Ax/2;
 double center_y  = Ay/2;
 int count_same = 0;
 int count_off= 0;
+
+/* P_map関数用のグローバル変数 */
+int smoothed_count[20][20];
+int cell_width = Ax / 20;
+int cell_height = Ay / 20;

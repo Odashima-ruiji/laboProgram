@@ -19,6 +19,222 @@ static double d_now_length;
 static double d_now_length2;
 static double n_error; // 座標エラー判定用
 
+/* スコア計算用の重みパラメータ */
+static double W_dens = 2.0;  // 混雑度の重み
+static double W_dist = 5.0;  // 距離の重み（大きくして距離を重視）
+
+/* -------------------------------------------------------------------------------------------- *
+ *	関数名 : calculate_direction_score														    *
+ *  機能 : 指定された方向への移動スコアを計算する												*
+ *  仮引数 : node_index - ノードの番号															*
+ *          target_x - 移動先のX座標															    *
+ *          target_y - 移動先のY座標															    *
+ *  戻り値 : スコア値（高いほど優先度が高い）													*
+ * -------------------------------------------------------------------------------------------- */
+static double calculate_direction_score(int node_index, int target_x, int target_y)
+{
+    double score = 0.0;
+    
+    // グリッドサイズとセルサイズはグローバル変数として定義済み
+    
+    // 目的地座標がどのグリッドセルに属するか計算
+    int grid_x = target_x / cell_width;
+    int grid_y = target_y / cell_height;
+    
+    // 範囲外チェック
+    if (grid_x < 0) grid_x = 0;
+    if (grid_x >= grid_size) grid_x = grid_size - 1;
+    if (grid_y < 0) grid_y = 0;
+    if (grid_y >= grid_size) grid_y = grid_size - 1;
+    
+    // その場所の混雑度を取得
+    double density = (double)smoothed_count[grid_x][grid_y];
+    
+    // Node[node_index]からの距離を計算
+    double distance = sqrt2(target_x - Node[node_index].n_X, target_y - Node[node_index].n_Y);
+    
+    // スコア = (W_dens × 混雑度) - (W_dist × 距離)
+    score = (W_dens * density)  + (Node[node_index].Map_grid[grid_x][grid_y].W_map) - (W_dist * distance) - (Node[node_index].W_grid[grid_x][grid_y]);
+    if(score > 0){
+                    //count_map += 1;
+    }
+    
+    return score;
+}
+
+/* -------------------------------------------------------------------------------------------- *
+ *	関数名 : select_best_direction_by_score													    *
+ *  機能 : スコアに基づいて最適な移動方向を選択する											*
+ *  仮引数 : node_index - ノードの番号															*
+ *  戻り値 : 0=右, 1=上, 2=左, 3=下（移動不可の場合は-1）										*
+ * -------------------------------------------------------------------------------------------- */
+static int select_best_direction_by_score(int node_index)
+{
+    double scores[4] = {-999999.0, -999999.0, -999999.0, -999999.0}; // 右、上、左、下
+    int valid[4] = {0, 0, 0, 0}; // 移動可能かどうか
+    
+    int current_x = Node[node_index].n_insec_X;
+    int current_y = Node[node_index].n_insec_Y;
+    
+    // 右方向（X+1）のスコア計算
+    int target_x = current_x + 1;
+    int target_y = current_y;
+#ifdef circle
+    if (sqrt2(target_x - center_x, target_y - center_y) <= area_disaster)
+#else
+    if (target_x <= Ax - Ax_d - 1)
+#endif
+    {
+        scores[0] = calculate_direction_score(node_index, target_x, target_y);
+        valid[0] = 1;
+    }
+    
+    // 上方向（Y-1）のスコア計算
+    target_x = current_x;
+    target_y = current_y - 1;
+#ifdef circle
+    if (sqrt2(target_x - center_x, target_y - center_y) <= area_disaster)
+#else
+    if (target_y >= Ay_d)
+#endif
+    {
+        scores[1] = calculate_direction_score(node_index, target_x, target_y);
+        valid[1] = 1;
+    }
+    
+    // 左方向（X-1）のスコア計算
+    target_x = current_x - 1;
+    target_y = current_y;
+#ifdef circle
+    if (sqrt2(target_x - center_x, target_y - center_y) <= area_disaster)
+#else
+    if (target_x >= Ax_d)
+#endif
+    {
+        scores[2] = calculate_direction_score(node_index, target_x, target_y);
+        valid[2] = 1;
+    }
+    
+    // 下方向（Y+1）のスコア計算
+    target_x = current_x;
+    target_y = current_y + 1;
+#ifdef circle
+    if (sqrt2(target_x - center_x, target_y - center_y) <= area_disaster)
+#else
+    if (target_y <= Ay - Ay_d - 1)
+#endif
+    {
+        scores[3] = calculate_direction_score(node_index, target_x, target_y);
+        valid[3] = 1;
+    }
+    
+    // 最もスコアの高い方向を選択
+    int best_direction = -1;
+    double best_score = -999999.0;
+    
+    for (int i = 0; i < 4; i++) {
+        if (valid[i] && scores[i] > best_score) {
+            best_score = scores[i];
+            best_direction = i;
+        }
+    }
+    
+    // デバッグ出力（オプション）
+    // printf("Node[%d] スコア - 右:%.2f 上:%.2f 左:%.2f 下:%.2f -> 選択:%d\n", 
+    //        node_index, scores[0], scores[1], scores[2], scores[3], best_direction);
+    
+    return best_direction;
+}
+
+/* -------------------------------------------------------------------------------------------- *
+ *	関数名 : find_best_grid_in_all_map																		    *
+ *  機能 : 全マップで最もスコアが高いグリッドを見つける												*
+ *  仮引数 : node_index - ノードの番号																*
+ *  戻り値 : なし（Node[node_index].target_grid_x/yに結果を格納）								*
+ * -------------------------------------------------------------------------------------------- */
+static void find_best_grid_in_all_map(int node_index)
+{
+    double best_score = -99999999.0;
+    int best_grid_x = -1;
+    int best_grid_y = -1;
+    
+    // 全グリッドをスキャンしてスコアを計算
+    for (int i = 0; i < grid_size; i++) {
+        for (int j = 0; j < grid_size; j++) {
+            // グリッドの中心座標を計算
+            int center_x_local = (i * cell_width) + (1);
+            int center_y_local = (j * cell_height) + (1);
+            
+            // このグリッドのスコアを計算
+            double score = calculate_direction_score(node_index, center_x_local, center_y_local);
+            
+            // 最高スコアを更新
+            if (score > best_score) {
+                best_score = score;
+                best_grid_x = center_x_local;
+                best_grid_y = center_y_local;
+            }
+        }
+    }
+    
+    
+    // 結果をノード構造体に格納
+    Node[node_index].target_grid_x = best_grid_x;
+    Node[node_index].target_grid_y = best_grid_y;
+    
+    
+    // デバッグ出力（オプション）
+    // printf("Node[%d] 最高スコアグリッド: (%d, %d) スコア: %.2f\n", 
+    //        node_index, best_grid_x, best_grid_y, best_score);
+}
+
+/* -------------------------------------------------------------------------------------------- *
+ *	関数名 : re_find_best_grid_in_all_map																		    *
+ *  機能 : 全マップで最もスコアが高いグリッドを見つける												*
+ *  仮引数 : node_index - ノードの番号																*
+ *  戻り値 : なし（Node[node_index].target_grid_x/yに結果を格納）								*
+ * -------------------------------------------------------------------------------------------- */
+static void re_find_best_grid_in_all_map(int node_index)
+{
+    double best_score = -99999999.0;
+    int best_grid_x = -1;
+    int best_grid_y = -1;
+    
+    int now_grid_x = Node[node_index].n_X / cell_width;
+    int now_grid_y = Node[node_index].n_Y / cell_height;
+    // 全グリッドをスキャンしてスコアを計算
+    for (int i = 0; i < grid_size; i++) {
+        for (int j = 0; j < grid_size; j++) {
+            // グリッドの中心座標を計算
+            int center_x_local = (i * cell_width) + (1);
+            int center_y_local = (j * cell_height) + (1);
+            
+            // このグリッドのスコアを計算
+            double score = calculate_direction_score(node_index, center_x_local, center_y_local);
+            if(now_grid_x == i && now_grid_y == j){
+                score -= 10000.0; // 今いるグリッドは避ける
+            }
+            
+            // 最高スコアを更新
+            if (score > best_score) {
+                best_score = score;
+                best_grid_x = center_x_local;
+                best_grid_y = center_y_local;
+            }
+        }
+    }
+    
+    
+    // 結果をノード構造体に格納
+    Node[node_index].target_grid_x = best_grid_x;
+    Node[node_index].target_grid_y = best_grid_y;
+    
+    
+    // デバッグ出力（オプション）
+    // printf("Node[%d] 最高スコアグリッド: (%d, %d) スコア: %.2f\n", 
+    //        node_index, best_grid_x, best_grid_y, best_score);
+}
+
 /* -------------------------------------------------------------------------------------------- *
  *	関数名 : Move																				*
  *  機能 : ノードを動かす関数																	*
@@ -30,21 +246,23 @@ void Move()
 
     // すべてのノードの座標を更新
     move_update_coord();
-    D_check(); // 乗客の目的地判定
+    
 
     // 利用要求を受ける
     // #ifdef EPIDEMIC
     detect_trans();
     // #endif
-
+#ifdef EPIDEMIC
+    flooding();
+#endif
+    D_check(); // 乗客の目的地判定
     allrideon(); // 乗客を乗せる
 
     // 交差点にいるとき, 次に向かう交差点を指定
     move_new_direction();
 // ノードが交差点上にいる状態でフラッディング
-#ifdef EPIDEMIC
-    flooding();
-#endif
+
+
     // 余剰進行距離を座標に加算
     move_update_coord_surplus();
     // 利用要求を受ける
@@ -334,344 +552,331 @@ void move_new_direction()
             int direction2 = rand() % 2; // 0~1までの2つの整数をランダムに発生
 
             if (Node[count].p_on == 0)
-            { // ノードが乗客を乗せておらず、目的地設定がない場合　ランダム移動
+            { // ノードが乗客を乗せておらず、目的地設定がない場合　スコアベースで移動
 
-#ifdef circle
-                if (sqrt2(Node[count].n_X - center_x, Node[count].n_Y - center_y) <= area_disaster)
-                {
-#else
-                if (Node[count].n_X >= Ax_d && Node[count].n_X <= Ax - Ax_d && Node[count].n_Y >= Ay_d && Node[count].n_Y <= Ay - Ay_d)
-                {
-#endif
-                    if (Node[count].move_pattern == 0)
-                    { // パターン0  右0上1
-
-                        if (direction2 == 0)
-                        { // 右
-
-                            Node[count].n_insec_X += 1;
-                            Node[count].d_length = sqrt2(center_x - Node[count].n_insec_X, center_y - Node[count].n_insec_Y);
-
-#ifdef circle
-                            if (sqrt2(Node[count].n_insec_X - center_x, Node[count].n_Y - center_y) > area_disaster)
-#else
-                            if (Node[count].n_insec_X > Ax - Ax_d - 1)
-#endif
-                            {
-                                Node[count].n_insec_X += -1; // 元に戻す
-                                direction2 = rand() % 2;
-                                if (direction2 == 0)
-                                {
-                                    Node[count].move_pattern = 2;
-                                }
-                                else
-                                {
-                                    Node[count].move_pattern = 3;
-                                }
-                                continue;
-                            }
-                        }
-                        else if (direction2 == 1)
-                        { // 上
-
-                            Node[count].n_insec_Y += -1;
-                            Node[count].d_length = sqrt2(center_x - Node[count].n_insec_X, center_y - Node[count].n_insec_Y);
-
-#ifdef circle
-                            if (sqrt2(Node[count].n_X - center_x, Node[count].n_insec_Y - center_y) > area_disaster)
-#else
-                            if (Node[count].n_insec_Y < Ay_d)
-#endif
-                            {
-
-                                Node[count].n_insec_Y += 1; // 元に戻す
-                                direction2 = rand() % 2;
-                                if (direction2 == 0)
-                                {
-                                    Node[count].move_pattern = 1;
-                                }
-                                else
-                                {
-                                    Node[count].move_pattern = 3;
-                                }
-                                continue;
-                            }
+                // ラベルを定義して、目的地到達時にここに戻る
+                retry_find_destination:
+                P_map(count);
+                // 全マップで最もスコアが高いグリッドを目的地として設定
+                //find_best_grid_in_all_map(count);
+                
+                // 全グリッドのsmoothed_countが0かチェック（マップ情報がない場合）
+                int all_density_zero = 1; // すべて0と仮定
+                for (int i = 0; i < grid_size; i++) {
+                    for (int j = 0; j < grid_size; j++) {
+                        if (smoothed_count[i][j] > 0) {
+                            all_density_zero = 0; // 1つでも0より大きければフラグを下ろす
+                            break;
                         }
                     }
-                    else if (Node[count].move_pattern == 1)
-                    { // パターン1  右0下1
-
-                        if (direction2 == 1)
-                        { // 右
-
-                            Node[count].n_insec_X += 1;
-                            Node[count].d_length = sqrt2(center_x - Node[count].n_insec_X, center_y - Node[count].n_insec_Y);
-
-#ifdef circle
-                            if (sqrt2(Node[count].n_insec_X - center_x, Node[count].n_Y - center_y) > area_disaster)
-#else
-                            if (Node[count].n_insec_X > Ax - Ax_d - 1)
-#endif
-                            {
-
-                                Node[count].n_insec_X += -1; // 元に戻す
-                                direction2 = rand() % 2;
-                                if (direction2 == 0)
-                                {
-                                    Node[count].move_pattern = 2;
-                                }
-                                else
-                                {
-                                    Node[count].move_pattern = 3;
-                                }
-                                continue;
-                            }
-                        }
-                        else if (direction2 == 1)
-                        { // 下
-
-                            Node[count].n_insec_Y += 1;
-                            Node[count].d_length = sqrt2(center_x - Node[count].n_insec_X, center_y - Node[count].n_insec_Y);
-
-#ifdef circle
-                            if (sqrt2(Node[count].n_X - center_x, Node[count].n_insec_Y - center_y) > area_disaster)
-#else
-                            if (Node[count].n_insec_Y > Ay - Ay_d - 1)
-#endif
-                            {
-
-                                Node[count].n_insec_Y += -1; // 元に戻す
-                                direction2 = rand() % 2;
-                                if (direction2 == 0)
-                                {
-                                    Node[count].move_pattern = 0;
-                                }
-                                else
-                                {
-                                    Node[count].move_pattern = 2;
-                                }
-                                continue;
-                            }
-                        }
-                    }
-                    else if (Node[count].move_pattern == 2)
-                    { // パターン2  左0上1
-
-                        if (direction2 == 0)
-                        { // 左
-
-                            Node[count].n_insec_X += -1;
-                            Node[count].d_length = sqrt2(center_x - Node[count].n_insec_X, center_y - Node[count].n_insec_Y);
-
-#ifdef circle
-                            if (sqrt2(Node[count].n_insec_X - center_x, Node[count].n_Y - center_y) > area_disaster)
-#else
-                            if (Node[count].n_insec_X < Ax_d)
-#endif
-                            {
-
-                                Node[count].n_insec_X += 1; // 元に戻す
-                                direction2 = rand() % 2;
-                                if (direction2 == 0)
-                                {
-                                    Node[count].move_pattern = 0;
-                                }
-                                else
-                                {
-                                    Node[count].move_pattern = 1;
-                                }
-                                continue;
-                            }
-                        }
-                        else if (direction2 == 1)
-                        { // 上
-
-                            Node[count].n_insec_Y += -1;
-                            Node[count].d_length = sqrt2(center_x - Node[count].n_insec_X, center_y - Node[count].n_insec_Y);
-
-#ifdef circle
-                            if (sqrt2(Node[count].n_X - center_x, Node[count].n_insec_Y - center_y) > area_disaster)
-#else
-                            if (Node[count].n_insec_Y < Ay_d)
-#endif
-                            {
-
-                                Node[count].n_insec_Y += 1; // 元に戻す
-                                direction2 = rand() % 2;
-                                if (direction2 == 0)
-                                {
-                                    Node[count].move_pattern = 1;
-                                }
-                                else
-                                {
-                                    Node[count].move_pattern = 3;
-                                }
-                                continue;
-                            }
-                        }
-                    }
-                    else if (Node[count].move_pattern == 3)
-                    { // パターン3  左0下1
-
-                        if (direction2 == 0)
-                        { // 左
-
-                            Node[count].n_insec_X += -1;
-                            Node[count].d_length = sqrt2(center_x - Node[count].n_insec_X, center_y - Node[count].n_insec_Y);
-
-#ifdef circle
-                            if (sqrt2(Node[count].n_insec_X - center_x, Node[count].n_Y - center_y) > area_disaster)
-#else
-                            if (Node[count].n_insec_X < Ax_d)
-#endif
-                            {
-
-                                Node[count].n_insec_X += 1; // 元に戻す
-                                direction2 = rand() % 2;
-                                if (direction2 == 0)
-                                {
-                                    Node[count].move_pattern = 0;
-                                }
-                                else
-                                {
-                                    Node[count].move_pattern = 1;
-                                }
-                                continue;
-                            }
-                        }
-                        else if (direction2 == 1)
-                        { // 下
-
-                            Node[count].n_insec_Y += 1;
-                            Node[count].d_length = sqrt2(center_x - Node[count].n_insec_X, center_y - Node[count].n_insec_Y);
-
-#ifdef circle
-                            if (sqrt2(Node[count].n_X - center_x, Node[count].n_insec_Y - center_y) > area_disaster)
-#else
-                            if (Node[count].n_insec_Y > Ay - Ay_d - 1)
-#endif
-                            {
-
-                                Node[count].n_insec_Y += -1; // 元に戻す
-                                direction2 = rand() % 2;
-                                if (direction2 == 0)
-                                {
-                                    Node[count].move_pattern = 0;
-                                }
-                                else
-                                {
-                                    Node[count].move_pattern = 2;
-                                }
-                                continue;
-                            }
-                        }
-                    }
-
-                    count += 1; // 調べるノード番号を増加
+                    if (all_density_zero == 0) break; // 内側のループで見つかったら外側も抜ける
                 }
-                else
-                { // 中心へ向かって移動
-                    Node[count].d_length = sqrt2(center_x - Node[count].n_X, center_y - Node[count].n_Y);
-                    d_now_length = Node[count].d_length;
-                    if (direction == 0 && d_now_length != 0)
-                    {
-
-                        Node[count].n_insec_Y += -1;
-                        Node[count].d_length = sqrt2(center_x - Node[count].n_insec_X, center_y - Node[count].n_insec_Y);
-
-                        if (Node[count].d_length - d_now_length > 0.0)
-                        {
-
+                
+                if (all_density_zero == 1) {
+                    // マップ情報がない場合は自由走行（move.hのランダム移動ロジック）
+                    #ifdef circle
+                    if (sqrt2(Node[count].n_X - center_x, Node[count].n_Y - center_y) <= area_disaster){
+                    #else
+                    if (Node[count].n_X >= Ax_d && Node[count].n_X <= Ax-Ax_d && Node[count].n_Y >= Ay_d && Node[count].n_Y <= Ay-Ay_d){
+                    #endif
+                        retry_movement:
+                        if(Node[count].move_pattern == 0){ // パターン0  右0上1
+                            if(direction2 == 0){ // 右
+                                Node[count].n_insec_X += 1;
+                                Node[count].d_length = sqrt2(center_x - Node[count].n_insec_X, center_y - Node[count].n_insec_Y);
+                                #ifdef circle
+                                if(sqrt2(Node[count].n_insec_X - center_x, Node[count].n_Y - center_y) > area_disaster)
+                                #else
+                                if(Node[count].n_insec_X > Ax-Ax_d-1)
+                                #endif
+                                {
+                                    Node[count].n_insec_X -= 1;
+                                    direction2 = rand() % 2;
+                                    if(direction2==0){
+                                        Node[count].move_pattern = 2;
+                                    }else{
+                                        Node[count].move_pattern = 3;
+                                    }
+                                    goto retry_movement;
+                                }
+                            }else if(direction2 == 1){ // 上
+                                Node[count].n_insec_Y -= 1;
+                                Node[count].d_length = sqrt2(center_x - Node[count].n_insec_X, center_y - Node[count].n_insec_Y);
+                                #ifdef circle
+                                if(sqrt2(Node[count].n_X - center_x, Node[count].n_insec_Y - center_y) > area_disaster)
+                                #else
+                                if(Node[count].n_insec_Y < Ay_d)
+                                #endif
+                                {
+                                    Node[count].n_insec_Y += 1;
+                                    direction2 = rand() % 2;
+                                    if(direction2==0){
+                                        Node[count].move_pattern = 1;
+                                    }else{
+                                        Node[count].move_pattern = 3;
+                                    }
+                                    goto retry_movement;
+                                }
+                            }
+                        }else if(Node[count].move_pattern == 1){ // パターン1  右0下1
+                            if(direction2 == 1){ // 右
+                                Node[count].n_insec_X += 1;
+                                Node[count].d_length = sqrt2(center_x - Node[count].n_insec_X, center_y - Node[count].n_insec_Y);
+                                #ifdef circle
+                                if(sqrt2(Node[count].n_insec_X - center_x, Node[count].n_Y - center_y) > area_disaster)
+                                #else
+                                if(Node[count].n_insec_X > Ax-Ax_d-1)
+                                #endif
+                                {
+                                    Node[count].n_insec_X -= 1;
+                                    direction2 = rand() % 2;
+                                    if(direction2==0){
+                                        Node[count].move_pattern = 2;
+                                    }else{
+                                        Node[count].move_pattern = 3;
+                                    }
+                                    goto retry_movement;
+                                }
+                            }else if(direction2 == 1){ // 下
+                                Node[count].n_insec_Y += 1;
+                                Node[count].d_length = sqrt2(center_x - Node[count].n_insec_X, center_y - Node[count].n_insec_Y);
+                                #ifdef circle
+                                if(sqrt2(Node[count].n_X - center_x, Node[count].n_insec_Y - center_y) > area_disaster)
+                                #else
+                                if(Node[count].n_insec_Y > Ay-Ay_d-1)
+                                #endif
+                                {
+                                    Node[count].n_insec_Y -= 1;
+                                    direction2 = rand() % 2;
+                                    if(direction2==0){
+                                        Node[count].move_pattern = 0;
+                                    }else{
+                                        Node[count].move_pattern = 2;
+                                    }
+                                    goto retry_movement;
+                                }
+                            }
+                        }else if(Node[count].move_pattern == 2){ // パターン2  左0上1
+                            if(direction2 == 0){ // 左
+                                Node[count].n_insec_X -= 1;
+                                Node[count].d_length = sqrt2(center_x - Node[count].n_insec_X, center_y - Node[count].n_insec_Y);
+                                #ifdef circle
+                                if(sqrt2(Node[count].n_insec_X - center_x, Node[count].n_Y - center_y) > area_disaster)
+                                #else
+                                if(Node[count].n_insec_X < Ax_d)
+                                #endif
+                                {
+                                    Node[count].n_insec_X += 1;
+                                    direction2 = rand() % 2;
+                                    if(direction2==0){
+                                        Node[count].move_pattern = 0;
+                                    }else{
+                                        Node[count].move_pattern = 1;
+                                    }
+                                    goto retry_movement;
+                                }
+                            }else if(direction2 == 1){ // 上
+                                Node[count].n_insec_Y -= 1;
+                                Node[count].d_length = sqrt2(center_x - Node[count].n_insec_X, center_y - Node[count].n_insec_Y);
+                                #ifdef circle
+                                if(sqrt2(Node[count].n_X - center_x, Node[count].n_insec_Y - center_y) > area_disaster)
+                                #else
+                                if(Node[count].n_insec_Y < Ay_d)
+                                #endif
+                                {
+                                    Node[count].n_insec_Y += 1;
+                                    direction2 = rand() % 2;
+                                    if(direction2==0){
+                                        Node[count].move_pattern = 1;
+                                    }else{
+                                        Node[count].move_pattern = 3;
+                                    }
+                                    goto retry_movement;
+                                }
+                            }
+                        }else if(Node[count].move_pattern == 3){ // パターン3  左0下1
+                            if(direction2 == 0){ // 左
+                                Node[count].n_insec_X -= 1;
+                                Node[count].d_length = sqrt2(center_x - Node[count].n_insec_X, center_y - Node[count].n_insec_Y);
+                                #ifdef circle
+                                if(sqrt2(Node[count].n_insec_X - center_x, Node[count].n_Y - center_y) > area_disaster)
+                                #else
+                                if(Node[count].n_insec_X < Ax_d)
+                                #endif
+                                {
+                                    Node[count].n_insec_X += 1;
+                                    direction2 = rand() % 2;
+                                    if(direction2==0){
+                                        Node[count].move_pattern = 0;
+                                    }else{
+                                        Node[count].move_pattern = 1;
+                                    }
+                                    goto retry_movement;
+                                }
+                            }else if(direction2 == 1){ // 下
+                                Node[count].n_insec_Y += 1;
+                                Node[count].d_length = sqrt2(center_x - Node[count].n_insec_X, center_y - Node[count].n_insec_Y);
+                                #ifdef circle
+                                if(sqrt2(Node[count].n_X - center_x, Node[count].n_insec_Y - center_y) > area_disaster)
+                                #else
+                                if(Node[count].n_insec_Y > Ay-Ay_d-1)
+                                #endif
+                                {
+                                    Node[count].n_insec_Y -= 1;
+                                    direction2 = rand() % 2;
+                                    if(direction2==0){
+                                        Node[count].move_pattern = 0;
+                                    }else{
+                                        Node[count].move_pattern = 2;
+                                    }
+                                    goto retry_movement;
+                                }
+                            }
+                        }
+                        count += 1;
+                    }else{ // 中心へ向かって移動
+                        Node[count].d_length = sqrt2(center_x - Node[count].n_X, center_y - Node[count].n_Y);
+                        d_now_length = Node[count].d_length;
+                        if(direction == 0 && d_now_length != 0){
+                            Node[count].n_insec_Y -= 1;
+                            Node[count].d_length = sqrt2(center_x - Node[count].n_insec_X, center_y - Node[count].n_insec_Y);
+                            if(Node[count].d_length - d_now_length > 0.0){
+                                Node[count].n_insec_Y += 1;
+                                Node[count].d_length = sqrt2(center_x - Node[count].n_insec_X, center_y - Node[count].n_insec_Y);
+                                goto retry_movement;
+                            }
+                            if(Node[count].n_insec_Y < 0){
+                                Node[count].n_insec_Y += 1;
+                                Node[count].d_length = sqrt2(center_x - Node[count].n_insec_X, center_y - Node[count].n_insec_Y);
+                                goto retry_movement;
+                            }
+                        }else if(direction == 1 && d_now_length != 0){
                             Node[count].n_insec_Y += 1;
                             Node[count].d_length = sqrt2(center_x - Node[count].n_insec_X, center_y - Node[count].n_insec_Y);
-
-                            continue;
-                        }
-
-                        if (Node[count].n_insec_Y < 0)
-                        {
-
-                            Node[count].n_insec_Y += 1;
+                            if(Node[count].d_length - d_now_length > 0.0){
+                                Node[count].n_insec_Y -= 1;
+                                Node[count].d_length = sqrt2(center_x - Node[count].n_insec_X, center_y - Node[count].n_insec_Y);
+                                goto retry_movement;
+                            }
+                            if(Node[count].n_insec_Y > Ay-1){
+                                Node[count].n_insec_Y -= 1;
+                                Node[count].d_length = sqrt2(center_x - Node[count].n_insec_X, center_y - Node[count].n_insec_Y);
+                                goto retry_movement;
+                            }
+                        }else if(direction == 2 && d_now_length != 0){
+                            Node[count].n_insec_X -= 1;
                             Node[count].d_length = sqrt2(center_x - Node[count].n_insec_X, center_y - Node[count].n_insec_Y);
-                            continue;
-                        }
-                    }
-
-                    else if (direction == 1 && d_now_length != 0)
-                    {
-
-                        Node[count].n_insec_Y += 1;
-                        Node[count].d_length = sqrt2(center_x - Node[count].n_insec_X, center_y - Node[count].n_insec_Y);
-
-                        if (Node[count].d_length - d_now_length > 0.0)
-                        {
-                            Node[count].n_insec_Y += -1;
-                            Node[count].d_length = sqrt2(center_x - Node[count].n_insec_X, center_y - Node[count].n_insec_Y);
-
-                            continue;
-                        }
-
-                        if (Node[count].n_insec_Y > Ay - 1)
-                        {
-
-                            Node[count].n_insec_Y += -1;
-                            Node[count].d_length = sqrt2(center_x - Node[count].n_insec_X, center_y - Node[count].n_insec_Y);
-
-                            continue;
-                        }
-                    }
-
-                    else if (direction == 2 && d_now_length != 0)
-                    {
-
-                        Node[count].n_insec_X += -1;
-
-                        Node[count].d_length = sqrt2(center_x - Node[count].n_insec_X, center_y - Node[count].n_insec_Y);
-
-                        if (Node[count].d_length - d_now_length > 0.0)
-                        {
-
+                            if(Node[count].d_length - d_now_length > 0.0){
+                                Node[count].n_insec_X += 1;
+                                Node[count].d_length = sqrt2(center_x - Node[count].n_insec_X, center_y - Node[count].n_insec_Y);
+                                goto retry_movement;
+                            }
+                            if(Node[count].n_insec_X < 0){
+                                Node[count].n_insec_X += 1;
+                                Node[count].d_length = sqrt2(center_x - Node[count].n_insec_X, center_y - Node[count].n_insec_Y);
+                                goto retry_movement;
+                            }
+                        }else if(direction == 3 && d_now_length != 0){
                             Node[count].n_insec_X += 1;
                             Node[count].d_length = sqrt2(center_x - Node[count].n_insec_X, center_y - Node[count].n_insec_Y);
-
-                            continue;
+                            if(Node[count].d_length - d_now_length > 0.0){
+                                Node[count].n_insec_X -= 1;
+                                Node[count].d_length = sqrt2(center_x - Node[count].n_insec_X, center_y - Node[count].n_insec_Y);
+                                goto retry_movement;
+                            }
+                            if(Node[count].n_insec_X > Ax-1){
+                                Node[count].n_insec_X -= 1;
+                                Node[count].d_length = sqrt2(center_x - Node[count].n_insec_X, center_y - Node[count].n_insec_Y);
+                                goto retry_movement;
+                            }
                         }
-
-                        if (Node[count].n_insec_X < 0)
-                        {
-                            Node[count].n_insec_X += 1;
-                            Node[count].d_length = sqrt2(center_x - Node[count].n_insec_X, center_y - Node[count].n_insec_Y);
-
-                            continue;
+                        count += 1;
+                    }
+                } else {
+  
+                    // 全マップで最もスコアが高いグリッドを目的地として設定
+                    find_best_grid_in_all_map(count);
+                    count_map += 1;
+                    // マップ情報がある場合はスコアベースで移動
+                    // 目的地グリッドに向かって移動する方向を選択
+                    int target_x = Node[count].target_grid_x;
+                    int target_y = Node[count].target_grid_y;
+                    
+                    // target_x, target_yからグリッド位置を計算してW_gridに加算
+                    int grid_x = target_x / cell_width;
+                    int grid_y = target_y / cell_height;
+                    
+                    // 範囲チェックとW_gridへの加算
+                    if (grid_x >= 0 && grid_x < grid_size && grid_y >= 0 && grid_y < grid_size) {
+                        Node[count].W_grid[grid_x][grid_y] += 100.0;
+                    }
+                    
+                    // 現在位置から目的地への方向を計算
+                    int dx = target_x - Node[count].n_insec_X;
+                    int dy = target_y - Node[count].n_insec_Y;
+                    
+                    // まだ目的地に到達していない場合
+                    if (dx != 0 || dy != 0) {
+                        
+                        // X方向とY方向のどちらを優先するか決定
+                        if (abs(dx) > abs(dy)) {
+                            // X方向を優先
+                            if (dx > 0) {
+                                // 右に移動
+                                Node[count].n_insec_X += 1;
+                            } else {
+                                // 左に移動
+                                Node[count].n_insec_X -= 1;
+                            }
+                        } else {
+                            // Y方向を優先
+                            if (dy > 0) {
+                                // 下に移動
+                                Node[count].n_insec_Y += 1;
+                            } else {
+                                // 上に移動
+                                Node[count].n_insec_Y -= 1;
+                            }
+                        }
+                    } else {
+                        // 目的地に到達した場合、新しい目的地を探す
+                        re_find_best_grid_in_all_map(count);
+                        count_map += 1;
+                        
+                        // 新しい目的地へ移動開始
+                        target_x = Node[count].target_grid_x;
+                        target_y = Node[count].target_grid_y;
+                        
+                        // target_x, target_yからグリッド位置を計算してW_gridに加算
+                        grid_x = target_x / cell_width;
+                        grid_y = target_y / cell_height;
+                        
+                        // 範囲チェックとW_gridへの加算
+                        if (grid_x >= 0 && grid_x < grid_size && grid_y >= 0 && grid_y < grid_size) {
+                            Node[count].W_grid[grid_x][grid_y] += 100.0;
+                        }
+                        
+                        dx = target_x - Node[count].n_insec_X;
+                        dy = target_y - Node[count].n_insec_Y;
+                        
+                        // X方向とY方向のどちらを優先するか決定
+                        if (abs(dx) > abs(dy)) {
+                            // X方向を優先
+                            if (dx > 0) {
+                                Node[count].n_insec_X += 1;
+                            } else {
+                                Node[count].n_insec_X -= 1;
+                            }
+                        } else {
+                            // Y方向を優先
+                            if (dy > 0) {
+                                Node[count].n_insec_Y += 1;
+                            } else {
+                                Node[count].n_insec_Y -= 1;
+                            }
                         }
                     }
-
-                    else if (direction == 3 && d_now_length != 0)
-                    {
-
-                        Node[count].n_insec_X += 1;
-
-                        Node[count].d_length = sqrt2(center_x - Node[count].n_insec_X, center_y - Node[count].n_insec_Y);
-
-                        if (Node[count].d_length - d_now_length > 0.0)
-                        {
-
-                            Node[count].n_insec_X += -1;
-                            Node[count].d_length = sqrt2(center_x - Node[count].n_insec_X, center_y - Node[count].n_insec_Y);
-
-                            continue;
-                        }
-
-                        if (Node[count].n_insec_X > Ax - 1)
-                        {
-
-                            Node[count].n_insec_X += -1;
-                            Node[count].d_length = sqrt2(center_x - Node[count].n_insec_X, center_y - Node[count].n_insec_Y);
-
-                            continue;
-                        }
-                    }
-
+                    
                     count += 1;
                 }
             }

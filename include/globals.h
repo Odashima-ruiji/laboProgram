@@ -51,6 +51,7 @@ extern int count_ride3;
 extern int ride_transmit;
 extern int count_p_no;
 extern int count_p_on_3;
+extern int count_map;
 extern int ridecount;
 extern int waitcount;
 extern int distancemass;
@@ -60,7 +61,8 @@ extern double speed_counter;
 extern double v_f;
 extern double d_j;
 extern double free_variable;
-extern double sum;
+extern double sum_Twait;
+extern double sum_P_Twait;
 extern int d[4][2];
 
 extern double area_disaster;
@@ -69,5 +71,10 @@ extern double center_x;
 extern double center_y;
 extern int count_same;
 extern int count_off;
+
+/* P_map関数用のグローバル変数 */
+extern int smoothed_count[20][20];
+extern int cell_width;
+extern int cell_height;
 
 #endif

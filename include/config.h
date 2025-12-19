@@ -15,6 +15,7 @@
 #define Ay 60      // サービスエリアの縦幅 [m]
 #define Ax_d 15
 #define Ay_d 15
+#define grid_size 20    // グリッドのサイズ
 #define Td 100         // 交差点間距離 [m]
 #define r 100          // 通信可能距離 [m]
 #define po 100         // ifにしたがって動く台数

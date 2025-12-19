@@ -27,71 +27,70 @@ void Dist_Init_p(void)
  * --------------------------------------------------------- */
 void Dist_Init_n(void)
 {
-    // for (int i = 0; i < 8; i++)
-    // {
-    //     do
-    //     {
-    //         Node[i].n_X = randAxAy();
-    //         Node[i].n_Y = center_y - 2 * i;
-	// 		int s=0;
-    //     } while (((sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) < area_disaster) || (sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) > area_disaster + 2)) || (Node[i].n_X > center_x || Node[i].n_Y > center_y));
-    // }
-    // for (int i = 8; i < 15; i++)
-    // {
-    //     do
-    //     {
-    //         Node[i].n_X = randAxAy();
-    //         Node[i].n_Y = randAxAy();
-    //     } while (((sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) < area_disaster) || (sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) > area_disaster + 2)) || (Node[i].n_X > center_x || Node[i].n_Y > center_y));
-    // }
-    // for (int i = 15; i < 23; i++)
-    // {
-    //     do
-    //     {
-    //         Node[i].n_X = randAxAy();
-    //         Node[i].n_Y = center_y + 2 * (i - 15) + 1;
-    //     } while (((sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) < area_disaster) || (sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) > area_disaster + 2)) || (Node[i].n_X > center_x || Node[i].n_Y < center_y));
-    // }
-    // for (int i = 23; i < 30; i++)
-    // {
-    //     do
-    //     {
-    //         Node[i].n_X = randAxAy();
-    //         Node[i].n_Y = randAxAy();
-    //     } while (((sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) < area_disaster) || (sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) > area_disaster + 2)) || (Node[i].n_X > center_x || Node[i].n_Y < center_y));
-    // }
-    // for (int i = 30; i < 38; i++)
-    // {
-    //     do
-    //     {
-    //         Node[i].n_X = randAxAy();
-    //         Node[i].n_Y = center_y + 2 * (i - 30);
-    //     } while (((sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) < area_disaster) || (sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) > area_disaster + 2)) || (Node[i].n_X < center_x || Node[i].n_Y < center_y));
-    // }
-    // for (int i = 38; i < 45; i++)
-    // {
-    //     do
-    //     {
-    //         Node[i].n_X = randAxAy();
-    //         Node[i].n_Y = randAxAy();
-    //     } while (((sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) < area_disaster) || (sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) > area_disaster + 2)) || (Node[i].n_X < center_x || Node[i].n_Y < center_y));
-    // }
-    // for (int i = 45; i < 53; i++)
-    // {
-    //     do
-    //     {
-    //         Node[i].n_X = randAxAy();
-    //         Node[i].n_Y = center_y - 2 * (i - 45) - 1;
-    //     } while (((sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) < area_disaster) || (sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) > area_disaster + 2)) || (Node[i].n_X < center_x || Node[i].n_Y > center_y));
-    // }
-    // for (int i = 53; i < 60; i++)
-    // {
-    //     do
-    //     {
-    //         Node[i].n_X = randAxAy();
-    //         Node[i].n_Y = randAxAy();
-    //     } while (((sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) < area_disaster) || (sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) > area_disaster + 2)) || (Node[i].n_X < center_x || Node[i].n_Y > center_y));
-    // }
+    for (int i = 0; i < 8; i++)
+    {
+        do
+        {
+            Node[i].n_X = randAxAy();
+            Node[i].n_Y = center_y - 2 * i;
+        } while (((sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) < area_disaster) || (sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) > area_disaster + 2)) || (Node[i].n_X > center_x || Node[i].n_Y > center_y));
+    }
+    for (int i = 8; i < 15; i++)
+    {
+        do
+        {
+            Node[i].n_X = randAxAy();
+            Node[i].n_Y = randAxAy();
+        } while (((sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) < area_disaster) || (sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) > area_disaster + 2)) || (Node[i].n_X > center_x || Node[i].n_Y > center_y));
+    }
+    for (int i = 15; i < 23; i++)
+    {
+        do
+        {
+            Node[i].n_X = randAxAy();
+            Node[i].n_Y = center_y + 2 * (i - 15) + 1;
+        } while (((sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) < area_disaster) || (sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) > area_disaster + 2)) || (Node[i].n_X > center_x || Node[i].n_Y < center_y));
+    }
+    for (int i = 23; i < 30; i++)
+    {
+        do
+        {
+            Node[i].n_X = randAxAy();
+            Node[i].n_Y = randAxAy();
+        } while (((sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) < area_disaster) || (sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) > area_disaster + 2)) || (Node[i].n_X > center_x || Node[i].n_Y < center_y));
+    }
+    for (int i = 30; i < 38; i++)
+    {
+        do
+        {
+            Node[i].n_X = randAxAy();
+            Node[i].n_Y = center_y + 2 * (i - 30);
+        } while (((sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) < area_disaster) || (sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) > area_disaster + 2)) || (Node[i].n_X < center_x || Node[i].n_Y < center_y));
+    }
+    for (int i = 38; i < 45; i++)
+    {
+        do
+        {
+            Node[i].n_X = randAxAy();
+            Node[i].n_Y = randAxAy();
+        } while (((sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) < area_disaster) || (sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) > area_disaster + 2)) || (Node[i].n_X < center_x || Node[i].n_Y < center_y));
+    }
+    for (int i = 45; i < 53; i++)
+    {
+        do
+        {
+            Node[i].n_X = randAxAy();
+            Node[i].n_Y = center_y - 2 * (i - 45) - 1;
+        } while (((sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) < area_disaster) || (sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) > area_disaster + 2)) || (Node[i].n_X < center_x || Node[i].n_Y > center_y));
+    }
+    for (int i = 53; i < 60; i++)
+    {
+        do
+        {
+            Node[i].n_X = randAxAy();
+            Node[i].n_Y = randAxAy();
+        } while (((sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) < area_disaster) || (sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) > area_disaster + 2)) || (Node[i].n_X < center_x || Node[i].n_Y > center_y));
+    }
     // for(int i = 0; i < 10; i++)
     // {
     //     do
@@ -100,7 +99,7 @@ void Dist_Init_n(void)
     //         Node[i].n_Y = randAxAy();
     //     } while ((sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) < area_disaster) || (sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) > area_disaster + 2));
     // }
-    for (int i = 0; i < N_ALL_NUM; i++)
+    for (int i = 60; i < N_ALL_NUM; i++)
     {
         do
         {
@@ -211,6 +210,49 @@ void pass_input_inter_init(void)
         enqueue(i);
     }
 }
+/* --------------------------------------------------------- *
+ *  関数名 : Init_W_map                                      *
+ *  機能 : Map_grid構造体のW_mapの初期値を設定.              *
+ *         避難エリア内は一律に高い重み、外は低い重み.       *
+ *  仮引数 : なし                                            *
+ * --------------------------------------------------------- */
+void Init_W_map(void)
+{
+    // 全ノードのMap_gridのW_mapを初期化
+    for (int node = 0; node < N_ALL_NUM; node++) {
+        for (int i = 0; i < grid_size; i++) {
+            for (int j = 0; j < grid_size; j++) {
+                // グリッドの中心座標を計算
+                int center_x_local = (i * cell_width) + (cell_width / 2);
+                int center_y_local = (j * cell_height) + (cell_height / 2);
+                
+                // 中心からの距離を計算
+                double distance = sqrt2(center_x_local - center_x, center_y_local - center_y);
+                
+                // 避難エリア内かどうかで重みを設定
+#ifdef circle
+                if (distance <= area_disaster) {
+                    // 避難エリア内: 高い重み
+                    Node[node].Map_grid[i][j].W_map = 100;
+                } else {
+                    // 避難エリア外: 低い重み
+                    Node[node].Map_grid[i][j].W_map = 0;
+                }
+#else
+                // 矩形の場合
+                if (center_x_local >= Ax_d && center_x_local <= Ax - Ax_d - 1 && 
+                    center_y_local >= Ay_d && center_y_local <= Ay - Ay_d - 1) {
+                    // 避難エリア内: 高い重み
+                    Node[node].Map_grid[i][j].W_map = 100;
+                } else {
+                    // 避難エリア外: 低い重み
+                    Node[node].Map_grid[i][j].W_map = 0;
+                }
+#endif
+            }
+        }
+    }
+}
 
 /* --------------------------------------------------------- *
  *  関数名 : Dist_add_p                                      *
@@ -221,3 +263,4 @@ void Dist_add_p(void)
 {
     // 追加配置のロジック（必要に応じて実装）
 }
+

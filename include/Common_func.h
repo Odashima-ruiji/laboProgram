@@ -18,5 +18,6 @@ int transmit(int k);
 void detect_trans(void);
 int syokika(void);
 int check_ride(void);
+void P_map(int node_index);
 
 #endif

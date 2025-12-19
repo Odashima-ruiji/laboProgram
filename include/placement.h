@@ -16,6 +16,7 @@
 void Dist_Init_p(void);
 void Dist_Init_n(void);
 void Dist_add_p(void);
+void Init_W_map(void);
 
 /* 配置関数のための補助関数 */
 void Pass_Spawn(void);

@@ -1077,22 +1077,42 @@ void detect_trans()
  * --------------------------------------------------------- */
 int syokika()
 {
+    for (int i = 0; i < ssize; i++)
+    {
+        stack_pop[i] = 0;
+    }
     for (int count = 0; count < N_ALL_NUM; count++)
     {
         for (int i = 0; i < ssize; i++)
         {
             Node[count].stack_data[i] = 0;
             Node[count].stack_nopos[i] = 0;
+            for(int j = 0; j < 2; j++){
+                Node[count].stack_info[i][j] = 0;
+            }
         }
         for (int j = 0; j < P_ALL_NUM; j++)
         {
             transmit__[count][j] = 0;
         }
+        for(int i = 0; i < grid_size; i++){
+            for(int j = 0; j < grid_size; j++){
+                Node[count].W_grid[i][j] = 0.0;
+            }
+        }
         Node[count].prog_d_surp = 0;
         Node[count].stack_num = 0;
         Node[count].stack_num2 = 0;
+        Node[count].stack_num3 = 0;
         Node[count].all_stack_num = 0;
         Node[count].move_flag = 0;
+        Node[count].area_number = 0;
+	    Node[count].move_flag =  0;
+        Node[count].d_length = 0;  // 乗客１の宛先地点までの距離　乗客１の目的地がノード自体の目的地となる
+	    Node[count].d_length2 = 0;
+        Node[count].move_pattern = 0;
+        Node[count].target_grid_x = 0; // 目標グリッドのX座標
+	    Node[count].target_grid_y = 0;
         for (int i = 0; i < Ax; i++)
         {
             for (int j = 0; j < Ay; j++)
@@ -1116,6 +1136,12 @@ int syokika()
         }
     }
     o = 0;
+    pop_num = 0;
+    for(int i = 0; i < 20; i++){
+        for(int j = 0; j < 20; j++){
+            smoothed_count[i][j] = 0;
+        }
+    }
     return 0;
 }
 
@@ -1139,4 +1165,82 @@ int check_ride()
         }
     }
     return 0;
+}
+
+/* --------------------------------------------------------- *
+ *	関数名 : P_map											 *
+ *  機能 : メッシュ法（グリッド法）で密集地点を検出する	 *
+ *  仮引数 : node_index - 対象となるノードの番号			 *
+ *          threshold - 密集と判定する閾値（人数）			 *
+ * --------------------------------------------------------- */
+void P_map(int node_index)
+{
+    // グリッドサイズとセルサイズはグローバル変数として定義済み
+    
+    // グリッドのカウント配列を初期化
+    int grid_count[grid_size][grid_size];
+    for (int i = 0; i < grid_size; i++) {
+        for (int j = 0; j < grid_size; j++) {
+            grid_count[i][j] = 0;
+        }
+    }
+    
+    // Node[node_index]のMapデータを集計
+    for (int l = 0; l < Ax; l++) {
+        for (int m = 0; m < Ay; m++) {
+            if (Node[node_index].Map[l][m].info == 1) {
+                // 座標(l, m)がどのグリッドセルに属するか計算
+                int grid_x = l / cell_width;
+                int grid_y = m / cell_height;
+                
+                // 範囲外チェック（念のため）
+                if (grid_x >= grid_size) grid_x = grid_size - 1;
+                if (grid_y >= grid_size) grid_y = grid_size - 1;
+                
+                // カウントを増やす
+                grid_count[grid_x][grid_y]++;
+            }
+        }
+    }
+    
+    // 平滑化処理：隣接セルも考慮して密集地点を判定
+    // smoothed_count配列はグローバル変数として定義済み
+    for (int i = 0; i < grid_size; i++) {
+        for (int j = 0; j < grid_size; j++) {
+            int total = grid_count[i][j];
+            
+            // 8方向の隣接セルを加算
+            for (int di = -1; di <= 1; di++) {
+                for (int dj = -1; dj <= 1; dj++) {
+                    if (di == 0 && dj == 0) continue; // 自分自身は既に加算済み
+                    
+                    int ni = i + di;
+                    int nj = j + dj;
+                    
+                    // 範囲内チェック
+                    if (ni >= 0 && ni < grid_size && nj >= 0 && nj < grid_size) {
+                        total += grid_count[ni][nj];
+                    }
+                }
+            }
+            
+            smoothed_count[i][j] = total;
+        }
+    }
+    
+    // 密集地点の判定と出力（デバッグ用）
+    // printf("Node[%d] 密集地点検出結果（閾値: %d人）:\n", node_index, threshold);
+    // for (int i = 0; i < grid_size; i++) {
+    //     for (int j = 0; j < grid_size; j++) {
+    //         if (smoothed_count[i][j] >= threshold) {
+    //             printf("  グリッド[%d][%d]: %d人 → 密集地点！\n", 
+    //                    i, j, smoothed_count[i][j]);
+                
+    //             // 密集地点の中心座標を計算
+    //             int center_x_local = (i * cell_width) + (cell_width / 2);
+    //             int center_y_local = (j * cell_height) + (cell_height / 2);
+    //             printf("    中心座標: (%d, %d)\n", center_x_local, center_y_local);
+    //         }
+    //     }
+    // }
 }
