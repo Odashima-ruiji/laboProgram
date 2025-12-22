@@ -33,7 +33,7 @@ int main()
     // csv出力のための設定----------------------------------------------------------------------------------------------
     // csv出力するための数値
     FILE *fp;
-    char *fname = "test_40_60_EPI.csv";
+    char *fname = "test_100_0_dev.csv";
 
     char *node = "node";
     char *node0 = "node0";
@@ -97,7 +97,7 @@ int main()
     fprintf(gp, "set title \"model animation  count:0 time:0\"\n");
 
     // --------------------------------------------------------------------------------------------------------------------
-    for (int jc = 0; jc < 5; jc++)
+    for (int jc = 0; jc < 1; jc++)
     {
         srand((int)RANDOM_SEED + jc + 1);
         Twait = 0;
@@ -322,6 +322,39 @@ int main()
                     range_count[j] += 1;
                 }
             }
+        }
+
+        // 平均を先に計算
+        double range_avg[15] = {0};
+        for (int i = 0; i < 15; i++)
+        {
+            if (range_count[i] > 0) {
+                range_avg[i] = range[i] / range_count[i];
+            }
+        }
+
+        // 分散を計算
+        double range_variance[15] = {0};
+        for (int i = 0; i < P_ALL_NUM; i++)
+        {
+            for (int j = 0; j < 15; j++)
+            {
+                if (sqrt2(center_x - Pass[i].p_xS, center_y - Pass[i].p_yS) <= j + 1 && sqrt2(center_x - Pass[i].p_xS, center_y - Pass[i].p_yS) > j)
+                {
+                    double diff = Pass[i].p_wait - range_avg[j];
+                    range_variance[j] += diff * diff;
+                }
+            }
+        }
+
+        for (int i = 0; i < 15; i++)
+        {
+            double std_dev = 0;
+            if (range_count[i] > 0) {
+                range_variance[i] /= range_count[i];
+                std_dev = sqrt(range_variance[i]);
+            }
+            fprintf(fp, "中心からの距離 %d-%d ,平均, %f ,標準偏差, %f\n", i, i + 1, range_avg[i], std_dev);
         }
         
        
