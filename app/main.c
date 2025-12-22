@@ -33,7 +33,7 @@ int main()
     // csv出力のための設定----------------------------------------------------------------------------------------------
     // csv出力するための数値
     FILE *fp;
-    char *fname = "test_80_20_map_grid.csv";
+    char *fname = "test.csv";
 
     char *node = "node";
     char *node0 = "node0";
@@ -128,7 +128,7 @@ int main()
     fprintf(gp_waiting, "set object 1 circle at %f,%f size %f border rgb 'black' lw 2 fillstyle empty\n", center_x, center_y, area_disaster);
 
     // --------------------------------------------------------------------------------------------------------------------
-    for (int jc = 0; jc < 5; jc++)
+    for (int jc = 0; jc < 1; jc++)
     {
         // 各ループで乱数シードを設定
         srand((int)RANDOM_SEED + jc + 1);
@@ -394,6 +394,8 @@ int main()
             fprintf(fp, "%d, %d\n", k * 10, all_count[k * 10] - all_count[(k - 1) * 10]);
         }
 
+        fprintf(fp, "100mごと\n");
+
         for (int i = 0; i < P_ALL_NUM; i++)
         {
             for (int j = 0; j < 15; j++)
@@ -405,9 +407,92 @@ int main()
                 }
             }
         }
+
+        // 平均を先に計算
+        double range_avg[15] = {0};
         for (int i = 0; i < 15; i++)
         {
-            fprintf(fp, "中心からの距離 %d-%d ,%f\n", i, i + 1, range[i] / range_count[i]);
+            if (range_count[i] > 0) {
+                range_avg[i] = range[i] / range_count[i];
+            }
+        }
+
+        // 分散を計算
+        double range_variance[15] = {0};
+        for (int i = 0; i < P_ALL_NUM; i++)
+        {
+            for (int j = 0; j < 15; j++)
+            {
+                if (sqrt2(center_x - Pass[i].p_xS, center_y - Pass[i].p_yS) <= j + 1 && sqrt2(center_x - Pass[i].p_xS, center_y - Pass[i].p_yS) > j)
+                {
+                    double diff = Pass[i].p_wait - range_avg[j];
+                    range_variance[j] += diff * diff;
+                }
+            }
+        }
+
+        for (int i = 0; i < 15; i++)
+        {
+            double std_dev = 0;
+            if (range_count[i] > 0) {
+                range_variance[i] /= range_count[i];
+                std_dev = sqrt(range_variance[i]);
+            }
+            fprintf(fp, "中心からの距離 %d-%d ,平均, %f ,標準偏差, %f\n", i, i + 1, range_avg[i], std_dev);
+        }
+
+        fprintf(fp, "500mごと(探索エリアごと)\n");
+
+        // 500mごとの距離範囲で平均と標準偏差を計算（0-5, 5-10, 10-15）
+        double range_500m[3] = {0};       // 合計
+        int range_500m_count[3] = {0};    // カウント
+        double range_500m_avg[3] = {0};   // 平均
+        
+        for (int i = 0; i < P_ALL_NUM; i++)
+        {
+            double distance = sqrt2(center_x - Pass[i].p_xS, center_y - Pass[i].p_yS);
+            for (int j = 0; j < 3; j++)
+            {
+                if (distance <= (j + 1) * 5 && distance > j * 5)
+                {
+                    range_500m[j] += Pass[i].p_wait;
+                    range_500m_count[j] += 1;
+                }
+            }
+        }
+        
+        // 平均を計算
+        for (int i = 0; i < 3; i++)
+        {
+            if (range_500m_count[i] > 0) {
+                range_500m_avg[i] = range_500m[i] / range_500m_count[i];
+            }
+        }
+        
+        // 分散を計算
+        double range_500m_variance[3] = {0};
+        for (int i = 0; i < P_ALL_NUM; i++)
+        {
+            double distance = sqrt2(center_x - Pass[i].p_xS, center_y - Pass[i].p_yS);
+            for (int j = 0; j < 3; j++)
+            {
+                if (distance <= (j + 1) * 5 && distance > j * 5)
+                {
+                    double diff = Pass[i].p_wait - range_500m_avg[j];
+                    range_500m_variance[j] += diff * diff;
+                }
+            }
+        }
+        
+        // 標準偏差を出力
+        for (int i = 0; i < 3; i++)
+        {
+            double std_dev = 0;
+            if (range_500m_count[i] > 0) {
+                range_500m_variance[i] /= range_500m_count[i];
+                std_dev = sqrt(range_500m_variance[i]);
+            }
+            fprintf(fp, "中心からの距離 %d00m-%d00m ,平均, %f ,標準偏差, %f\n", i * 5, (i + 1) * 5, range_500m_avg[i], std_dev);
         }
 
         // 指定区間内の交通量
