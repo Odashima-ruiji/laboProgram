@@ -19,5 +19,8 @@ void detect_trans(void);
 int syokika(void);
 int check_ride(void);
 void P_map(int node_index);
+double calculate_direction_score(int node_index, int target_x, int target_y);
+void find_best_grid_in_all_map(int node_index);
+void re_find_best_grid_in_all_map(int node_index);
 
 #endif

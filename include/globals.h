@@ -78,4 +78,8 @@ extern int smoothed_count[grid_size][grid_size];
 extern int cell_width;
 extern int cell_height;
 
+/* スコア計算用の重みパラメータ */
+extern double W_dens;
+extern double W_dist;
+
 #endif

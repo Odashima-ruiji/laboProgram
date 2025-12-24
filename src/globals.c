@@ -73,3 +73,7 @@ int grid_count[grid_size][grid_size];
 int smoothed_count[grid_size][grid_size];
 int cell_width = Ax / 20;
 int cell_height = Ay / 20;
+
+/* スコア計算用の重みパラメータ */
+double W_dens = 2.0;  // 混雑度の重み
+double W_dist = 5.0;  // 距離の重み（大きくして距離を重視）

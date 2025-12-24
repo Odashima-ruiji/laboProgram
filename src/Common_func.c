@@ -1243,3 +1243,129 @@ void P_map(int node_index)
     //     }
     // }
 }
+
+/* -------------------------------------------------------------------------------------------- *
+ *	関数名 : calculate_direction_score														    *
+ *  機能 : 指定された方向への移動スコアを計算する												*
+ *  仮引数 : node_index - ノードの番号															*
+ *          target_x - 移動先のX座標															    *
+ *          target_y - 移動先のY座標															    *
+ *  戻り値 : スコア値（高いほど優先度が高い）													*
+ * -------------------------------------------------------------------------------------------- */
+double calculate_direction_score(int node_index, int target_x, int target_y)
+{
+    double score = 0.0;
+    
+    // グリッドサイズとセルサイズはグローバル変数として定義済み
+    
+    // 目的地座標がどのグリッドセルに属するか計算
+    int grid_x = target_x / cell_width;
+    int grid_y = target_y / cell_height;
+    
+    // 範囲外チェック
+    if (grid_x < 0) grid_x = 0;
+    if (grid_x >= grid_size) grid_x = grid_size - 1;
+    if (grid_y < 0) grid_y = 0;
+    if (grid_y >= grid_size) grid_y = grid_size - 1;
+    
+    // その場所の混雑度を取得
+    double density = (double)smoothed_count[grid_x][grid_y];
+    
+    // Node[node_index]からの距離を計算
+    double distance = sqrt2(target_x - Node[node_index].n_X, target_y - Node[node_index].n_Y);
+    
+    // スコア = (W_dens × 混雑度) - (W_dist × 距離)
+    score = (W_dens * density)  + (Node[node_index].Map_grid[grid_x][grid_y].W_map) - (W_dist * distance) - (Node[node_index].W_grid[grid_x][grid_y]);
+    
+    return score;
+}
+
+/* -------------------------------------------------------------------------------------------- *
+ *	関数名 : find_best_grid_in_all_map																		    *
+ *  機能 : 全マップで最もスコアが高いグリッドを見つける												*
+ *  仮引数 : node_index - ノードの番号																*
+ *  戻り値 : なし（Node[node_index].target_grid_x/yに結果を格納）								*
+ * -------------------------------------------------------------------------------------------- */
+void find_best_grid_in_all_map(int node_index)
+{
+    double best_score = -99999999.0;
+    int best_grid_x = -1;
+    int best_grid_y = -1;
+    
+    // 全グリッドをスキャンしてスコアを計算
+    for (int i = 0; i < grid_size; i++) {
+        for (int j = 0; j < grid_size; j++) {
+            // グリッドの中心座標を計算
+            int center_x_local = (i * cell_width) + (1);
+            int center_y_local = (j * cell_height) + (1);
+            
+            // このグリッドのスコアを計算
+            double score = calculate_direction_score(node_index, center_x_local, center_y_local);
+            
+            // 最高スコアを更新
+            if (score > best_score) {
+                best_score = score;
+                best_grid_x = center_x_local;
+                best_grid_y = center_y_local;
+            }
+        }
+    }
+    
+    
+    // 結果をノード構造体に格納
+    Node[node_index].target_grid_x = best_grid_x;
+    Node[node_index].target_grid_y = best_grid_y;
+    
+    
+    // デバッグ出力（オプション）
+    // printf("Node[%d] 最高スコアグリッド: (%d, %d) スコア: %.2f\n", 
+    //        node_index, best_grid_x, best_grid_y, best_score);
+}
+
+/* -------------------------------------------------------------------------------------------- *
+ *	関数名 : re_find_best_grid_in_all_map																		    *
+ *  機能 : 全マップで最もスコアが高いグリッドを見つける												*
+ *  仮引数 : node_index - ノードの番号																*
+ *  戻り値 : なし（Node[node_index].target_grid_x/yに結果を格納）								*
+ * -------------------------------------------------------------------------------------------- */
+void re_find_best_grid_in_all_map(int node_index)
+{
+    double best_score = -99999999.0;
+    int best_grid_x = -1;
+    int best_grid_y = -1;
+    
+    int now_grid_x = Node[node_index].n_X / cell_width;
+    int now_grid_y = Node[node_index].n_Y / cell_height;
+    // 全グリッドをスキャンしてスコアを計算
+    for (int i = 0; i < grid_size; i++) {
+        for (int j = 0; j < grid_size; j++) {
+            // グリッドの中心座標を計算
+            int center_x_local = (i * cell_width) + (1);
+            int center_y_local = (j * cell_height) + (1);
+            
+            // このグリッドのスコアを計算
+            double score = calculate_direction_score(node_index, center_x_local, center_y_local);
+            if(now_grid_x == i && now_grid_y == j){
+                score -= 10000.0; // 今いるグリッドは避ける
+            }
+            
+            // 最高スコアを更新
+            if (score > best_score) {
+                best_score = score;
+                best_grid_x = center_x_local;
+                best_grid_y = center_y_local;
+            }
+        }
+    }
+    
+    
+    // 結果をノード構造体に格納
+    Node[node_index].target_grid_x = best_grid_x;
+    Node[node_index].target_grid_y = best_grid_y;
+    
+    
+    // デバッグ出力（オプション）
+    // printf("Node[%d] 最高スコアグリッド: (%d, %d) スコア: %.2f\n", 
+    //        node_index, best_grid_x, best_grid_y, best_score);
+}
+
