@@ -296,7 +296,7 @@ int main()
         //     //printf("%d\n",traffic_counter2[k] - traffic_counter2[k-1]);
         // }
         
-         for(int i = 0; i < P_ALL_NUM; i++){
+        for(int i = 0; i < P_ALL_NUM; i++){
             if (Pass[i].p_wait > 0)
             {
                 sum_P_Twait += Pass[i].p_wait;
