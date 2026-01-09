@@ -57,7 +57,7 @@ int main()
     // 乱数の種を与える
     // srand( ( unsigned int )time( NULL ) );
     //srand((int)RANDOM_SEED + n);
-    //srand(2);
+    srand(2);
     syokika();
 
     // for(int l =0;l<100;l++){
@@ -128,10 +128,10 @@ int main()
     fprintf(gp_waiting, "set object 1 circle at %f,%f size %f border rgb 'black' lw 2 fillstyle empty\n", center_x, center_y, area_disaster);
 
     // --------------------------------------------------------------------------------------------------------------------
-    for (int jc = 0; jc < 1; jc++)
+    for (int jc = 0; jc < 5; jc++)
     {
         // 各ループで乱数シードを設定
-        srand((int)RANDOM_SEED + jc + 1);
+        //srand((int)RANDOM_SEED + jc + 1);
         
         Twait = 0;
         allstep = 0;
