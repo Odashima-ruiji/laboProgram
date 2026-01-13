@@ -106,11 +106,11 @@ void allrideon()
                 Node[l].d_length2 = sqrt2(Node[l].n_xD2 - Node[l].n_X, Node[l].n_yD2 - Node[l].n_Y); // 目的地との距離を入力
                 if (Trans[(int)Node[l].n_X][(int)Node[l].n_Y].wp_Exist == 1)
                 {
-                    Node[l].Map[Node[l].n_X][Node[l].n_Y].info = 1;
+                    Node[l].Map[(int)Node[l].n_X][(int)Node[l].n_Y].info = 1;
                 }
                 else
                 {
-                    Node[l].Map[Node[l].n_X][Node[l].n_Y].info = 0;
+                    Node[l].Map[(int)Node[l].n_X][(int)Node[l].n_Y].info = 0;
                 }
                 for (int i = 0; i < Ax; i++)
                 {
