@@ -28,5 +28,6 @@
 #define circle
 #define two
 #define dis_center
+//#define N_search
 
 #endif
