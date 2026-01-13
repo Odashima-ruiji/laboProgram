@@ -239,6 +239,10 @@ int main()
                     // 情報を得て待ち客がいる目的地へ移動しているとき：黄緑
                     fprintf(gp, "%f\t%f\t1\t0x3BCE00\n", Node[i].n_X, Node[i].n_Y);
                 }
+                else if(Node[i].p_on ==4){
+                    //乗客を１人乗せてもう１人の探索へ向かっているとき：黄色
+                    fprintf(gp, "%f\t%f\t1\t0xF4E511\n",Node[i].n_X,Node[i].n_Y);
+                }
                 else if (Node[i].p_on == 5)
                 {
                     fprintf(gp, "%f\t%f\t1\t0x43A1FF\n", Node[i].n_X, Node[i].n_Y);
@@ -272,6 +276,10 @@ int main()
             else if (Node[0].p_on == 3) {
                 // 情報を得て待ち客がいる目的地へ移動しているとき：黄緑
                 fprintf(gp_map, "%f %f 0x3BCE00\n", Node[0].n_X, Node[0].n_Y);
+            }
+            else if(Node[0].p_on ==4){
+                //乗客を１人乗せてもう１人の探索へ向かっているとき：黄色
+                fprintf(gp_map, "%f %f 0xF4E511\n",Node[0].n_X,Node[0].n_Y);
             }
             else if (Node[0].p_on == 5) {
                 // p_on==5のとき：水色

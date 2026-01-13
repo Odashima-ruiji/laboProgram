@@ -46,6 +46,7 @@ typedef struct
 
 	int n_xD, n_yD;			// ノードの宛先地点
 	int n_xD2, n_yD2;		// ノードの宛先地点
+	int n_xD_sub, n_yD_sub;   // 乗客を乗せている状態での探索宛先
 	int stack_data[ssize];	// ノードが保持する客の待つ交差点情報
 	int stack_nopos[ssize]; // 不必要なデータ保管スタック
 	SMap Map[Ax][Ay];
@@ -59,6 +60,7 @@ typedef struct
 	int stack_num3;
 	double d_length;  // 乗客１の宛先地点までの距離　乗客１の目的地がノード自体の目的地となる
 	double d_length2; // 乗客２の乗客２自体の宛先地点までの距離
+	double d_length_sub; // 乗客を乗せている状態での探索宛先までの距離
 	double W_grid[grid_size][grid_size];   // グリッドの重み
 
 
