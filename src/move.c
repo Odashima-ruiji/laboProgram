@@ -664,7 +664,7 @@ void move_new_direction()
                         
                         // 範囲チェックとW_gridへの加算
                         if (grid_x >= 0 && grid_x < grid_size && grid_y >= 0 && grid_y < grid_size) {
-                            Node[count].W_grid[grid_x][grid_y] += 10.0;
+                            Node[count].W_grid[grid_x][grid_y] += 100.0;
                         }
                         
                         // 現在位置から目的地への方向を計算
