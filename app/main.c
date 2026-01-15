@@ -33,7 +33,7 @@ int main()
     // csv出力のための設定----------------------------------------------------------------------------------------------
     // csv出力するための数値
     FILE *fp;
-    char *fname = "test.csv";
+    char *fname = "test_dens3_dist8.csv";
 
     char *node = "node";
     char *node0 = "node0";
@@ -57,7 +57,7 @@ int main()
     // 乱数の種を与える
     // srand( ( unsigned int )time( NULL ) );
     //srand((int)RANDOM_SEED + n);
-    srand(2);
+    //srand(2);
     syokika();
 
     // for(int l =0;l<100;l++){
@@ -131,7 +131,7 @@ int main()
     for (int jc = 0; jc < 5; jc++)
     {
         // 各ループで乱数シードを設定
-        //srand((int)RANDOM_SEED + jc + 1);
+        srand((int)RANDOM_SEED + jc + 1);
         
         Twait = 0;
         allstep = 0;
