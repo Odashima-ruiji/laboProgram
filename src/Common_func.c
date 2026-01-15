@@ -1077,22 +1077,36 @@ void detect_trans()
  * --------------------------------------------------------- */
 int syokika()
 {
+    for (int i = 0; i < ssize; i++)
+    {
+        stack_pop[i] = 0;
+    }
     for (int count = 0; count < N_ALL_NUM; count++)
     {
         for (int i = 0; i < ssize; i++)
         {
             Node[count].stack_data[i] = 0;
             Node[count].stack_nopos[i] = 0;
+            for(int j = 0; j < 2; j++){
+                Node[count].stack_info[i][j] = 0;
+            }
         }
         for (int j = 0; j < P_ALL_NUM; j++)
         {
             transmit__[count][j] = 0;
         }
+        
         Node[count].prog_d_surp = 0;
         Node[count].stack_num = 0;
         Node[count].stack_num2 = 0;
+        Node[count].stack_num3 = 0;
         Node[count].all_stack_num = 0;
         Node[count].move_flag = 0;
+        Node[count].area_number = 0;
+	    Node[count].move_flag =  0;
+        Node[count].d_length = 0;  // 乗客１の宛先地点までの距離　乗客１の目的地がノード自体の目的地となる
+	    Node[count].d_length2 = 0;
+        Node[count].move_pattern = 0;
         for (int i = 0; i < Ax; i++)
         {
             for (int j = 0; j < Ay; j++)
@@ -1116,6 +1130,7 @@ int syokika()
         }
     }
     o = 0;
+    pop_num = 0;
     return 0;
 }
 

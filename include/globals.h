@@ -60,7 +60,8 @@ extern double speed_counter;
 extern double v_f;
 extern double d_j;
 extern double free_variable;
-extern double sum;
+extern double sum_Twait;
+extern double sum_P_Twait;
 extern int d[4][2];
 
 extern double area_disaster;

@@ -33,7 +33,7 @@ int main()
     // csv出力のための設定----------------------------------------------------------------------------------------------
     // csv出力するための数値
     FILE *fp;
-    char *fname = "test_30.csv";
+    char *fname = "test_80_20_dev.csv";
 
     char *node = "node";
     char *node0 = "node0";
@@ -56,7 +56,7 @@ int main()
 
     // 乱数の種を与える
     // srand( ( unsigned int )time( NULL ) );
-    srand((int)RANDOM_SEED + n);
+    // srand((int)RANDOM_SEED + n);
     // srand(2);
     syokika();
 
@@ -99,6 +99,7 @@ int main()
     // --------------------------------------------------------------------------------------------------------------------
     for (int jc = 0; jc < 1; jc++)
     {
+        srand((int)RANDOM_SEED + jc + 1);
         Twait = 0;
         allstep = 0;
         count_ifgo = 0;  // 情報に従うノードがデータをもとに目的地を設定した回数
@@ -107,9 +108,11 @@ int main()
         count_ride3 = 0; // 情報フローティングで得た情報をもとに乗客を拾った回数
         ride_transmit = 0;
         count_p_no = 0; // 情報に従うノードが目的地に到着したが乗客がいなかった回数
+        count_p_on_3 = 0;
         ridecount = 0;  // 乗客が乗っていたステップ
         waitcount = 0;  // 乗客が待っていたステップ
         distancemass = 0;
+        sum_P_Twait = 0;
         for (int i = 0; i < 10000; i++)
         {
             all_count[i] = P_ALL_NUM;
@@ -236,7 +239,7 @@ int main()
             // ノード対利用客の情報交換記録を一定時間ごとに初期化
             for (int i = 0; i < N_ALL_NUM; i++)
             {
-                for (int j; j < P_ALL_NUM; j++)
+                for (int j = 0; j < P_ALL_NUM; j++)
                 {
                     if (Twait - transmit__[i][j] > reftime)
                     {
@@ -292,12 +295,24 @@ int main()
         //     sum_all10count[k] += all10count[k*10] - all10count[(k-1)*10];
         //     //printf("%d\n",traffic_counter2[k] - traffic_counter2[k-1]);
         // }
+        
+        for(int i = 0; i < P_ALL_NUM; i++){
+            if (Pass[i].p_wait > 0)
+            {
+                sum_P_Twait += Pass[i].p_wait;
+            }
+        }
+        fprintf(fp, "乗客一人あたりの平均待ち時間 %f\n", sum_P_Twait / (double)P_ALL_NUM);
+
+
+        printf("sum_P_Twait=%f\n",sum_P_Twait);
 
         for (int k = 1; k <= 300; k++)
         {
             fprintf(fp, "%d, %d\n", k * 10, all_count[k * 10] - all_count[(k - 1) * 10]);
         }
 
+        fprintf(fp, "100mごと\n");
         for (int i = 0; i < P_ALL_NUM; i++)
         {
             for (int j = 0; j < 15; j++)
@@ -309,13 +324,98 @@ int main()
                 }
             }
         }
+
+        // 平均を先に計算
+        double range_avg[15] = {0};
         for (int i = 0; i < 15; i++)
         {
-            fprintf(fp, "中心からの距離 %d-%d ,%f\n", i, i + 1, range[i] / range_count[i]);
+            if (range_count[i] > 0) {
+                range_avg[i] = range[i] / range_count[i];
+            }
         }
 
+        // 分散を計算
+        double range_variance[15] = {0};
+        for (int i = 0; i < P_ALL_NUM; i++)
+        {
+            for (int j = 0; j < 15; j++)
+            {
+                if (sqrt2(center_x - Pass[i].p_xS, center_y - Pass[i].p_yS) <= j + 1 && sqrt2(center_x - Pass[i].p_xS, center_y - Pass[i].p_yS) > j)
+                {
+                    double diff = Pass[i].p_wait - range_avg[j];
+                    range_variance[j] += diff * diff;
+                }
+            }
+        }
+
+        for (int i = 0; i < 15; i++)
+        {
+            double std_dev = 0;
+            if (range_count[i] > 0) {
+                range_variance[i] /= range_count[i];
+                std_dev = sqrt(range_variance[i]);
+            }
+            fprintf(fp, "中心からの距離 %d-%d ,平均, %f ,標準偏差, %f\n", i, i + 1, range_avg[i], std_dev);
+        }
+
+        fprintf(fp, "500mごと(探索エリアごと)\n");
+
+        // 500mごとの距離範囲で平均と標準偏差を計算（0-5, 5-10, 10-15）
+        double range_500m[3] = {0};       // 合計
+        int range_500m_count[3] = {0};    // カウント
+        double range_500m_avg[3] = {0};   // 平均
+        
+        for (int i = 0; i < P_ALL_NUM; i++)
+        {
+            double distance = sqrt2(center_x - Pass[i].p_xS, center_y - Pass[i].p_yS);
+            for (int j = 0; j < 3; j++)
+            {
+                if (distance <= (j + 1) * 5 && distance > j * 5)
+                {
+                    range_500m[j] += Pass[i].p_wait;
+                    range_500m_count[j] += 1;
+                }
+            }
+        }
+        
+        // 平均を計算
+        for (int i = 0; i < 3; i++)
+        {
+            if (range_500m_count[i] > 0) {
+                range_500m_avg[i] = range_500m[i] / range_500m_count[i];
+            }
+        }
+        
+        // 分散を計算
+        double range_500m_variance[3] = {0};
+        for (int i = 0; i < P_ALL_NUM; i++)
+        {
+            double distance = sqrt2(center_x - Pass[i].p_xS, center_y - Pass[i].p_yS);
+            for (int j = 0; j < 3; j++)
+            {
+                if (distance <= (j + 1) * 5 && distance > j * 5)
+                {
+                    double diff = Pass[i].p_wait - range_500m_avg[j];
+                    range_500m_variance[j] += diff * diff;
+                }
+            }
+        }
+        
+        // 標準偏差を出力
+        for (int i = 0; i < 3; i++)
+        {
+            double std_dev = 0;
+            if (range_500m_count[i] > 0) {
+                range_500m_variance[i] /= range_500m_count[i];
+                std_dev = sqrt(range_500m_variance[i]);
+            }
+            fprintf(fp, "中心からの距離 %d00m-%d00m ,平均, %f ,標準偏差, %f\n", i * 5, (i + 1) * 5, range_500m_avg[i], std_dev);
+        }
+
+        
+       
         // 指定区間内の交通量
-        sum += Twait;
+        sum_Twait += Twait;
 
         // printf("%d,%d\n",Node[1].stack_num,Node[1].stack_num2);
 
@@ -419,7 +519,7 @@ int main()
         n += 1;
     }
 
-    double average = sum / n;
+    double average = sum_Twait / n;
     fprintf(fp, "平均到着時間 %lf\n", average);
 
     // for(int k = 1; k<=250; k++){
