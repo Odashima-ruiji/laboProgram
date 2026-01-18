@@ -18,7 +18,7 @@
 #include "globals.h"
 #include "base_struct.h"
 #include "base_func.h"
-#include "placement.h"
+#include "placement_60_40.h"
 #include "Common_func.h"
 #include "move.h"
 #include "my_func.h"
@@ -33,7 +33,7 @@ int main()
     // csv出力のための設定----------------------------------------------------------------------------------------------
     // csv出力するための数値
     FILE *fp;
-    char *fname = "test.csv";
+    char *fname = "test_multi_60_40_den6_dist22.csv";
 
     char *node = "node";
     char *node0 = "node0";
@@ -65,6 +65,7 @@ int main()
     // gnuplotで描画する
     //シミュレーションgif
     // 初期マップ用の静止画像出力設定
+    /*
     FILE *gp;
     gp = popen("gnuplot", "w");
     fprintf(gp, "set terminal pngcairo size 800,800 enhanced font 'Arial,12'\n");
@@ -88,6 +89,7 @@ int main()
     fprintf(gp, "set arrow 4 from %d,%d to %d,%d nohead lc rgb \"black\" lw 2\n", Ax_d, Ay - Ay_d, Ax_d, Ay_d);
 #endif
     fprintf(gp, "set title \"Initial Map - Nodes and Passengers\"\n");
+    */
     
     // アニメーション用パイプは使用しない（コメントアウト）
     // FILE *gp_map;
@@ -99,7 +101,7 @@ int main()
     FILE *gp_waiting = NULL;
 
     // --------------------------------------------------------------------------------------------------------------------
-    for (int jc = 0; jc < 1; jc++)
+    for (int jc = 0; jc < 5; jc++)
     {
         // 各ループで乱数シードを設定
         srand((int)RANDOM_SEED + jc + 1);
@@ -136,10 +138,12 @@ int main()
         Init_W_map(); // ノードのW_map初期化
 
         // 初期マップの描画（避難エリアのみ）
+        /*
         fprintf(gp, "plot NaN notitle\n");
         
         pclose(gp);
         printf("初期マップ画像を出力しました: initial_map.png\n");
+        */
 
         // //スピードカウンタの初期化
         // for(int i=0; i<10000; i++){
@@ -526,6 +530,7 @@ int main()
         // printf("map_points.png が生成されました。\n");
 
         // 待ち客の初期位置分布
+        /*
         FILE *gp_1 = popen("gnuplot", "w");
         if (gp_1 == NULL)
         {
@@ -576,6 +581,7 @@ int main()
         fprintf(gp_1, "e\n");
 
         pclose(gp_1);
+        */
 
         n += 1;
     }
