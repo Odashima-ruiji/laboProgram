@@ -5,7 +5,7 @@ add_library(carshare
   globals.c
   move.c
   my_func.c
-  placement.c
+  placement_40_60.c
   )
 # greetingライブラリのインクルードディレクトリを教えてあげる
 # PROJECT_SOURCE_DIRはこのプロジェクトのルートディレクトリの絶対パス

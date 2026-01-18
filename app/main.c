@@ -18,7 +18,7 @@
 #include "globals.h"
 #include "base_struct.h"
 #include "base_func.h"
-#include "placement.h"
+#include "placement_60_40.h"
 #include "Common_func.h"
 #include "move.h"
 #include "my_func.h"
@@ -33,7 +33,7 @@ int main()
     // csv出力のための設定----------------------------------------------------------------------------------------------
     // csv出力するための数値
     FILE *fp;
-    char *fname = "test.csv";
+    char *fname = "test_multi_search_60_40_den6_dist26.csv";
 
     char *node = "node";
     char *node0 = "node0";
