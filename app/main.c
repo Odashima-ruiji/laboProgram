@@ -18,7 +18,7 @@
 #include "globals.h"
 #include "base_struct.h"
 #include "base_func.h"
-#include "placement.h"
+#include "placement_80_20.h"
 #include "Common_func.h"
 #include "move.h"
 #include "my_func.h"
@@ -33,7 +33,7 @@ int main()
     // csv出力のための設定----------------------------------------------------------------------------------------------
     // csv出力するための数値
     FILE *fp;
-    char *fname = "test_dens3_dist8.csv";
+    char *fname = "test_80_20_dens6_dist22.csv";
 
     char *node = "node";
     char *node0 = "node0";
@@ -128,7 +128,7 @@ int main()
     fprintf(gp_waiting, "set object 1 circle at %f,%f size %f border rgb 'black' lw 2 fillstyle empty\n", center_x, center_y, area_disaster);
 
     // --------------------------------------------------------------------------------------------------------------------
-    for (int jc = 0; jc < 5; jc++)
+    for (int jc = 0; jc < 1; jc++)
     {
         // 各ループで乱数シードを設定
         srand((int)RANDOM_SEED + jc + 1);
