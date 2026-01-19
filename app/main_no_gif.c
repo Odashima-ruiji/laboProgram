@@ -33,7 +33,7 @@ int main()
     // csv出力のための設定----------------------------------------------------------------------------------------------
     // csv出力するための数値
     FILE *fp;
-    char *fname = "test_multi_40_60.csv";
+    char *fname = "test_multi_search_40_60.csv";
 
     char *node = "node";
     char *node0 = "node0";

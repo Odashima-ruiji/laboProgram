@@ -198,13 +198,17 @@ int main()
                 }
                 else if (Node[i].p_on == 2)
                 {
-                    // 乗客を２人乗せているとき：水色
-                    fprintf(gp, "%f\t%f\t1\t0x43A1FF\n", Node[i].n_X, Node[i].n_Y);
+                    // 乗客を２人乗せているとき：オレンジ色
+                    fprintf(gp, "%f\t%f\t1\t0xffa500\n", Node[i].n_X, Node[i].n_Y);
                 }
                 else if (Node[i].p_on == 3)
                 {
                     // 情報を得て待ち客がいる目的地へ移動しているとき：黄緑
                     fprintf(gp, "%f\t%f\t1\t0x3BCE00\n", Node[i].n_X, Node[i].n_Y);
+                }
+                else if(Node[i].p_on ==4){
+                    //乗客を１人乗せてもう１人の探索へ向かっているとき：黄色
+                    fprintf(gp, "%f\t%f\t1\t0xF4E511\n",Node[i].n_X,Node[i].n_Y);
                 }
                 else if (Node[i].p_on == 5)
                 {
