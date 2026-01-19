@@ -48,6 +48,7 @@ extern int count_ride1;
 extern int count_ride2;
 extern int total_transmit;
 extern int count_ride3;
+extern int count_ride4;
 extern int ride_transmit;
 extern int count_p_no;
 extern int count_p_on_3;

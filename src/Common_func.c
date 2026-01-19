@@ -213,7 +213,21 @@ void allrideon()
                 Node[l].n_xD2 = Pass[Node[l].p_num2].p_xD;                                           // 乗客の目的地情報をノードの目的地情報2に入力(x座標)
                 Node[l].n_yD2 = Pass[Node[l].p_num2].p_yD;                                           // 乗客の目的地情報をノードの目的地情報2に入力(y座標)
                 Node[l].d_length2 = sqrt2(Node[l].n_xD2 - Node[l].n_X, Node[l].n_yD2 - Node[l].n_Y); // 目的地との距離を入力
-                
+    #ifdef N_search
+            }
+            if(Trans[(int)Node[l].n_X][(int)Node[l].n_Y].wp_Exist == 1 && Node[l].p_on == 4 ){
+				count_ride2 += 1;
+				count_ride4 += 1;
+				Node[l].p_num2 = dequeue(Node[l].n_X,Node[l].n_Y); //乗客の番号をノード情報に入力
+				Node[l].p_on = 2;             //ノードの乗客状況を変更　複数人の乗れる場合はここを変更
+				Pass[Node[l].p_num2].p_ride = 1;  //乗客の乗車状態の変更
+				Node[l].n_xD2 = Pass[Node[l].p_num2].p_xD; // 乗客の目的地情報をノードの目的地情報2に入力(x座標)
+				Node[l].n_yD2 = Pass[Node[l].p_num2].p_yD; // 乗客の目的地情報をノードの目的地情報2に入力(y座標)
+				Node[l].d_length2 = sqrt2(Node[l].n_xD2 - Node[l].n_X , Node[l].n_yD2 - Node[l].n_Y ); // 目的地との距離を入力
+				Node[l].n_xD_sub = -1;
+				Node[l].n_yD_sub = -1;
+				Node[l].d_length_sub = -1;
+    #endif
             }
 #endif
         }

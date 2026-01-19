@@ -107,6 +107,7 @@ int main()
         count_ride1 = 0; // 乗客が一人目を乗せた回数
         count_ride2 = 0; // 乗客が二人目を乗せた回数
         count_ride3 = 0; // 情報フローティングで得た情報をもとに乗客を拾った回数
+        count_ride4 = 0;
         ride_transmit = 0;
         count_p_no = 0; // 情報に従うノードが目的地に到着したが乗客がいなかった回数
         count_p_on_3 = 0;

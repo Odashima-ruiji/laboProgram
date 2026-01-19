@@ -44,6 +44,7 @@ int count_ride1 = 0;
 int count_ride2 = 0;
 int total_transmit = 0;
 int count_ride3 = 0;
+int count_ride4 = 0;
 int ride_transmit = 0;
 int count_p_no = 0;
 int count_p_on_3 = 0;
