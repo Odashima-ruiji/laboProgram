@@ -27,6 +27,6 @@
 #define circle
 #define two
 #define dis_center
-#define P_search
+#define N_search
 
 #endif

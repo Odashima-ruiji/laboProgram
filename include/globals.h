@@ -51,6 +51,7 @@ extern int count_ride3;
 extern int ride_transmit;
 extern int count_p_no;
 extern int count_p_on_3;
+extern int count_p_on_4;
 extern int ridecount;
 extern int waitcount;
 extern int distancemass;

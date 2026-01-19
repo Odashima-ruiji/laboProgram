@@ -52,6 +52,61 @@ void allrideon()
                         Node[l].Map[i][j].no_D = 0;
                     }
                 }
+#ifdef N_search
+                if(Node[l].stack_num > 0 && Node[l].p_on == 1 && l < po){
+					int count1 = 0;
+					do{
+						count1 += 1;
+						int  numdata = peek(l);
+						
+
+						if(search(l,numdata) == 0){ // 同じデータがなければ
+							
+							if((Twait*Ax*Ax - numdata >  reftime*Ax*Ax) || (Node[l].n_xD_sub - Node[l].n_X > refdistance || Node[l].n_X - Node[l].n_xD_sub > refdistance) || (Node[l].n_yD_sub - Node[l].n_Y > refdistance || Node[l].n_Y - Node[l].n_yD_sub > refdistance)){  //長い時間と距離　経過しているとき参照しない
+								pop(l);
+								stack_sort();
+								Node[l].p_on = 1;
+								//printf("現在時刻 %d %d番ノード: %ds前\n",Twait,i,(Twait*10000 - numdata)/10000);
+								//printf("本来目指す目的地(%d,%d)\n\n",Node[i].n_xD,Node[i].n_yD);
+								Node[l].n_xD_sub = -1;
+								Node[l].n_yD_sub =  -1;
+								pushnopos(l,numdata);
+								continue;
+							}else{
+								pop(l);
+								stack_sort();
+								Node[l].p_on = 4;
+								count_p_on_4 += 1;
+								Node[l].n_xD_sub = (numdata % (Ax*Ax) ) / Ax;
+								Node[l].n_yD_sub =  numdata % Ax;
+							}
+							//count_ifgo += 1;
+							Node[l].d_length_sub = sqrt2(Node[l].n_xD_sub - Node[l].n_X , Node[l].n_yD_sub - Node[l].n_Y );
+							pushnopos(l,numdata);
+							if(l==1){
+								//printf("データ %d,目的地(%d,%d)\n",numdata,Node[i].n_xD,Node[i].n_yD);
+							}
+
+							count1 = 0;
+							break;
+						}
+
+						//if(search(i,Ax*Node[i].n_xD+Node[i].n_yD)>0){
+							//printf("BB\n");
+						//}
+						   //客が生成されるために一度訪れたところでも行く
+					}while(/*search(i,Ax*Node[i].n_yD+Node[i].n_yD)>0 &&*/ count1 < Node[l].stack_num +1);
+
+					if(Node[l].n_yD_sub<0){ 
+						Node[l].p_on = 1;
+					}
+					//printf("目的地は(%d.%d)\n",Node[i].n_xD,Node[i].n_yD);
+					// Node[l].p_num = -1;
+					// Node[l].p_num2= -1;
+					Node[l].d_length = sqrt2(Node[l].n_xD - Node[l].n_X , Node[l].n_yD - Node[l].n_Y ); // 目的地との距離を入力
+					//printf("ABBBBBB\n");
+				}
+#endif              
             }
             else if (Trans[(int)Node[l].n_X][(int)Node[l].n_Y].wp_Exist == 1 && Node[l].p_on == 3)
             {
@@ -1092,6 +1147,9 @@ int syokika()
 	    Node[count].move_flag =  0;
         Node[count].d_length = 0;  // 乗客１の宛先地点までの距離　乗客１の目的地がノード自体の目的地となる
 	    Node[count].d_length2 = 0;
+        Node[count].d_length_sub = 0;  // 副宛先地点までの距離
+        Node[count].n_xD_sub = -1;     // 副宛先地点X座標を初期化
+        Node[count].n_yD_sub = -1;     // 副宛先地点Y座標を初期化
         Node[count].move_pattern = 0;
         for (int i = 0; i < Ax; i++)
         {

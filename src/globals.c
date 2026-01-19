@@ -47,6 +47,7 @@ int count_ride3 = 0;
 int ride_transmit = 0;
 int count_p_no = 0;
 int count_p_on_3 = 0;
+int count_p_on_4 = 0;
 int ridecount = 0;
 int waitcount = 0;
 int distancemass = 0;
