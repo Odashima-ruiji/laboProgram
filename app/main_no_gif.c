@@ -1,5 +1,5 @@
 /*
-    main.c //メインファイル
+    main_no_gif.c //メインファイル(GIF出力なし)
     サービスエリア20x20 交差点間距離50m
     車両は自由探索
     エリア内の位置の違いによる到着時間の変化を表すヒートマップを表示
@@ -18,7 +18,7 @@
 #include "globals.h"
 #include "base_struct.h"
 #include "base_func.h"
-#include "placement_100_0.h"
+#include "placement_40_60.h"
 #include "Common_func.h"
 #include "move.h"
 #include "my_func.h"
@@ -33,7 +33,7 @@ int main()
     // csv出力のための設定----------------------------------------------------------------------------------------------
     // csv出力するための数値
     FILE *fp;
-    char *fname = "test.csv";
+    char *fname = "test_multi_40_60.csv";
 
     char *node = "node";
     char *node0 = "node0";
@@ -61,7 +61,7 @@ int main()
     syokika();
 
     // for(int l =0;l<100;l++){
-    /* gnuplotで出力-------------------------------------------------------------------------------------------------- */
+    /* GIF出力部分をコメントアウト
     // gnuplotで描画する
     FILE *gp;
     gp = popen("gnuplot -persist", "w"); // パイプを開きgnuplotを立ち上げ
@@ -95,9 +95,10 @@ int main()
     fprintf(gp, "set arrow 4 from %d,%d to %d,%d nohead lc rgb \"black\" lw 2\n", Ax_d, Ay - Ay_d, Ax_d, Ay_d);
 #endif
     fprintf(gp, "set title \"model animation  count:0 time:0\"\n");
+    */
 
     // --------------------------------------------------------------------------------------------------------------------
-    for (int jc = 0; jc < 1; jc++)
+    for (int jc = 0; jc < 5; jc++)
     {
         srand((int)RANDOM_SEED + jc + 1);
         Twait = 0;
@@ -130,12 +131,16 @@ int main()
         Dist_Init_n(); // ノードの初期配置
         Dist_Init_n_D();
 
+        /* 初期のノード配置表示をコメントアウト
         fprintf(gp, "plot '-' with points pointtype 5\n");
         for (int i = 0; i < N_ALL_NUM; i++)
         {
             fprintf(gp, "%f\t%f\n", Node[i].n_X, Node[i].n_Y);
         }
         fprintf(gp, "e\n");
+        */
+
+        printf("初期化完了\n");
 
         // //スピードカウンタの初期化
         // for(int i=0; i<10000; i++){
@@ -170,6 +175,7 @@ int main()
             // D_check();  // 乗客の目的地判定
             check_ride(); // 乗客の乗待状況カウント
 
+            /* GIFアニメーション用のプロット部分をコメントアウト
             fprintf(gp, "plot '-' with points pointtype 5 ps variable lc rgb var\n");
             // hubを示す固定点 -------------------------------------------------------------------
             //  fprintf(gp, "1\t1\t2\t0x000000\n");
@@ -211,6 +217,7 @@ int main()
                 }
             }
             fprintf(gp, "e\n");
+            */
 
             // fprintf( fp2, "%d,%f,%f,\n", Twait,Node[0].n_X,Node[0].n_Y); //ノードの座標 csvファイル出力
 
@@ -248,16 +255,22 @@ int main()
                 }
             }
 
-            printf("経過時間 %d\n", Twait);
-            printf("情報取得回数 : %d\n", get_info);
-            printf("\n");
-            printf("%d\n", jc);
+            if (Twait % 100 == 0) {  // 100ステップごとに進捗を表示
+                printf("経過時間 %d\n", Twait);
+                printf("情報取得回数 : %d\n", get_info);
+                printf("残り乗客数 : %d\n", P_ALL_NUM - P_check());
+                printf("\n");
+                printf("%d\n", jc);
+            }
 
+            /* GIFアニメーション用のタイトル更新をコメントアウト
             fprintf(gp, "set title \"model animation  count:%d time:%d\"\n", o, Twait);
             fprintf(gp, "set label 1 \"count:%d\"at %d, %d\n", check_1, d[0][0] + 1, d[0][1] + 3);
             fprintf(gp, "set label 2 \"count:%d\"at %d, %d\n", check_2, d[1][0] + 1, d[1][1] + 3);
             fprintf(gp, "set label 3 \"count:%d\"at %d, %d\n", check_3, d[2][0] + 1, d[2][1] + 3);
             fprintf(gp, "set label 4 \"count:%d\"at %d, %d\n", check_4, d[3][0] + 1, d[3][1] + 3);
+            */
+            
             // all10count[Twait] =  P_check();
             all_count[Twait] = P_check();
             // traffic_counter2[Twait] = traffic_counter;
@@ -464,6 +477,7 @@ int main()
         // system("gnuplot plot_script.plt");
         // printf("map_points.png が生成されました。\n");
 
+        /* 乗客の初期位置分布のプロット生成部分をコメントアウト
         // 待ち客の初期位置分布
         FILE *gp_1 = popen("gnuplot -persist", "w");
         if (gp_1 == NULL)
@@ -515,6 +529,9 @@ int main()
         fprintf(gp_1, "e\n");
 
         pclose(gp_1);
+        */
+
+        printf("シミュレーション完了: 実行回数 %d, 完了時間 %d\n", jc, Twait);
 
         n += 1;
     }

@@ -25,7 +25,8 @@
 #define reftime 30      // ノードが参照する時間差
 #define EPIDEMIC
 #define circle
-// #define two
+#define two
 #define dis_center
+#define P_search
 
 #endif
