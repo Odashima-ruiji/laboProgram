@@ -704,6 +704,20 @@ void D_check()
                 count_p_no += 1;
             }
         }
+#ifdef N_search
+        if(Node[i].p_on == 4){
+			if(Node[i].n_xD_sub == Node[i].n_X && Node[i].n_yD_sub == Node[i].n_Y && Trans[Node[i].n_insec_X][Node[i].n_insec_Y].wp_Exist == 0){ 	
+						
+					pushnopos(i,Ax*Node[i].n_X+Node[i].n_Y);
+
+					Node[i].p_on = 1;
+					//Node[i].p_num = 1;
+					Node[i].n_xD_sub = -1;
+					Node[i].n_yD_sub = -1;
+					count_p_no += 1;		
+			}
+		}
+#endif
         if (Node[i].p_on == 5)
         {
             int gather_area = Node[i].move_flag * 5;
