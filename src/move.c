@@ -674,6 +674,136 @@ void move_new_direction()
 
                     count += 1;
                 }
+#ifdef N_search           
+            }else if(Node[count].p_on == 4){
+				/*if(Node[count].p_on == 3 && Node[count].n_X == Node[count].n_xD && Node[count].n_Y == Node[count].n_yD){// すでに目的地に到着している場合
+					Node[count].p_on = 0;
+					continue;
+				}*/
+
+				d_now_length = Node[count].d_length_sub; // 移動する前の目的地との距離 
+
+				//printf("direction %d\n",direction);
+
+				/*
+				
+				乗客を乗せている場合、directionの値によって目的地に近づくようにランダムに移動する
+				0 ... 北    1... 南
+				2 ... 西    3... 東
+				
+				*/
+				
+				//サービスエリアから出たらもう一回経路決定する +  目的地への距離が遠くなったらもう一回経路決定する
+				if( direction == 0 && d_now_length != 0){
+					
+					Node[count].n_insec_Y += -1;
+					Node[count].d_length_sub = sqrt2(Node[count].n_xD_sub - Node[count].n_insec_X , Node[count].n_yD_sub - Node[count].n_insec_Y ); //移動した後の目的地との距離
+					
+					
+
+					if(Node[count].d_length_sub - d_now_length > 0.0 ) // 目的地との距離が長くなったらwhile文の先頭に戻る
+					{
+						
+						Node[count].n_insec_Y += 1; //元に戻す
+						Node[count].d_length_sub = sqrt2(Node[count].n_xD_sub - Node[count].n_insec_X , Node[count].n_yD_sub - Node[count].n_insec_Y ); //移動する前の現在地と目的地との距離に戻す
+						
+						continue;
+					}
+
+					if(Node[count].n_insec_Y < 0 ) // エリアから南に出た場合while文の先頭に戻る
+					{
+						
+						Node[count].n_insec_Y += 1; //元に戻す
+						Node[count].d_length_sub = sqrt2(Node[count].n_xD_sub - Node[count].n_insec_X , Node[count].n_yD_sub - Node[count].n_insec_Y ); //移動する前の現在地と目的地との距離に戻す
+						continue;
+					}
+				}
+
+					
+					
+				else if( direction == 1 && d_now_length != 0 ){
+					
+					Node[count].n_insec_Y += 1;
+					Node[count].d_length_sub = sqrt2(Node[count].n_xD_sub - Node[count].n_insec_X , Node[count].n_yD_sub - Node[count].n_insec_Y ); //移動した後の目的地との距離
+					
+					
+
+					if(Node[count].d_length_sub -  d_now_length > 0.0 ) // 目的地との距離が長くなったらwhile文の先頭に戻る
+					{
+						Node[count].n_insec_Y += -1; //元に戻す
+						Node[count].d_length_sub = sqrt2(Node[count].n_xD_sub - Node[count].n_insec_X , Node[count].n_yD_sub - Node[count].n_insec_Y ); //移動する前の現在地と目的地との距離に戻す
+
+						continue;
+					}
+
+					if(Node[count].n_insec_Y > Ay-1 ) // エリアから北に出た場合while文の先頭に戻る
+					{
+						
+						Node[count].n_insec_Y += -1; //元に戻す
+						Node[count].d_length_sub = sqrt2(Node[count].n_xD_sub - Node[count].n_insec_X , Node[count].n_yD_sub - Node[count].n_insec_Y ); //移動する前の現在地と目的地との距離に戻す
+						
+						continue;
+					}
+
+					
+					
+				}
+				
+				else if( direction == 2 && d_now_length != 0){
+					
+					Node[count].n_insec_X += -1;
+					
+					Node[count].d_length_sub = sqrt2(Node[count].n_xD_sub - Node[count].n_insec_X , Node[count].n_yD_sub - Node[count].n_insec_Y ); //移動した後の目的地との距離
+					
+					if(Node[count].d_length_sub - d_now_length > 0.0 ) // 目的地との距離が長くなったらwhile文の先頭に戻る
+					{
+						
+						Node[count].n_insec_X += 1; //元に戻す
+						Node[count].d_length_sub = sqrt2(Node[count].n_xD_sub - Node[count].n_insec_X , Node[count].n_yD_sub - Node[count].n_insec_Y ); //移動する前の現在地と目的地との距離に戻す
+						
+
+						continue;
+					}
+					
+					if(Node[count].n_insec_X < 0 ) // エリアから西に出た場合while文の先頭に戻る
+					{
+						Node[count].n_insec_X += 1; //元に戻す
+						Node[count].d_length_sub = sqrt2(Node[count].n_xD_sub - Node[count].n_insec_X , Node[count].n_yD_sub - Node[count].n_insec_Y ); //移動する前の現在地と目的地との距離に戻す
+				
+						continue;
+					}
+
+					
+
+				}
+				
+				else if( direction == 3 && d_now_length != 0){
+					
+					Node[count].n_insec_X += 1;
+
+					Node[count].d_length_sub = sqrt2(Node[count].n_xD_sub - Node[count].n_insec_X , Node[count].n_yD_sub - Node[count].n_insec_Y ); //移動した後の目的地との距離
+
+					
+					if(Node[count].d_length_sub - d_now_length > 0.0 ) // 目的地との距離が長くなったらwhile文の先頭に戻る
+					{
+						
+						Node[count].n_insec_X += -1; //元に戻す
+						Node[count].d_length_sub = sqrt2(Node[count].n_xD_sub - Node[count].n_insec_X , Node[count].n_yD_sub - Node[count].n_insec_Y ); //移動する前の現在地と目的地との距離に戻す
+
+						continue;
+					}
+
+					if(Node[count].n_insec_X > Ax-1 ) // エリアから東に出た場合while文の先頭に戻る
+					{
+						
+						Node[count].n_insec_X += -1; //元に戻す
+						Node[count].d_length_sub = sqrt2(Node[count].n_xD_sub - Node[count].n_insec_X , Node[count].n_yD_sub - Node[count].n_insec_Y ); //移動する前の現在地と目的地との距離に戻す
+
+						continue;
+					}
+				}
+				count += 1 ; // 調べるノード番号を増加
+#endif 
             }
             else if (Node[count].p_on == 1 || Node[count].p_on == 3 || Node[count].p_on == 5)
             {
