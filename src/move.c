@@ -575,10 +575,11 @@ void move_new_direction()
                         count += 1;
                     }
                 } else {
+                    score_based_movement: // スコアベース移動の開始ラベル
                     int current_grid_x = (int)(Node[count].n_X / cell_width);
                     int current_grid_y = (int)(Node[count].n_Y / cell_height);
                     
-                    if(grid_count[current_grid_x][current_grid_y] > 0){
+                    if(grid_count[current_grid_x][current_grid_y] > 0 && distination_flag[count] == 0){
                         // 現在のグリッド内にinfo==1の交差点が存在する場合
                         // グリッドの境界を計算
                         int grid_min_x = current_grid_x * cell_width;
@@ -647,7 +648,7 @@ void move_new_direction()
                             }
                         }
                     }
-                    else{
+                    else if(distination_flag[count] == 0){
                         // 密度マップを更新してから全マップで最もスコアが高いグリッドを目的地として設定
                         P_map(count);
                         find_best_grid_in_all_map(count);
@@ -660,6 +661,8 @@ void move_new_direction()
                         // target_x, target_yからグリッド位置を計算してW_gridに加算
                         int grid_x = target_x / cell_width;
                         int grid_y = target_y / cell_height;
+
+                        distination_flag[count] = 1; // 目的地設定済みフラグを立てる
                         
                         // 範囲チェックとW_gridへの加算
                         if (grid_x >= 0 && grid_x < grid_size && grid_y >= 0 && grid_y < grid_size) {
@@ -694,29 +697,21 @@ void move_new_direction()
                                 }
                             }
                         } else {
-                            // 目的地に到達した場合、密度マップを更新して新しい目的地を探す
-                            P_map(count);
-                            re_find_best_grid_in_all_map(count);
-                            count_map += 1;
-                            
-                            // 新しい目的地へ移動開始
-                            target_x = Node[count].target_grid_x;
-                            target_y = Node[count].target_grid_y;
-                            
-                            // target_x, target_yからグリッド位置を計算してW_gridに加算
-                            grid_x = target_x / cell_width;
-                            grid_y = target_y / cell_height;
-                            
-                            // 範囲チェックとW_gridへの加算
-                            if (grid_x >= 0 && grid_x < grid_size && grid_y >= 0 && grid_y < grid_size) {
-                                Node[count].W_grid[grid_x][grid_y] += 10.0;
-                            }
-                            
-                            dx = target_x - Node[count].n_insec_X;
-                            dy = target_y - Node[count].n_insec_Y;
-                            
+                            // 目的地に到達した場合、distination_flagを0にリセットして再度スコア計算へ
+                            distination_flag[count] = 0;
+                            goto score_based_movement;
+                        }
+                    }else if(distination_flag[count] == 1){
+                        // 目的地設定済みの場合は目的地に向かって移動
+                        int target_x = Node[count].target_grid_x;
+                        int target_y = Node[count].target_grid_y;
+                        
+                        int dx = target_x - Node[count].n_insec_X;
+                        int dy = target_y - Node[count].n_insec_Y;
+                        
+                        if (dx != 0 || dy != 0) {
                             // X方向とY方向のどちらを優先するか決定
-                            if (abs(dx) > abs(dy)) {
+                            if (abs(dx) >= abs(dy)) {
                                 // X方向を優先
                                 if (dx > 0) {
                                     Node[count].n_insec_X += 1;
@@ -731,7 +726,12 @@ void move_new_direction()
                                     Node[count].n_insec_Y -= 1;
                                 }
                             }
+                        } else {
+                            // 目的地に到達した場合、distination_flagを0にリセットして再度スコア計算へ
+                            distination_flag[count] = 0;
+                            goto score_based_movement;
                         }
+
                     }
   
                     
