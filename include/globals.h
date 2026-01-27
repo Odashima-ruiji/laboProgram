@@ -24,6 +24,7 @@ extern int sum_all10count[500];
 extern double ave_all10count[500];
 extern int traffic_counter2[10000];
 extern int transmit__[N_ALL_NUM][P_ALL_NUM];
+extern int distination_flag[N_ALL_NUM];
 extern double speed_conter2[10000];
 extern double n;
 

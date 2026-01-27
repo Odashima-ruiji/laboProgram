@@ -20,6 +20,7 @@ int sum_all10count[500];
 double ave_all10count[500];
 int traffic_counter2[10000];
 int transmit__[N_ALL_NUM][P_ALL_NUM];
+int distination_flag[N_ALL_NUM];
 double speed_conter2[10000];
 double n = 0;
 
