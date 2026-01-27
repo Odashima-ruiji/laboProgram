@@ -1081,6 +1081,12 @@ int syokika()
     {
         stack_pop[i] = 0;
     }
+    for(int i = 0; i<10000; i++){
+        Node0_score[i] = 0;
+        Node0_dens[i] = 0;
+        Node0_dist[i] = 0;
+        Node0_W_grid[i] = 0;
+    }
     for (int count = 0; count < N_ALL_NUM; count++)
     {
         for (int i = 0; i < ssize; i++)
@@ -1114,6 +1120,7 @@ int syokika()
         Node[count].move_pattern = 0;
         Node[count].target_grid_x = 0; // 目標グリッドのX座標
 	    Node[count].target_grid_y = 0;
+        distination_flag[count] = 0;
         for (int i = 0; i < Ax; i++)
         {
             for (int j = 0; j < Ay; j++)
@@ -1292,6 +1299,30 @@ double calculate_direction_score(int node_index, int target_x, int target_y)
     // スコア = (W_dens × 正規化密度) + W_map - (W_dist × 正規化距離) - W_grid
     score = (W_dens * density_normalized) + (Node[node_index].Map_grid[grid_x][grid_y].W_map) - (W_dist * distance_normalized) - (Node[node_index].W_grid[grid_x][grid_y]);
     
+
+
+
+
+    // --- 対数変換正規化 ---
+    double log_dens = log(density + 1.0);
+    double log_dist = log(distance + 1.0);
+
+    double log_dens_max = log(density_max + 1.0);
+    double log_dist_max = log(distance_max + 1.0);
+
+    double log_density_normalized = log_dens / log_dens_max;
+    double log_distance_normalized = log_dist / log_dist_max;
+
+    // 正規化値が1を超えないようにクリップ
+    if (log_density_normalized > 1.0) log_density_normalized = 1.0;
+    if (log_distance_normalized > 1.0) log_distance_normalized = 1.0;
+    
+    // スコア = (W_dens × 正規化密度) + W_map - (W_dist × 正規化距離) - W_grid
+    score = (W_dens * log_density_normalized) + (Node[node_index].Map_grid[grid_x][grid_y].W_map) - (W_dist * log_distance_normalized) - (Node[node_index].W_grid[grid_x][grid_y]);
+    if(Node[node_index].W_grid[grid_x][grid_y] >= 20){
+        sum_W_grid += 1.0;
+    }
+    
     return score;
 }
 
@@ -1326,6 +1357,53 @@ void find_best_grid_in_all_map(int node_index)
         }
     }
     
+    if(node_index == 0){    
+        // その場所の混雑度を取得
+        double density = (double)smoothed_count[best_grid_x/cell_width][best_grid_y/cell_height];
+        
+        // Node[node_index]からの距離を計算
+        double distance = sqrt2(best_grid_x - Node[node_index].n_X, best_grid_y - Node[node_index].n_Y);
+        
+        // --- 正規化処理 ---
+        // density: 0〜50の範囲を想定（平滑化後の現実的な最大値）
+        // distance: 0〜マップ対角線の長さ（sqrt(Ax^2 + Ay^2) ≈ 84.85）
+        double density_max = 50.0;  // 密度の推定最大値
+        double distance_max = sqrt(Ax * Ax + Ay * Ay);  // マップの対角線距離（約84.85）
+        
+        // // Min-Max正規化（0〜1の範囲にスケーリング）
+        // double density_normalized = density / density_max;
+        // double distance_normalized = distance / distance_max;
+        
+        // // 正規化値が1を超えないようにクリップ
+        // if (density_normalized > 1.0) density_normalized = 1.0;
+        // if (distance_normalized > 1.0) distance_normalized = 1.0;
+
+        // Node0_score[Twait] = best_score;
+        // Node0_dens[Twait] = density_normalized;
+        // Node0_dist[Twait] = distance_normalized;
+        // Node0_W_grid[Twait] = Node[node_index].W_grid[best_grid_x][best_grid_y];
+
+
+
+        // --- 対数変換正規化 ---
+        double log_dens = log(density + 1.0);
+        double log_dist = log(distance + 1.0);
+
+        double log_dens_max = log(density_max + 1.0);
+        double log_dist_max = log(distance_max + 1.0);
+
+        double log_density_normalized = log_dens / log_dens_max;
+        double log_distance_normalized = log_dist / log_dist_max;
+
+        // 正規化値が1を超えないようにクリップ
+        if (log_density_normalized > 1.0) log_density_normalized = 1.0;
+        if (log_distance_normalized > 1.0) log_distance_normalized = 1.0;
+    
+        Node0_score[Twait] = best_score;
+        Node0_dens[Twait] = log_density_normalized;
+        Node0_dist[Twait] = log_distance_normalized;
+        Node0_W_grid[Twait] = Node[node_index].W_grid[best_grid_x][best_grid_y];
+    }
     
     // 結果をノード構造体に格納
     Node[node_index].target_grid_x = best_grid_x;
@@ -1372,7 +1450,36 @@ void re_find_best_grid_in_all_map(int node_index)
             }
         }
     }
+    if(Node[node_index].W_grid[best_grid_x][best_grid_y] > 0){
+        sum_W_grid += 1.0;
+    }
     
+    if(node_index == 0){    
+        // その場所の混雑度を取得
+        double density = (double)smoothed_count[best_grid_x][best_grid_y];
+        
+        // Node[node_index]からの距離を計算
+        double distance = sqrt2(best_grid_x - Node[node_index].n_X, best_grid_y - Node[node_index].n_Y);
+        
+        // --- 正規化処理 ---
+        // density: 0〜50の範囲を想定（平滑化後の現実的な最大値）
+        // distance: 0〜マップ対角線の長さ（sqrt(Ax^2 + Ay^2) ≈ 84.85）
+        double density_max = 50.0;  // 密度の推定最大値
+        double distance_max = sqrt(Ax * Ax + Ay * Ay);  // マップの対角線距離（約84.85）
+        
+        // Min-Max正規化（0〜1の範囲にスケーリング）
+        double density_normalized = density / density_max;
+        double distance_normalized = distance / distance_max;
+        
+        // 正規化値が1を超えないようにクリップ
+        if (density_normalized > 1.0) density_normalized = 1.0;
+        if (distance_normalized > 1.0) distance_normalized = 1.0;
+    
+        Node0_score[Twait] = best_score;
+        Node0_dens[Twait] = density_normalized;
+        Node0_dist[Twait] = distance_normalized;
+        Node0_W_grid[Twait] = Node[node_index].W_grid[best_grid_x][best_grid_y];
+    }
     
     // 結果をノード構造体に格納
     Node[node_index].target_grid_x = best_grid_x;
@@ -1382,5 +1489,8 @@ void re_find_best_grid_in_all_map(int node_index)
     // デバッグ出力（オプション）
     // printf("Node[%d] 最高スコアグリッド: (%d, %d) スコア: %.2f\n", 
     //        node_index, best_grid_x, best_grid_y, best_score);
+
+
+    
 }
 
