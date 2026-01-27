@@ -10,6 +10,7 @@
 #include <string.h>
 #include <time.h>
 #include <math.h>
+#include <unistd.h>  // usleep用（CPU負荷軽減）
 
 ////////////////////////////////////////////////
 // 設定・構造体・グローバル変数・関数のヘッダ読み込み //
@@ -33,7 +34,8 @@ int main()
     // csv出力のための設定----------------------------------------------------------------------------------------------
     // csv出力するための数値
     FILE *fp;
-    char *fname = "test_dens10_dist100.csv";
+    char *fname = "test.csv";
+    //char *fname = "ver.2_60_40_dens1_dist1.csv";
 
     char *node = "node";
     char *node0 = "node0";
@@ -56,7 +58,7 @@ int main()
 
     // 乱数の種を与える
     // srand( ( unsigned int )time( NULL ) );
-    //srand((int)RANDOM_SEED + n);
+    srand((int)RANDOM_SEED + n);
     //srand(2);
     syokika();
 
@@ -104,7 +106,7 @@ int main()
     for (int jc = 0; jc < 5; jc++)
     {
         // 各ループで乱数シードを設定
-        srand((int)RANDOM_SEED + jc + 1);
+        //srand((int)RANDOM_SEED + jc + 1);
         
         Twait = 0;
         allstep = 0;
@@ -286,6 +288,10 @@ int main()
             printf("総客数(到着済 + 未到着) %d\n\n",P_ALL_NUM  + p_add_count);*/
 
             Twait += 1;
+            
+            // CPU負荷軽減のためのスリープ（1ミリ秒 = 1000マイクロ秒）
+            usleep(8000);
+            
             // エラー判定
             if (Twait > 15000)
             {

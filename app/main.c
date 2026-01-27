@@ -18,7 +18,7 @@
 #include "globals.h"
 #include "base_struct.h"
 #include "base_func.h"
-#include "placement_80_20.h"
+#include "placement_60_40.h"
 #include "Common_func.h"
 #include "move.h"
 #include "my_func.h"
@@ -33,7 +33,8 @@ int main()
     // csv出力のための設定----------------------------------------------------------------------------------------------
     // csv出力するための数値
     FILE *fp;
-    char *fname = "test_80_20_dens6_dist22.csv";
+    char *fname = "test.csv";
+    //char *fname = "test_80_20_dens6_dist22.csv";
 
     char *node = "node";
     char *node0 = "node0";
@@ -55,7 +56,7 @@ int main()
     // fprintf(fp,"500人必要ステップ,平均ステップ,一人あたりの乗っているステップ数,一人あたりの待っているステップ数,探索モードで乗せた回数,探索モードで目的地に人がいない場合,情報交換数,情報獲得数\n");
 
     // 乱数の種を与える
-    // srand( ( unsigned int )time( NULL ) );
+    srand( ( unsigned int )time( NULL ) );
     //srand((int)RANDOM_SEED + n);
     //srand(2);
     syokika();
@@ -131,7 +132,7 @@ int main()
     for (int jc = 0; jc < 1; jc++)
     {
         // 各ループで乱数シードを設定
-        srand((int)RANDOM_SEED + jc + 1);
+        //srand((int)RANDOM_SEED + jc + 1);
         
         Twait = 0;
         allstep = 0;
