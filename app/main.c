@@ -33,7 +33,7 @@ int main()
     // csv出力のための設定----------------------------------------------------------------------------------------------
     // csv出力するための数値
     FILE *fp;
-    char *fname = "test_multi_search_60_40_den6_dist26.csv";
+    char *fname = "test.csv";
 
     char *node = "node";
     char *node0 = "node0";
@@ -67,7 +67,7 @@ int main()
     FILE *gp;
     gp = popen("gnuplot", "w"); // パイプを開きgnuplotを立ち上げ（batch モード）
     // パイプを通してgnuplotにコマンドを送る
-    fprintf(gp, "set term gif animate delay 2\n"); // 出力ターミナルをgif, animateオプションを付ける
+    fprintf(gp, "set term gif animate delay \n"); // 出力ターミナルをgif, animateオプションを付ける
 #ifdef EPIDEMIC
     fprintf(gp, "set output 'model_animation_EPIDEMIC.gif'\n"); // 出力ファイル名。
 #else
@@ -231,8 +231,8 @@ int main()
                 }
                 else if (Node[i].p_on == 2)
                 {
-                    // 乗客を２人乗せているとき：水色
-                    fprintf(gp, "%f\t%f\t1\t0x43A1FF\n", Node[i].n_X, Node[i].n_Y);
+                    // 乗客を２人乗せているとき：オレンジ色
+                    fprintf(gp, "%f\t%f\t1\t0xFFA500\n", Node[i].n_X, Node[i].n_Y);
                 }
                 else if (Node[i].p_on == 3)
                 {
