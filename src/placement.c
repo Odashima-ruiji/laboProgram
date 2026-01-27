@@ -233,7 +233,7 @@ void Init_W_map(void)
 #ifdef circle
                 if (distance <= area_disaster) {
                     // 避難エリア内: 高い重み
-                    Node[node].Map_grid[i][j].W_map = 100;
+                    Node[node].Map_grid[i][j].W_map = 50;
                 } else {
                     // 避難エリア外: 低い重み
                     Node[node].Map_grid[i][j].W_map = 0;
