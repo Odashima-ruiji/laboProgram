@@ -1098,6 +1098,7 @@ int syokika()
         for(int i = 0; i < grid_size; i++){
             for(int j = 0; j < grid_size; j++){
                 Node[count].W_grid[i][j] = 0.0;
+                Node[count].Map_grid[i][j].W_map = 0;
             }
         }
         Node[count].prog_d_surp = 0;
@@ -1274,8 +1275,22 @@ double calculate_direction_score(int node_index, int target_x, int target_y)
     // Node[node_index]からの距離を計算
     double distance = sqrt2(target_x - Node[node_index].n_X, target_y - Node[node_index].n_Y);
     
-    // スコア = (W_dens × 混雑度) - (W_dist × 距離)
-    score = (W_dens * density)  + (Node[node_index].Map_grid[grid_x][grid_y].W_map) - (W_dist * distance) - (Node[node_index].W_grid[grid_x][grid_y]);
+    // --- 正規化処理 ---
+    // density: 0〜50の範囲を想定（平滑化後の現実的な最大値）
+    // distance: 0〜マップ対角線の長さ（sqrt(Ax^2 + Ay^2) ≈ 84.85）
+    double density_max = 50.0;  // 密度の推定最大値
+    double distance_max = sqrt(Ax * Ax + Ay * Ay);  // マップの対角線距離（約84.85）
+    
+    // Min-Max正規化（0〜1の範囲にスケーリング）
+    double density_normalized = density / density_max;
+    double distance_normalized = distance / distance_max;
+    
+    // 正規化値が1を超えないようにクリップ
+    if (density_normalized > 1.0) density_normalized = 1.0;
+    if (distance_normalized > 1.0) distance_normalized = 1.0;
+    
+    // スコア = (W_dens × 正規化密度) + W_map - (W_dist × 正規化距離) - W_grid
+    score = (W_dens * density_normalized) + (Node[node_index].Map_grid[grid_x][grid_y].W_map) - (W_dist * distance_normalized) - (Node[node_index].W_grid[grid_x][grid_y]);
     
     return score;
 }

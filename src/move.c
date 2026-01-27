@@ -338,8 +338,6 @@ void move_new_direction()
             if (Node[count].p_on == 0)
             { // ノードが乗客を乗せておらず、目的地設定がない場合　スコアベースで移動
 
-                // ラベルを定義して、目的地到達時にここに戻る
-                retry_find_destination:
                 P_map(count);
                 // 全マップで最もスコアが高いグリッドを目的地として設定
                 //find_best_grid_in_all_map(count);
@@ -650,7 +648,8 @@ void move_new_direction()
                         }
                     }
                     else{
-                        // 全マップで最もスコアが高いグリッドを目的地として設定
+                        // 密度マップを更新してから全マップで最もスコアが高いグリッドを目的地として設定
+                        P_map(count);
                         find_best_grid_in_all_map(count);
                         count_map += 1;
                         // マップ情報がある場合はスコアベースで移動
@@ -664,7 +663,7 @@ void move_new_direction()
                         
                         // 範囲チェックとW_gridへの加算
                         if (grid_x >= 0 && grid_x < grid_size && grid_y >= 0 && grid_y < grid_size) {
-                            Node[count].W_grid[grid_x][grid_y] += 100.0;
+                            Node[count].W_grid[grid_x][grid_y] += 10.0;
                         }
                         
                         // 現在位置から目的地への方向を計算
@@ -695,7 +694,8 @@ void move_new_direction()
                                 }
                             }
                         } else {
-                            // 目的地に到達した場合、新しい目的地を探す
+                            // 目的地に到達した場合、密度マップを更新して新しい目的地を探す
+                            P_map(count);
                             re_find_best_grid_in_all_map(count);
                             count_map += 1;
                             
@@ -709,7 +709,7 @@ void move_new_direction()
                             
                             // 範囲チェックとW_gridへの加算
                             if (grid_x >= 0 && grid_x < grid_size && grid_y >= 0 && grid_y < grid_size) {
-                                Node[count].W_grid[grid_x][grid_y] += 100.0;
+                                Node[count].W_grid[grid_x][grid_y] += 10.0;
                             }
                             
                             dx = target_x - Node[count].n_insec_X;
