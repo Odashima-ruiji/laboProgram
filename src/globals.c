@@ -18,9 +18,12 @@ double range[15];
 int range_count[15];
 int sum_all10count[500];
 double ave_all10count[500];
-int traffic_counter2[10000];
+double Node0_score[10000];
+double Node0_dens[10000];
+double Node0_dist[10000];
+double Node0_W_grid[10000];
 int transmit__[N_ALL_NUM][P_ALL_NUM];
-double speed_conter2[10000];
+int distination_flag[N_ALL_NUM];
 double n = 0;
 
 int stack_push[5000];
@@ -59,6 +62,7 @@ double d_j = 0.12;
 double free_variable;
 double sum_Twait = 0;
 double sum_P_Twait = 0;
+double sum_W_grid = 0;
 int d[4][2] = {{10, 10}, {10, 50}, {50, 50}, {50, 10}};
 
 double area_disaster = (Ax - 2*Ax_d)/2; //避難区域
@@ -75,5 +79,5 @@ int cell_width = Ax / 20;
 int cell_height = Ay / 20;
 
 /* スコア計算用の重みパラメータ */
-double W_dens = 10.0;  // 混雑度の重み
-double W_dist = 50.0;  // 距離の重み（大きくして距離を重視）
+double W_dens = 100.0;  // 混雑度の重み
+double W_dist = 150.0;  // 距離の重み（大きくして距離を重視）

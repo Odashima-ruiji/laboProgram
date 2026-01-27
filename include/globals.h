@@ -22,9 +22,12 @@ extern double range[15];
 extern int range_count[15];
 extern int sum_all10count[500];
 extern double ave_all10count[500];
-extern int traffic_counter2[10000];
+extern double Node0_score[10000];
+extern double Node0_dens[10000];
+extern double Node0_dist[10000];
+extern double Node0_W_grid[10000];
 extern int transmit__[N_ALL_NUM][P_ALL_NUM];
-extern double speed_conter2[10000];
+extern int distination_flag[N_ALL_NUM];
 extern double n;
 
 extern int stack_push[5000];
@@ -63,6 +66,7 @@ extern double d_j;
 extern double free_variable;
 extern double sum_Twait;
 extern double sum_P_Twait;
+extern double sum_W_grid;
 extern int d[4][2];
 
 extern double area_disaster;

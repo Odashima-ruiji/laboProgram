@@ -34,8 +34,8 @@ int main()
     // csv出力のための設定----------------------------------------------------------------------------------------------
     // csv出力するための数値
     FILE *fp;
-    //char *fname = "test.csv";
-    char *fname = "ver.2_60_40_dens10_dist50.csv";
+    char *fname = "test.csv";
+    //char *fname = "ver.2_60_40_dens10_dist50.csv";
 
     char *node = "node";
     char *node0 = "node0";
@@ -57,8 +57,8 @@ int main()
     // fprintf(fp,"500人必要ステップ,平均ステップ,一人あたりの乗っているステップ数,一人あたりの待っているステップ数,探索モードで乗せた回数,探索モードで目的地に人がいない場合,情報交換数,情報獲得数\n");
 
     // 乱数の種を与える
-    // srand( ( unsigned int )time( NULL ) );
-    srand((int)RANDOM_SEED + n);
+    srand( ( unsigned int )time( NULL ) );
+    //srand((int)RANDOM_SEED + n);
     //srand(2);
     syokika();
 
@@ -103,7 +103,7 @@ int main()
     // FILE *gp_waiting = NULL;
 
     // --------------------------------------------------------------------------------------------------------------------
-    for (int jc = 0; jc < 5; jc++)
+    for (int jc = 0; jc < 1; jc++)
     {
         // 各ループで乱数シードを設定
         //srand((int)RANDOM_SEED + jc + 1);
@@ -596,6 +596,16 @@ int main()
 
     double average = sum_Twait / n;
     fprintf(fp, "平均到着時間 %lf\n", average);
+    
+    // Node[0]のW_grid値を出力
+    fprintf(fp, "\nNode[0]のW_grid値:\n");
+    for (int i = 0; i < grid_size; i++) {
+        for (int j = 0; j < grid_size; j++) {
+            fprintf(fp, "%.2lf ", Node[50].W_grid[i][j]);
+        }
+        fprintf(fp, "\n");
+    }
+    fprintf(fp, "\n");
 
     // for(int k = 1; k<=250; k++){
     //         ave_all10count[k] = sum_all10count[k]/n;
@@ -607,9 +617,48 @@ int main()
     // printf("%d\n",count_ifgo); /*情報に従うノードがデータをもとに目的地設定した回数*/
     // printf("%d\n",count_goalif);/*得た情報をもとに乗客を載せた回数*/
     printf("二人目の乗客を降ろした回数 %d\n", count_off); /*二人目の乗客をおろした回数 */
+    printf("sum_W_grid %lf\n", sum_W_grid);
     // printf("%d\n\n",total_transmit); /*すべての通信回数*/
     fclose(fp);
     fclose(fp2);
+
+    // score.csvファイルにNode0のscore, dens, distの値を出力
+    FILE *fp_score;
+    fp_score = fopen("score.csv", "w");
+    if (fp_score == NULL) {
+        printf("score.csvファイルが開けません\n");
+    } else {
+        // スコア値の出力
+        printf("scoreの値\n");
+        fprintf(fp_score, "score\n");
+        for (int i = 500; i < 3000; i++) {
+            fprintf(fp_score, "%lf\n", Node0_score[i]);
+        }
+        
+        // 密度値の出力
+        printf("densの値\n");
+        fprintf(fp_score, "dens\n");
+        for (int i = 500; i < 3000; i++) {
+            fprintf(fp_score, "%lf\n", Node0_dens[i]*W_dens);
+        }
+        
+        // 距離値の出力
+        printf("distの値\n");
+        fprintf(fp_score, "dist\n");
+        for (int i = 500; i < 3000; i++) {
+            fprintf(fp_score, "%lf\n", Node0_dist[i]*W_dist);
+        }
+
+        // W_grid値の出力
+        printf("W_gridの値\n");
+        fprintf(fp_score, "W_grid\n");
+        for (int i = 500; i < 3000; i++) {
+            fprintf(fp_score, "%lf\n", Node0_W_grid[i]);
+        }
+        
+        fclose(fp_score);
+        printf("score.csvに出力完了\n");
+    }
 
     // 10秒ごとの到着人数の表示
     //  for(int k = 1 ; k <= Twait/10 ; k++){
