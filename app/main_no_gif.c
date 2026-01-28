@@ -35,7 +35,7 @@ int main()
     // csv出力するための数値
     FILE *fp;
     //char *fname = "test.csv";
-    char *fname = "ver.2_60_40_dens10_dist50.csv";
+    char *fname = "ver.2_60_40_dens100_dist50.csv";
 
     char *node = "node";
     char *node0 = "node0";
@@ -47,7 +47,7 @@ int main()
     fp = fopen(fname, "w");
     if (fp == NULL)
     {
-        printf("%sファイルが開けません¥n", fname);
+        printf("%sファイルが開けません¥\n", fname);
     }
 
     FILE *fp2;
@@ -103,7 +103,7 @@ int main()
     // FILE *gp_waiting = NULL;
 
     // --------------------------------------------------------------------------------------------------------------------
-    for (int jc = 0; jc < 5; jc++)
+    for (int jc = 0; jc < 1; jc++)
     {
         // 各ループで乱数シードを設定
         //srand((int)RANDOM_SEED + jc + 1);
