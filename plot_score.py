@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-score.csvファイルからscore, dens, dist, W_gridの値を読み込んで折れ線グラフを作成
+score_10_20.csvファイルからscore, dens, dist, W_gridの値を読み込んで折れ線グラフを作成
 """
 
 import matplotlib.pyplot as plt
 import numpy as np
 
-def read_score_csv(filename):
+def read_score_20_20_csv(filename):
     """
     score.csvファイルを読み込み、score, dens, dist, W_gridの配列を返す
     """
@@ -114,6 +114,13 @@ def plot_data(score_data, dens_data, dist_data, wgrid_data, save_filename='score
     axes[3].set_title('Visit Penalty (W_grid)', fontsize=12)
     axes[3].grid(True, alpha=0.3)
     
+    # 全てのサブプロットにx軸範囲を500-3000に固定
+    for ax in axes:
+        ax.set_xlim(500, 3000)
+        ax.set_ylim(0, 20)
+    # scoreのy軸は0-120に設定
+    axes[0].set_ylim(0, 120)
+    
     plt.tight_layout()
     plt.savefig(save_filename, dpi=300, bbox_inches='tight')
     print(f'グラフを {save_filename} に保存しました')
@@ -175,6 +182,11 @@ def plot_combined(score_data, dens_data, dist_data, wgrid_data, save_filename='s
         plt.text(0.5, 0.95, warning_text, ha='center', va='top', 
                 transform=plt.gca().transAxes, fontsize=10, color='red', 
                 bbox=dict(boxstyle='round', facecolor='yellow', alpha=0.5))
+    
+    # x軸範囲を500-3000に固定
+    plt.xlim(500, 3000)
+    # y軸範囲を0-20に固定
+    plt.ylim(0, 20)
     
     plt.tight_layout()
     plt.savefig(save_filename, dpi=300, bbox_inches='tight')
@@ -238,10 +250,10 @@ def print_statistics(score_data, dens_data, dist_data, wgrid_data):
 
 if __name__ == '__main__':
     # CSVファイルの読み込み
-    csv_filename = 'build/app/score.csv'
+    csv_filename = 'build/app/score_20_20.csv'
     
     try:
-        score_data, dens_data, dist_data, wgrid_data = read_score_csv(csv_filename)
+        score_data, dens_data, dist_data, wgrid_data = read_score_20_20_csv(csv_filename)
         print(f'{csv_filename} を読み込みました')
         print(f'Score データ数: {len(score_data)}')
         print(f'Dens データ数: {len(dens_data)}')
@@ -252,8 +264,8 @@ if __name__ == '__main__':
         print_statistics(score_data, dens_data, dist_data, wgrid_data)
         
         # グラフの作成
-        plot_data(score_data, dens_data, dist_data, wgrid_data, 'score_plot.png')
-        plot_combined(score_data, dens_data, dist_data, wgrid_data, 'score_combined.png')
+        plot_data(score_data, dens_data, dist_data, wgrid_data, 'score_plot_20_20.png')
+        #plot_combined(score_data, dens_data, dist_data, wgrid_data, 'score_combined.png')
         
     except FileNotFoundError:
         print(f'エラー: {csv_filename} が見つかりません')
