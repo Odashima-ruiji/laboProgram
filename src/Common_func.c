@@ -1114,6 +1114,7 @@ int syokika()
         Node[count].move_pattern = 0;
         Node[count].target_grid_x = 0; // 目標グリッドのX座標
 	    Node[count].target_grid_y = 0;
+        distination_flag[count] = 0;
         for (int i = 0; i < Ax; i++)
         {
             for (int j = 0; j < Ay; j++)
@@ -1291,6 +1292,26 @@ double calculate_direction_score(int node_index, int target_x, int target_y)
     
     // スコア = (W_dens × 正規化密度) + W_map - (W_dist × 正規化距離) - W_grid
     score = (W_dens * density_normalized) + (Node[node_index].Map_grid[grid_x][grid_y].W_map) - (W_dist * distance_normalized) - (Node[node_index].W_grid[grid_x][grid_y]);
+
+
+
+
+    // --- 対数変換正規化 ---
+    double log_dens = log(density + 1.0);
+    double log_dist = log(distance + 1.0);
+
+    double log_dens_max = log(density_max + 1.0);
+    double log_dist_max = log(distance_max + 1.0);
+
+    double log_density_normalized = log_dens / log_dens_max;
+    double log_distance_normalized = log_dist / log_dist_max;
+
+    // 正規化値が1を超えないようにクリップ
+    if (log_density_normalized > 1.0) log_density_normalized = 1.0;
+    if (log_distance_normalized > 1.0) log_distance_normalized = 1.0;
+    
+    // スコア = (W_dens × 正規化密度) + W_map - (W_dist × 正規化距離) - W_grid
+    score = (W_dens * log_density_normalized) + (Node[node_index].Map_grid[grid_x][grid_y].W_map) - (W_dist * log_distance_normalized) - (Node[node_index].W_grid[grid_x][grid_y]);
     
     return score;
 }
