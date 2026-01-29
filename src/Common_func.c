@@ -977,38 +977,70 @@ void detect_trans()
                 {
                     if(Node[i].Map[k][l].info == 1)
                     {
-                        if (Node[i].n_Y == Node[i].Map[k][l].m_Y && (fabs(Node[i].n_X - Node[i].Map[k][l].m_X) * Td <= r))
+                        // ノードが info==1 の座標と同じ位置にいる場合
+                        if ((int)Node[i].n_X == k && (int)Node[i].n_Y == l)
                         {
-                            if(Node[i].n_Y == Pass[Node[i].Map[k][l].p_num].p_Y && (fabs(Node[i].n_X - Pass[Node[i].Map[k][l].p_num].p_X) * Td <= r)){
-
-                            }
-                            else
+                            // 実際に待ち客がいるか確認
+                            if (Trans[k][l].wp_Exist == 0)
                             {
+                                // 待ち客がいないので info=0 に更新
                                 Node[i].Map[k][l].info = 0;
                                 Node[i].Map[k][l].p_num = -2;
                                 Node[i].Map[k][l].info_time = Twait;
-
+                            }
+                        }
+                        // 通信可能距離内で待ち客の存在を確認
+                        else if (Node[i].n_Y == Node[i].Map[k][l].m_Y && (fabs(Node[i].n_X - Node[i].Map[k][l].m_X) * Td <= r))
+                        {
+                            // 乗客がまだその場所にいるか確認
+                            int p_num = Node[i].Map[k][l].p_num;
+                            if (p_num >= 0 && p_num < P_ALL_NUM)
+                            {
+                                // 乗客が存在しない、または別の場所に移動した場合
+                                if (Pass[p_num].p_Exist == 0 || Pass[p_num].p_X != k || Pass[p_num].p_Y != l)
+                                {
+                                    Node[i].Map[k][l].info = 0;
+                                    Node[i].Map[k][l].p_num = -2;
+                                    Node[i].Map[k][l].info_time = Twait;
+                                }
+                            }
+                            else
+                            {
+                                // p_num が無効な場合、Trans で直接確認
+                                if (Trans[k][l].wp_Exist == 0)
+                                {
+                                    Node[i].Map[k][l].info = 0;
+                                    Node[i].Map[k][l].p_num = -2;
+                                    Node[i].Map[k][l].info_time = Twait;
+                                }
                             }
                         }
                         else if(Node[i].n_X == Node[i].Map[k][l].m_X && (fabs(Node[i].n_Y - Node[i].Map[k][l].m_Y) * Td <= r))
                         {
-                            if(Node[i].n_X == Pass[Node[i].Map[k][l].p_num].p_X && (fabs(Node[i].n_Y - Pass[Node[i].Map[k][l].p_num].p_Y) * Td <= r)){
-
+                            // 乗客がまだその場所にいるか確認
+                            int p_num = Node[i].Map[k][l].p_num;
+                            if (p_num >= 0 && p_num < P_ALL_NUM)
+                            {
+                                // 乗客が存在しない、または別の場所に移動した場合
+                                if (Pass[p_num].p_Exist == 0 || Pass[p_num].p_X != k || Pass[p_num].p_Y != l)
+                                {
+                                    Node[i].Map[k][l].info = 0;
+                                    Node[i].Map[k][l].p_num = -2;
+                                    Node[i].Map[k][l].info_time = Twait;
+                                }
                             }
                             else
                             {
-                                Node[i].Map[k][l].info = 0;
-                                Node[i].Map[k][l].p_num = -2;
-                                Node[i].Map[k][l].info_time = Twait;
-
+                                // p_num が無効な場合、Trans で直接確認
+                                if (Trans[k][l].wp_Exist == 0)
+                                {
+                                    Node[i].Map[k][l].info = 0;
+                                    Node[i].Map[k][l].p_num = -2;
+                                    Node[i].Map[k][l].info_time = Twait;
+                                }
                             }
                         }
                     }
-                    //直前でinfoは1になっているはずだから、infoが0の場合はいらない
-                        // else if(Node[i].Map[k][l].info == 0)
-                        // {
-                        //     Node[i].Map[k][l].no_D = 0;
-                        // }
                 }
             }
         }
@@ -1039,6 +1071,28 @@ void detect_trans()
                         }
                     }
                 }
+                
+                // 道路上でも info==1 の更新チェック（x軸方向移動時）
+                for(int k=0;k<Ax;k++)
+                {
+                    for(int l=0;l<Ay;l++)
+                    {
+                        if(Node[i].Map[k][l].info == 1)
+                        {
+                            // 同じY座標で通信可能距離内の場合
+                            if ((int)Node[i].n_Y == l && (fabs(Node[i].n_X - k) * Td <= r))
+                            {
+                                // 待ち客がいるか確認
+                                if (Trans[k][l].wp_Exist == 0)
+                                {
+                                    Node[i].Map[k][l].info = 0;
+                                    Node[i].Map[k][l].p_num = -2;
+                                    Node[i].Map[k][l].info_time = Twait;
+                                }
+                            }
+                        }
+                    }
+                }
             }
                 // y軸方向に移動を行っているとき
             
@@ -1061,6 +1115,28 @@ void detect_trans()
                                 push(i, data);
                                 get_info += 1; // 情報を取得したカウント
                                 transmit__[i][j] = Twait;
+                            }
+                        }
+                    }
+                }
+                
+                // 道路上でも info==1 の更新チェック（y軸方向移動時）
+                for(int k=0;k<Ax;k++)
+                {
+                    for(int l=0;l<Ay;l++)
+                    {
+                        if(Node[i].Map[k][l].info == 1)
+                        {
+                            // 同じX座標で通信可能距離内の場合
+                            if ((int)Node[i].n_X == k && (fabs(Node[i].n_Y - l) * Td <= r))
+                            {
+                                // 待ち客がいるか確認
+                                if (Trans[k][l].wp_Exist == 0)
+                                {
+                                    Node[i].Map[k][l].info = 0;
+                                    Node[i].Map[k][l].p_num = -2;
+                                    Node[i].Map[k][l].info_time = Twait;
+                                }
                             }
                         }
                     }
@@ -1282,9 +1358,9 @@ double calculate_direction_score(int node_index, int target_x, int target_y)
     double density_max = 50.0;  // 密度の推定最大値
     double distance_max = sqrt(Ax * Ax + Ay * Ay);  // マップの対角線距離（約84.85）
     
-    // Min-Max正規化（0〜1の範囲にスケーリング）
-    double density_normalized = density / density_max;
-    double distance_normalized = distance / distance_max;
+    // // Min-Max正規化（0〜1の範囲にスケーリング）
+    // double density_normalized = density / density_max;
+    // double distance_normalized = distance / distance_max;
     
     // // 正規化値が1を超えないようにクリップ
     // if (density_normalized > 1.0) density_normalized = 1.0;
@@ -1293,7 +1369,12 @@ double calculate_direction_score(int node_index, int target_x, int target_y)
     // スコア = (W_dens × 正規化密度) + W_map - (W_dist × 正規化距離) - W_grid
     //score = (W_dens * density_normalized) + (Node[node_index].Map_grid[grid_x][grid_y].W_map) - (W_dist * distance_normalized) - (Node[node_index].W_grid[grid_x][grid_y]);
 
-    
+    // --- 割り算ベースのスコア計算式 ---
+    // スコア = (W_dens × 混雑度) / ((W_dist × 距離) + 訪問回数 + 1.0)
+    // score = (W_dens * density_normalized) / ((W_dist * distance_normalized) + Node[node_index].W_grid[grid_x][grid_y] + 1.0);
+    // // W_mapを加算して避難エリア内を優先
+    // score += Node[node_index].Map_grid[grid_x][grid_y].W_map;
+
 
     // --- 対数変換正規化 ---
     double log_dens = log(density + 1.0);
@@ -1310,13 +1391,14 @@ double calculate_direction_score(int node_index, int target_x, int target_y)
     if (log_distance_normalized > 1.0) log_distance_normalized = 1.0;
     
     // スコア = (W_dens × 正規化密度) + W_map - (W_dist × 正規化距離) - W_grid
-    //score = (W_dens * log_density_normalized) + (Node[node_index].Map_grid[grid_x][grid_y].W_map) - (W_dist * log_distance_normalized) - (Node[node_index].W_grid[grid_x][grid_y]);
+    score = (W_dens * log_density_normalized) + (Node[node_index].Map_grid[grid_x][grid_y].W_map) - (W_dist * log_distance_normalized) - (Node[node_index].W_grid[grid_x][grid_y]);
 
     // --- 割り算ベースのスコア計算式 ---
     // スコア = (W_dens × 混雑度) / ((W_dist × 距離) + 訪問回数 + 1.0)
-    score = (W_dens * density_normalized) / ((W_dist * distance_normalized) + Node[node_index].W_grid[grid_x][grid_y] + 1.0);
+    score = (W_dens * log_density_normalized) / ((W_dist * log_distance_normalized) + Node[node_index].W_grid[grid_x][grid_y] + 1.0);
     // W_mapを加算して避難エリア内を優先
     score += Node[node_index].Map_grid[grid_x][grid_y].W_map;
+    
     return score;
 }
 
