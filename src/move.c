@@ -579,6 +579,16 @@ void move_new_direction()
                     int current_grid_x = (int)(Node[count].n_X / cell_width);
                     int current_grid_y = (int)(Node[count].n_Y / cell_height);
                     
+                    // まず、現在の交差点に待ち客がいるか確認（どの状態でも最優先でチェック）
+                    int current_x = (int)Node[count].n_X;
+                    int current_y = (int)Node[count].n_Y;
+                    if (Trans[current_x][current_y].wp_Exist == 1) {
+                        // 待ち客がいるのでその場に留まる（次のステップでallrideon()が乗客を拾う）
+                        // n_insec_X/Yは変更しない
+                        count += 1;
+                        continue;
+                    }
+                    
                     if(grid_count[current_grid_x][current_grid_y] > 0 && distination_flag[count] == 0){
                         // 現在のグリッド内にinfo==1の交差点が存在する場合
                         // グリッドの境界を計算
@@ -629,109 +639,132 @@ void move_new_direction()
                                 }
                             } else {
                                 // 目的地（info==1の座標）に到達した場合
-                                // info=0にして次のinfo==1を探すか、グリッド外へ
-                                Node[count].Map[nearest_x][nearest_y].info = 0;
-                                
-                                // グリッド内にまだinfo==1の座標があるか再チェック
-                                // （次のステップでgrid_countが更新されるので、ここでは移動のみ）
-                                // 一歩だけランダムに移動してグリッド内に留まる
-                                int random_dir = rand() % 4;
-                                if (random_dir == 0 && Node[count].n_insec_X < grid_max_x) {
-                                    Node[count].n_insec_X += 1;
-                                } else if (random_dir == 1 && Node[count].n_insec_Y > grid_min_y) {
-                                    Node[count].n_insec_Y -= 1;
-                                } else if (random_dir == 2 && Node[count].n_insec_X > grid_min_x) {
-                                    Node[count].n_insec_X -= 1;
-                                } else if (random_dir == 3 && Node[count].n_insec_Y < grid_max_y) {
-                                    Node[count].n_insec_Y += 1;
+                                // 待ち客がいる場合はその場に留まり、次のステップでallrideon()が処理する
+                                if (Trans[nearest_x][nearest_y].wp_Exist == 1) {
+                                    // 待ち客がいるのでその場に留まる（n_insec_X/Yは変更しない）
+                                    // 次のステップでallrideon()が乗客を拾う
+                                } else {
+                                    // 待ち客がいない場合はinfo=0にして次を探す
+                                    Node[count].Map[nearest_x][nearest_y].info = 0;
+                                    
+                                    // グリッド内にまだinfo==1の座標があるか再チェック
+                                    // 一歩だけランダムに移動してグリッド内に留まる
+                                    int random_dir = rand() % 4;
+                                    if (random_dir == 0 && Node[count].n_insec_X < grid_max_x) {
+                                        Node[count].n_insec_X += 1;
+                                    } else if (random_dir == 1 && Node[count].n_insec_Y > grid_min_y) {
+                                        Node[count].n_insec_Y -= 1;
+                                    } else if (random_dir == 2 && Node[count].n_insec_X > grid_min_x) {
+                                        Node[count].n_insec_X -= 1;
+                                    } else if (random_dir == 3 && Node[count].n_insec_Y < grid_max_y) {
+                                        Node[count].n_insec_Y += 1;
+                                    }
                                 }
                             }
                         }
                     }
                     else if(distination_flag[count] == 0){
-                        // 密度マップを更新してから全マップで最もスコアが高いグリッドを目的地として設定
-                        P_map(count);
-                        find_best_grid_in_all_map(count);
-                        count_map += 1;
-                        // マップ情報がある場合はスコアベースで移動
-                        // 目的地グリッドに向かって移動する方向を選択
-                        int target_x = Node[count].target_grid_x;
-                        int target_y = Node[count].target_grid_y;
+                        // 目的地設定前に、現在の交差点に待ち客がいるか確認
+                        int current_x = (int)Node[count].n_X;
+                        int current_y = (int)Node[count].n_Y;
                         
-                        // target_x, target_yからグリッド位置を計算してW_gridに加算
-                        int grid_x = target_x / cell_width;
-                        int grid_y = target_y / cell_height;
-                        
-                        distination_flag[count] = 1; // 目的地設定完了
-
-                        // 範囲チェックとW_gridへの加算
-                        if (grid_x >= 0 && grid_x < grid_size && grid_y >= 0 && grid_y < grid_size) {
-                            Node[count].W_grid[grid_x][grid_y] += 10.0;
-                        }
-                        
-                        // 現在位置から目的地への方向を計算
-                        int dx = target_x - Node[count].n_insec_X;
-                        int dy = target_y - Node[count].n_insec_Y;
-                        
-                        // まだ目的地に到達していない場合
-                        if (dx != 0 || dy != 0) {
+                        // 現在の交差点に待ち客がいる場合は移動せずにその場に留まる
+                        if (Trans[current_x][current_y].wp_Exist == 1) {
+                            // 待ち客がいるのでその場に留まる（次のステップでallrideon()が乗客を拾う）
+                            // 何もしない - n_insec_X/Yは変更しない
+                        } else {
+                            // 密度マップを更新してから全マップで最もスコアが高いグリッドを目的地として設定
+                            P_map(count);
+                            find_best_grid_in_all_map(count);
+                            count_map += 1;
+                            // マップ情報がある場合はスコアベースで移動
+                            // 目的地グリッドに向かって移動する方向を選択
+                            int target_x = Node[count].target_grid_x;
+                            int target_y = Node[count].target_grid_y;
                             
-                            // X方向とY方向のどちらを優先するか決定
-                            if (abs(dx) > abs(dy)) {
-                                // X方向を優先
-                                if (dx > 0) {
-                                    // 右に移動
-                                    Node[count].n_insec_X += 1;
+                            // target_x, target_yからグリッド位置を計算してW_gridに加算
+                            int grid_x = target_x / cell_width;
+                            int grid_y = target_y / cell_height;
+                            
+                            distination_flag[count] = 1; // 目的地設定完了
+
+                            // 範囲チェックとW_gridへの加算
+                            if (grid_x >= 0 && grid_x < grid_size && grid_y >= 0 && grid_y < grid_size) {
+                                Node[count].W_grid[grid_x][grid_y] += 10.0;
+                            }
+                            
+                            // 現在位置から目的地への方向を計算
+                            int dx = target_x - Node[count].n_insec_X;
+                            int dy = target_y - Node[count].n_insec_Y;
+                            
+                            // まだ目的地に到達していない場合
+                            if (dx != 0 || dy != 0) {
+                                
+                                // X方向とY方向のどちらを優先するか決定
+                                if (abs(dx) > abs(dy)) {
+                                    // X方向を優先
+                                    if (dx > 0) {
+                                        // 右に移動
+                                        Node[count].n_insec_X += 1;
+                                    } else {
+                                        // 左に移動
+                                        Node[count].n_insec_X -= 1;
+                                    }
                                 } else {
-                                    // 左に移動
-                                    Node[count].n_insec_X -= 1;
+                                    // Y方向を優先
+                                    if (dy > 0) {
+                                        // 下に移動
+                                        Node[count].n_insec_Y += 1;
+                                    } else {
+                                        // 上に移動
+                                        Node[count].n_insec_Y -= 1;
+                                    }
                                 }
                             } else {
-                                // Y方向を優先
-                                if (dy > 0) {
-                                    // 下に移動
-                                    Node[count].n_insec_Y += 1;
-                                } else {
-                                    // 上に移動
-                                    Node[count].n_insec_Y -= 1;
-                                }
+                                // 目的地に到達した場合、密度マップを更新して新しい目的地を探す
+                                distination_flag[count] = 0; // 目的地到達、再設定フラグ
+                                goto score_based_movement;
                             }
-                        } else {
-                            // 目的地に到達した場合、密度マップを更新して新しい目的地を探す
-                            distination_flag[count] = 0; // 目的地到達、再設定フラグ
-                            goto score_based_movement;
                         }
                     }else if(distination_flag[count] == 1){
-                        // 目的地に向かって移動する
-                        int target_x = Node[count].target_grid_x;
-                        int target_y = Node[count].target_grid_y;
+                        // 目的地に向かって移動する前に、現在の交差点に待ち客がいるか確認
+                        int current_x = (int)Node[count].n_X;
+                        int current_y = (int)Node[count].n_Y;
+                        
+                        // 現在の交差点に待ち客がいる場合は移動せずにその場に留まる
+                        if (Trans[current_x][current_y].wp_Exist == 1) {
+                            // 待ち客がいるのでその場に留まる（次のステップでallrideon()が乗客を拾う）
+                            // 目的地フラグはリセットして、乗車後に再設定
+                            distination_flag[count] = 0;
+                        } else {
+                            int target_x = Node[count].target_grid_x;
+                            int target_y = Node[count].target_grid_y;
 
-                        int dx = target_x - Node[count].n_insec_X;
-                        int dy = target_y - Node[count].n_insec_Y;
+                            int dx = target_x - Node[count].n_insec_X;
+                            int dy = target_y - Node[count].n_insec_Y;
 
-                        if(dx != 0 || dy != 0) {                           
-                            // X方向とY方向のどちらを優先するか決定
-                            if (abs(dx) >= abs(dy)) {
-                                // X方向を優先
-                                if (dx > 0) {
-                                    Node[count].n_insec_X += 1;
+                            if(dx != 0 || dy != 0) {                           
+                                // X方向とY方向のどちらを優先するか決定
+                                if (abs(dx) >= abs(dy)) {
+                                    // X方向を優先
+                                    if (dx > 0) {
+                                        Node[count].n_insec_X += 1;
+                                    } else {
+                                        Node[count].n_insec_X -= 1;
+                                    }
                                 } else {
-                                    Node[count].n_insec_X -= 1;
+                                    // Y方向を優先
+                                    if (dy > 0) {
+                                        Node[count].n_insec_Y += 1;
+                                    } else {
+                                        Node[count].n_insec_Y -= 1;
+                                    }
                                 }
-                            } else {
-                                // Y方向を優先
-                                if (dy > 0) {
-                                    Node[count].n_insec_Y += 1;
-                                } else {
-                                    Node[count].n_insec_Y -= 1;
-                                }
+                            }else{
+                                distination_flag[count] = 0; // 目的地到達、再設定フラグ
+                                goto score_based_movement;
                             }
-                        }else{
-
-                            distination_flag[count] = 0; // 目的地到達、再設定フラグ
-                            goto score_based_movement;
                         }
-
                     }
   
                     
