@@ -35,7 +35,7 @@ int main()
     // csv出力するための数値
     FILE *fp;
     //char *fname = "test.csv";
-    char *fname = "ver.2_60_40_dens100_dist50.csv";
+    char *fname = "ver.2_division_60_40_dens10_dist30.0.csv";
 
     char *node = "node";
     char *node0 = "node0";
@@ -57,8 +57,8 @@ int main()
     // fprintf(fp,"500人必要ステップ,平均ステップ,一人あたりの乗っているステップ数,一人あたりの待っているステップ数,探索モードで乗せた回数,探索モードで目的地に人がいない場合,情報交換数,情報獲得数\n");
 
     // 乱数の種を与える
-    // srand( ( unsigned int )time( NULL ) );
-    srand((int)RANDOM_SEED + n);
+    srand( ( unsigned int )time( NULL ) );
+    //srand((int)RANDOM_SEED + n);
     //srand(2);
     syokika();
 
@@ -103,7 +103,7 @@ int main()
     // FILE *gp_waiting = NULL;
 
     // --------------------------------------------------------------------------------------------------------------------
-    for (int jc = 0; jc < 1; jc++)
+    for (int jc = 0; jc < 5; jc++)
     {
         // 各ループで乱数シードを設定
         //srand((int)RANDOM_SEED + jc + 1);
