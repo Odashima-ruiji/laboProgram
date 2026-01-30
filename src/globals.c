@@ -80,4 +80,4 @@ int cell_height = Ay / 20;
 
 /* スコア計算用の重みパラメータ */
 double W_dens = 10.0;  // 混雑度の重み
-double W_dist = 15.0;  // 距離の重み（大きくして距離を重視）
+double W_dist = 50.0;  // 距離の重み（大きくして距離を重視）

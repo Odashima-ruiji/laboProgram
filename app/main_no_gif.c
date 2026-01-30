@@ -57,7 +57,7 @@ int main()
     // fprintf(fp,"500人必要ステップ,平均ステップ,一人あたりの乗っているステップ数,一人あたりの待っているステップ数,探索モードで乗せた回数,探索モードで目的地に人がいない場合,情報交換数,情報獲得数\n");
 
     // 乱数の種を与える
-    srand( ( unsigned int )time( NULL ) );
+    //srand( ( unsigned int )time( NULL ) );
     //srand((int)RANDOM_SEED + n);
     //srand(2);
     syokika();
@@ -106,7 +106,7 @@ int main()
     for (int jc = 0; jc < 1; jc++)
     {
         // 各ループで乱数シードを設定
-        //srand((int)RANDOM_SEED + jc + 1);
+        srand((int)RANDOM_SEED + jc + 2);
         
         Twait = 0;
         allstep = 0;
@@ -624,7 +624,7 @@ int main()
 
     // score.csvファイルにNode0のscore, dens, distの値を出力
     FILE *fp_score;
-    fp_score = fopen("score_10_15.csv", "w");
+    fp_score = fopen("score_10_50.csv", "w");
     if (fp_score == NULL) {
         printf("score.csvファイルが開けません\n");
     } else {
@@ -639,14 +639,14 @@ int main()
         printf("densの値\n");
         fprintf(fp_score, "dens\n");
         for (int i = 500; i < 3000; i++) {
-            fprintf(fp_score, "%lf\n", Node0_dens[i]*W_dens);
+            fprintf(fp_score, "%lf\n", Node0_dens[i]);
         }
         
         // 距離値の出力
         printf("distの値\n");
         fprintf(fp_score, "dist\n");
         for (int i = 500; i < 3000; i++) {
-            fprintf(fp_score, "%lf\n", Node0_dist[i]*W_dist);
+            fprintf(fp_score, "%lf\n", Node0_dist[i]);
         }
 
         // W_grid値の出力
