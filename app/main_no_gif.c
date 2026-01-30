@@ -35,7 +35,7 @@ int main()
     // csv出力するための数値
     FILE *fp;
     //char *fname = "test.csv";
-    char *fname = "ver.2_division_60_40_dens10_dist50.csv";
+    char *fname = "ver.2_division_60_40_dens10_dist1.csv";
 
     char *node = "node";
     char *node0 = "node0";
