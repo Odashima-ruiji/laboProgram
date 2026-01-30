@@ -37,14 +37,17 @@ void allrideon()
                 Node[l].n_xD = Pass[Node[l].p_num].p_xD;                                          // 乗客の目的地情報をノードの目的地情報に入力(x座標)
                 Node[l].n_yD = Pass[Node[l].p_num].p_yD;                                          // 乗客の目的地情報をノードの目的地情報に入力(y座標)
                 Node[l].d_length = sqrt2(Node[l].n_xD - Node[l].n_X, Node[l].n_yD - Node[l].n_Y); // 目的地との距離を入力
-                // if (Trans[(int)Node[l].n_X][(int)Node[l].n_Y].wp_Exist == 1)
-                // {
-                //     Node[l].Map[(int)Node[l].n_X][(int)Node[l].n_Y].info = 1;
-                // }
-                // else
-                // {
-                //     Node[l].Map[(int)Node[l].n_X][(int)Node[l].n_Y].info = 0;
-                // }
+                // 乗客を乗せた交差点の待ち客がいなくなった場合、Map情報を更新
+                if (Trans[(int)Node[l].n_X][(int)Node[l].n_Y].wp_Exist == 0)
+                {
+                    Node[l].Map[(int)Node[l].n_X][(int)Node[l].n_Y].info = 0;
+                    Node[l].Map[(int)Node[l].n_X][(int)Node[l].n_Y].p_num = -2;
+                    Node[l].Map[(int)Node[l].n_X][(int)Node[l].n_Y].info_time = Twait + 1; // info=0 を優先させるため +1
+                }else{
+                    Node[l].Map[(int)Node[l].n_X][(int)Node[l].n_Y].info = 1;
+                    Node[l].Map[(int)Node[l].n_X][(int)Node[l].n_Y].info_time = Twait;
+                }
+                
                 for (int i = 0; i < Ax; i++)
                 {
                     for (int j = 0; j < Ay; j++)
@@ -76,14 +79,18 @@ void allrideon()
                 Node[l].n_xD = Pass[Node[l].p_num].p_xD;                                          // 乗客の目的地情報をノードの目的地情報に入力(x座標)
                 Node[l].n_yD = Pass[Node[l].p_num].p_yD;                                          // 乗客の目的地情報をノードの目的地情報に入力(y座標)
                 Node[l].d_length = sqrt2(Node[l].n_xD - Node[l].n_X, Node[l].n_yD - Node[l].n_Y); // 目的地との距離を入力
-                // if (Trans[(int)Node[l].n_X][(int)Node[l].n_Y].wp_Exist == 1)
-                // {
-                //     Node[l].Map[(int)Node[l].n_X][(int)Node[l].n_Y].info = 1;
-                // }
-                // else
-                // {
-                //     Node[l].Map[(int)Node[l].n_X][(int)Node[l].n_Y].info = 0;
-                // }
+                
+                // 乗客を乗せた交差点の待ち客がいなくなった場合、Map情報を更新
+                if (Trans[(int)Node[l].n_X][(int)Node[l].n_Y].wp_Exist == 0)
+                {
+                    Node[l].Map[(int)Node[l].n_X][(int)Node[l].n_Y].info = 0;
+                    Node[l].Map[(int)Node[l].n_X][(int)Node[l].n_Y].p_num = -2;
+                    Node[l].Map[(int)Node[l].n_X][(int)Node[l].n_Y].info_time = Twait + 1; // info=0 を優先させるため +1
+                }else{
+                    Node[l].Map[(int)Node[l].n_X][(int)Node[l].n_Y].info = 1;
+                    Node[l].Map[(int)Node[l].n_X][(int)Node[l].n_Y].info_time = Twait;
+                }
+                
                 for (int i = 0; i < Ax; i++)
                 {
                     for (int j = 0; j < Ay; j++)
@@ -104,13 +111,18 @@ void allrideon()
                 Node[l].n_xD2 = Pass[Node[l].p_num2].p_xD;                                           // 乗客の目的地情報をノードの目的地情報2に入力(x座標)
                 Node[l].n_yD2 = Pass[Node[l].p_num2].p_yD;                                           // 乗客の目的地情報をノードの目的地情報2に入力(y座標)
                 Node[l].d_length2 = sqrt2(Node[l].n_xD2 - Node[l].n_X, Node[l].n_yD2 - Node[l].n_Y); // 目的地との距離を入力
-                if (Trans[(int)Node[l].n_X][(int)Node[l].n_Y].wp_Exist == 1)
+                
+                // 乗客を乗せた交差点の待ち客がいなくなった場合、Map情報を更新
+                if (Trans[(int)Node[l].n_X][(int)Node[l].n_Y].wp_Exist == 0)
                 {
-                    Node[l].Map[Node[l].n_X][Node[l].n_Y].info = 1;
+                    Node[l].Map[(int)Node[l].n_X][(int)Node[l].n_Y].info = 0;
+                    Node[l].Map[(int)Node[l].n_X][(int)Node[l].n_Y].p_num = -2;
+                    Node[l].Map[(int)Node[l].n_X][(int)Node[l].n_Y].info_time = Twait + 1; // info=0 を優先させるため +1
+                }else{
+                    Node[l].Map[(int)Node[l].n_X][(int)Node[l].n_Y].info = 1;
+                    Node[l].Map[(int)Node[l].n_X][(int)Node[l].n_Y].info_time = Twait;
                 }
-                else
-                {
-                    Node[l].Map[Node[l].n_X][Node[l].n_Y].info = 0;
+                
                 }
                 for (int i = 0; i < Ax; i++)
                 {
@@ -971,44 +983,34 @@ void detect_trans()
                     }
                 }
             }
+            // info==1 の座標について待ち客がいるか確認し、いなければ info=0 に更新
             for(int k=0;k<Ax;k++)
             {
                 for(int l=0;l<Ay;l++)
                 {
                     if(Node[i].Map[k][l].info == 1)
                     {
-                        if (Node[i].n_Y == Node[i].Map[k][l].m_Y && (fabs(Node[i].n_X - Node[i].Map[k][l].m_X) * Td <= r))
+                        // y座標が等しく, x座標が通信可能距離内であるとき
+                        if (Node[i].n_Y == l && (fabs(Node[i].n_X - k) * Td <= r))
                         {
-                            if(Node[i].n_Y == Pass[Node[i].Map[k][l].p_num].p_Y && (fabs(Node[i].n_X - Pass[Node[i].Map[k][l].p_num].p_X) * Td <= r)){
-
-                            }
-                            else
-                            {
+                            // Trans で待ち客がいるか直接確認（p_numは使わない）
+                            if(Trans[k][l].wp_Exist == 0){
                                 Node[i].Map[k][l].info = 0;
                                 Node[i].Map[k][l].p_num = -2;
-                                Node[i].Map[k][l].info_time = Twait;
-
+                                Node[i].Map[k][l].info_time = Twait + 1; // info=0 を優先させるため +1
                             }
                         }
-                        else if(Node[i].n_X == Node[i].Map[k][l].m_X && (fabs(Node[i].n_Y - Node[i].Map[k][l].m_Y) * Td <= r))
+                        // x座標が等しく, y座標が通信可能距離内であるとき
+                        else if(Node[i].n_X == k && (fabs(Node[i].n_Y - l) * Td <= r))
                         {
-                            if(Node[i].n_X == Pass[Node[i].Map[k][l].p_num].p_X && (fabs(Node[i].n_Y - Pass[Node[i].Map[k][l].p_num].p_Y) * Td <= r)){
-
-                            }
-                            else
-                            {
+                            // Trans で待ち客がいるか直接確認（p_numは使わない）
+                            if(Trans[k][l].wp_Exist == 0){
                                 Node[i].Map[k][l].info = 0;
                                 Node[i].Map[k][l].p_num = -2;
-                                Node[i].Map[k][l].info_time = Twait;
-
+                                Node[i].Map[k][l].info_time = Twait + 1; // info=0 を優先させるため +1
                             }
                         }
                     }
-                    //直前でinfoは1になっているはずだから、infoが0の場合はいらない
-                        // else if(Node[i].Map[k][l].info == 0)
-                        // {
-                        //     Node[i].Map[k][l].no_D = 0;
-                        // }
                 }
             }
         }
@@ -1039,6 +1041,28 @@ void detect_trans()
                         }
                     }
                 }
+                
+                // 道路上でも info==1 の更新チェック（x軸方向移動時）
+                for(int k=0;k<Ax;k++)
+                {
+                    for(int l=0;l<Ay;l++)
+                    {
+                        if(Node[i].Map[k][l].info == 1)
+                        {
+                            // 同じY座標で通信可能距離内の場合
+                            if ((int)Node[i].n_Y == l && (fabs(Node[i].n_X - k) * Td <= r))
+                            {
+                                // Trans で待ち客がいるか直接確認（p_numは使わない）
+                                if (Trans[k][l].wp_Exist == 0)
+                                {
+                                    Node[i].Map[k][l].info = 0;
+                                    Node[i].Map[k][l].p_num = -2;
+                                    Node[i].Map[k][l].info_time = Twait + 1; // info=0 を優先させるため +1
+                                }
+                            }
+                        }
+                    }
+                }
             }
                 // y軸方向に移動を行っているとき
             
@@ -1065,10 +1089,257 @@ void detect_trans()
                         }
                     }
                 }
+                
+                // 道路上でも info==1 の更新チェック（y軸方向移動時）
+                for(int k=0;k<Ax;k++)
+                {
+                    for(int l=0;l<Ay;l++)
+                    {
+                        if(Node[i].Map[k][l].info == 1)
+                        {
+                            // 同じX座標で通信可能距離内の場合
+                            if ((int)Node[i].n_X == k && (fabs(Node[i].n_Y - l) * Td <= r))
+                            {
+                                // Trans で待ち客がいるか直接確認（p_numは使わない）
+                                if (Trans[k][l].wp_Exist == 0)
+                                {
+                                    Node[i].Map[k][l].info = 0;
+                                    Node[i].Map[k][l].p_num = -2;
+                                    Node[i].Map[k][l].info_time = Twait + 1; // info=0 を優先させるため +1
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }
 }
+
+// void detect_trans()
+// {
+
+//     int data = 0;
+//     for (int i = 0; i < N_ALL_NUM; i++)
+//     {
+
+//         // ノードが交差点にいるとき---------------------------------------------------------------------------------
+//         if ((double)Node[i].n_insec_X == Node[i].n_X && (double)Node[i].n_insec_Y == Node[i].n_Y)
+//         {
+
+//             for (int j = 0; j < P_ALL_NUM; j++)
+//             {
+//                 if (transmit__[i][j] == 0)
+//                 {
+//                     // y座標が等しく, x座標が通信可能距離内であるとき
+//                     if (Node[i].n_Y == Pass[j].p_Y && (fabs(Node[i].n_X - Pass[j].p_X) * Td <= r))
+//                     {
+//                         if (Pass[j].p_Exist == 1)
+//                         {
+//                             Node[i].Map[Pass[j].p_X][Pass[j].p_Y].info = 1;
+//                             Node[i].Map[Pass[j].p_X][Pass[j].p_Y].p_num = j;
+//                             Node[i].Map[Pass[j].p_X][Pass[j].p_Y].info_time = Twait;
+//                             data = Ax * Ax * Twait + Ax * (Pass[j].p_X) + Pass[j].p_Y;
+//                             push(i, data);
+//                             get_info += 1; // 情報を取得したカウント
+//                             transmit__[i][j] = Twait;
+//                         }
+//                     }
+//                     // x座標が等しく, y座標が通信可能距離内であるとき
+//                     else if (Node[i].n_X == Pass[j].p_X && (fabs(Node[i].n_Y - Pass[j].p_Y) * Td <= r))
+//                     {
+//                         if (Pass[j].p_Exist == 1)
+//                         {
+//                             Node[i].Map[Pass[j].p_X][Pass[j].p_Y].info = 1;
+//                             Node[i].Map[Pass[j].p_X][Pass[j].p_Y].p_num = j;
+//                             Node[i].Map[Pass[j].p_X][Pass[j].p_Y].info_time = Twait;
+//                             data = Ax * Ax * Twait + Ax * (Pass[j].p_X) + Pass[j].p_Y;
+//                             push(i, data);
+//                             get_info += 1; // 情報を取得したカウント
+//                             transmit__[i][j] = Twait;
+//                         }
+//                     }
+//                 }
+//             }
+//             for(int k=0;k<Ax;k++)
+//             {
+//                 for(int l=0;l<Ay;l++)
+//                 {
+//                     if(Node[i].Map[k][l].info == 1)
+//                     {
+//                         if (Node[i].n_Y == Node[i].Map[k][l].m_Y && (fabs(Node[i].n_X - Node[i].Map[k][l].m_X) * Td <= r))
+//                         {
+//                             // int map_flag = 0;
+//                             // for(int m = 0; m < P_ALL_NUM; m++){
+                                
+//                             //     if(Node[i].Map[k][l].m_X == Pass[m].p_X && Node[i].Map[k][l].m_Y == Pass[m].p_Y){
+//                             //         map_flag = 1;
+//                             //     }
+//                             // }
+//                             // if(map_flag == 0){
+//                             //     Node[i].Map[k][l].info = 0;
+//                             //     Node[i].Map[k][l].p_num = -2;
+//                             //     Node[i].Map[k][l].info_time = Twait;
+//                             // }
+//                             if(Trans[Node[i].Map[k][l].m_X][Node[i].Map[k][l].m_Y].wp_Exist == 0){
+//                                 Node[i].Map[k][l].info = 0;
+//                                 Node[i].Map[k][l].p_num = -2;
+//                                 Node[i].Map[k][l].info_time = Twait;
+
+//                             }
+//                         }
+//                         else if(Node[i].n_X == Node[i].Map[k][l].m_X && (fabs(Node[i].n_Y - Node[i].Map[k][l].m_Y) * Td <= r))
+//                         {
+//                             // int map_flag = 0;
+//                             // for(int m = 0; m < P_ALL_NUM; m++){
+                                
+//                             //     if(Node[i].Map[k][l].m_X == Pass[m].p_X && Node[i].Map[k][l].m_Y == Pass[m].p_Y){
+//                             //         map_flag = 1;
+//                             //     }
+//                             // }
+//                             // if(map_flag == 0){
+//                             //     Node[i].Map[k][l].info = 0;
+//                             //     Node[i].Map[k][l].p_num = -2;
+//                             //     Node[i].Map[k][l].info_time = Twait;
+//                             // }
+//                             if(Trans[Node[i].Map[k][l].m_X][Node[i].Map[k][l].m_Y].wp_Exist == 0){
+//                                 Node[i].Map[k][l].info = 0;
+//                                 Node[i].Map[k][l].p_num = -2;
+//                                 Node[i].Map[k][l].info_time = Twait;
+
+//                             }
+//                         }
+//                     }
+//                     //直前でinfoは1になっているはずだから、infoが0の場合はいらない
+//                         // else if(Node[i].Map[k][l].info == 0)
+//                         // {
+//                         //     Node[i].Map[k][l].no_D = 0;
+//                         // }
+//                 }
+//             }
+//         }
+//         else
+//         { // ノードが交差点でなく, 道路上にいるとき
+//             for (int j = 0; j < P_ALL_NUM; j++){
+//                 // x軸方向に移動を行っているとき
+//                 if (ceil(Node[i].n_X) != floor(Node[i].n_X) || Node[i].n_Y == Node[i].n_insec_Y)
+//                 {
+                    
+//                     if (transmit__[i][j] == 0)
+//                     {
+
+//                         // y座標が等しく, x座標が通信可能距離内であるとき
+//                         if (Node[i].n_Y == Pass[j].p_Y && (fabs(Node[i].n_X - Pass[j].p_X) * Td <= r))
+//                         {
+//                             if (Pass[j].p_Exist == 1)
+//                             {
+//                                 Node[i].Map[Pass[j].p_X][Pass[j].p_Y].info = 1;
+//                                 Node[i].Map[Pass[j].p_X][Pass[j].p_Y].p_num = j;
+//                                 Node[i].Map[Pass[j].p_X][Pass[j].p_Y].info_time = Twait;
+//                                 data = Ax * Ax * Twait + Ax * (Pass[j].p_X) + Pass[j].p_Y;
+//                                 push(i, data);
+//                                 get_info += 1; // 情報を取得したカウント
+//                                 transmit__[i][j] = Twait;
+//                             }
+//                         }
+//                     }
+//                 }
+//                     // y軸方向に移動を行っているとき
+                
+//                 else if (ceil(Node[i].n_Y) != floor(Node[i].n_Y) || Node[i].n_X == Node[i].n_insec_X)
+//                 {
+                   
+                    
+//                     if (transmit__[i][j] == 0)
+//                     {
+
+//                         // x座標が等しく, y座標が通信可能距離内であるとき
+//                         if (Node[i].n_X == Pass[j].p_X && (fabs(Node[i].n_Y - Pass[j].p_Y) * Td <= r))
+//                         {
+//                             if (Pass[j].p_Exist == 1)
+//                             {
+//                                 Node[i].Map[Pass[j].p_X][Pass[j].p_Y].info = 1;
+//                                 Node[i].Map[Pass[j].p_X][Pass[j].p_Y].p_num = j;
+//                                 Node[i].Map[Pass[j].p_X][Pass[j].p_Y].info_time = Twait;
+//                                 data = Ax * Ax * Twait + Ax * (Pass[j].p_X) + Pass[j].p_Y;
+//                                 push(i, data);
+//                                 get_info += 1; // 情報を取得したカウント
+//                                 transmit__[i][j] = Twait;
+//                             }
+//                         }
+//                     }
+                    
+//                 }
+//                 for(int k=0;k<Ax;k++)
+//                 {
+//                     for(int l=0;l<Ay;l++)
+//                     {
+//                         if(Node[i].Map[k][l].info == 1)
+//                         {
+//                             // x軸方向に移動を行っているとき
+//                             if (ceil(Node[i].n_X) != floor(Node[i].n_X) || Node[i].n_Y == Node[i].n_insec_Y)
+//                             {
+//                                 // y座標が等しく, x座標が通信可能距離内であるとき  
+
+//                                 if (Node[i].n_Y == Node[i].Map[k][l].m_Y && (fabs(Node[i].n_X - Node[i].Map[k][l].m_X) * Td <= r))
+//                                 {
+//                                     // int map_flag = 0;
+//                                     // for(int m = 0; m < P_ALL_NUM; m++){
+                                        
+//                                     //     if(Node[i].Map[k][l].m_X == Pass[m].p_X && Node[i].Map[k][l].m_Y == Pass[m].p_Y){
+//                                     //         map_flag = 1;
+//                                     //     }
+//                                     // }
+//                                     // if(map_flag == 0){
+//                                     //     Node[i].Map[k][l].info = 0;
+//                                     //     Node[i].Map[k][l].p_num = -2;
+//                                     //     Node[i].Map[k][l].info_time = Twait;
+//                                     // }
+//                                     if(Trans[Node[i].Map[k][l].m_X][Node[i].Map[k][l].m_Y].wp_Exist == 0){
+//                                         Node[i].Map[k][l].info = 0;
+//                                         Node[i].Map[k][l].p_num = -2;
+//                                         Node[i].Map[k][l].info_time = Twait;
+
+//                                     }
+//                                 }
+//                             }
+//                             else if(ceil(Node[i].n_Y) != floor(Node[i].n_Y) || Node[i].n_X == Node[i].n_insec_X){
+
+//                                 if(Node[i].n_X == Node[i].Map[k][l].m_X && (fabs(Node[i].n_Y - Node[i].Map[k][l].m_Y) * Td <= r))
+//                                 {
+//                                     // int map_flag = 0;
+//                                     // for(int m = 0; m < P_ALL_NUM; m++){
+                                        
+//                                     //     if(Node[i].Map[k][l].m_X == Pass[m].p_X && Node[i].Map[k][l].m_Y == Pass[m].p_Y){
+//                                     //         map_flag = 1;
+//                                     //     }
+//                                     // }
+//                                     // if(map_flag == 0){
+//                                     //     Node[i].Map[k][l].info = 0;
+//                                     //     Node[i].Map[k][l].p_num = -2;
+//                                     //     Node[i].Map[k][l].info_time = Twait;
+//                                     // }
+//                                     if(Trans[Node[i].Map[k][l].m_X][Node[i].Map[k][l].m_Y].wp_Exist == 0){
+//                                         Node[i].Map[k][l].info = 0;
+//                                         Node[i].Map[k][l].p_num = -2;
+//                                         Node[i].Map[k][l].info_time = Twait;
+
+//                                     }
+//                                 }
+//                             }
+//                         }
+//                         //直前でinfoは1になっているはずだから、infoが0の場合はいらない
+//                             // else if(Node[i].Map[k][l].info == 0)
+//                             // {
+//                             //     Node[i].Map[k][l].no_D = 0;
+//                             // }
+//                     }
+//                 }
+//             }
+//         }
+//     }
+// }
+
 
 /* --------------------------------------------------------- *
  *	関数名 : syokika										 *
@@ -1286,18 +1557,19 @@ double calculate_direction_score(int node_index, int target_x, int target_y)
     // density: 0〜50の範囲を想定（平滑化後の現実的な最大値）
     // distance: 0〜マップ対角線の長さ（sqrt(Ax^2 + Ay^2) ≈ 84.85）
     double density_max = 50.0;  // 密度の推定最大値
-    double distance_max = sqrt(Ax * Ax + Ay * Ay);  // マップの対角線距離（約84.85）
+    //double distance_max = sqrt(Ax * Ax + Ay * Ay);  // マップの対角線距離（約84.85）
+    double distance_max = 30.0;
     
-    // // Min-Max正規化（0〜1の範囲にスケーリング）
-    // double density_normalized = density / density_max;
-    // double distance_normalized = distance / distance_max;
+    // Min-Max正規化（0〜1の範囲にスケーリング）
+    double density_normalized = density / density_max;
+    double distance_normalized = distance / distance_max;
     
     // // 正規化値が1を超えないようにクリップ
     // if (density_normalized > 1.0) density_normalized = 1.0;
     // if (distance_normalized > 1.0) distance_normalized = 1.0;
     
-    // // スコア = (W_dens × 正規化密度) + W_map - (W_dist × 正規化距離) - W_grid
-    // score = (W_dens * density_normalized) + (Node[node_index].Map_grid[grid_x][grid_y].W_map) - (W_dist * distance_normalized) - (Node[node_index].W_grid[grid_x][grid_y]);
+    // スコア = (W_dens × 正規化密度) + W_map - (W_dist × 正規化距離) - W_grid
+    //score = (W_dens * density_normalized) + (Node[node_index].Map_grid[grid_x][grid_y].W_map) - (W_dist * distance_normalized) - (Node[node_index].W_grid[grid_x][grid_y]);
 
     // // --- 割り算ベースのスコア計算式 ---
     // // スコア = (W_dens × 混雑度) / ((W_dist × 距離) + 訪問回数 + 1.0)
@@ -1305,35 +1577,36 @@ double calculate_direction_score(int node_index, int target_x, int target_y)
     // // W_mapを加算して避難エリア内を優先
     // score += Node[node_index].Map_grid[grid_x][grid_y].W_map;
 
-
-
-
-    // --- 対数変換正規化 ---
-    double log_dens = log(density + 1.0);
-    double log_dist = log(distance + 1.0);
-
-    double log_dens_max = log(density_max + 1.0);
-    double log_dist_max = log(distance_max + 1.0);
-
-    double log_density_normalized = log_dens / log_dens_max;
-    double log_distance_normalized = log_dist / log_dist_max;
-
-    // 正規化値が1を超えないようにクリップ
-    if (log_density_normalized > 1.0) log_density_normalized = 1.0;
-    if (log_distance_normalized > 1.0) log_distance_normalized = 1.0;
-    
-    // スコア = (W_dens × 正規化密度) + W_map - (W_dist × 正規化距離) - W_grid
-    //score = (W_dens * log_density_normalized) + (Node[node_index].Map_grid[grid_x][grid_y].W_map) - (W_dist * log_distance_normalized) - (Node[node_index].W_grid[grid_x][grid_y]);
-    if(Node[node_index].W_grid[grid_x][grid_y] >= 20){
-        sum_W_grid += 1.0;
-    }
-
-    // --- 割り算ベースのスコア計算式 ---
-    // スコア = (W_dens × 混雑度) / ((W_dist × 距離) + 訪問回数 + 1.0)
-    score = (W_dens * log_density_normalized) / ((W_dist * log_distance_normalized) + Node[node_index].W_grid[grid_x][grid_y] + 1.0);
+    // --- exp関数を使った割り算ベースのスコア計算式 ---
+    // スコア = 正規化混雑度 / (exp(W_dist × 正規化距離) + 訪問回数)
+    score = (W_dens * density_normalized) / (exp(W_dist * distance_normalized) + Node[node_index].W_grid[grid_x][grid_y] + 1.0);
     // W_mapを加算して避難エリア内を優先
     score += Node[node_index].Map_grid[grid_x][grid_y].W_map;
 
+
+    // // --- 対数変換正規化 ---
+    // double log_dens = log(density + 1.0);
+    // double log_dist = log(distance + 1.0);
+
+    // double log_dens_max = log(density_max + 1.0);
+    // double log_dist_max = log(distance_max + 1.0);
+
+    // double log_density_normalized = log_dens / log_dens_max;
+    // double log_distance_normalized = log_dist / log_dist_max;
+
+    // 正規化値が1を超えないようにクリップ
+    //if (log_density_normalized > 1.0) log_density_normalized = 1.0;
+    //if (log_distance_normalized > 1.0) log_distance_normalized = 1.0;
+    
+    // // スコア = (W_dens × 正規化密度) + W_map - (W_dist × 正規化距離) - W_grid
+    // score = (W_dens * log_density_normalized) + (Node[node_index].Map_grid[grid_x][grid_y].W_map) - (W_dist * log_distance_normalized) - (Node[node_index].W_grid[grid_x][grid_y]);
+
+    // // --- 割り算ベースのスコア計算式 ---
+    // // スコア = (W_dens × 混雑度) / ((W_dist × 距離) + 訪問回数 + 1.0)
+    // score = (W_dens * log_density_normalized) / ((W_dist * log_distance_normalized) + Node[node_index].W_grid[grid_x][grid_y] + 1.0);
+    // // W_mapを加算して避難エリア内を優先
+    // score += Node[node_index].Map_grid[grid_x][grid_y].W_map;
+        
     return score;
 }
 
