@@ -1565,9 +1565,15 @@ double calculate_direction_score(int node_index, int target_x, int target_y)
     // スコア = (W_dens × 正規化密度) + W_map - (W_dist × 正規化距離) - W_grid
     //score = (W_dens * density_normalized) + (Node[node_index].Map_grid[grid_x][grid_y].W_map) - (W_dist * distance_normalized) - (Node[node_index].W_grid[grid_x][grid_y]);
 
-    // --- 割り算ベースのスコア計算式 ---
-    // スコア = (W_dens × 混雑度) / ((W_dist × 距離) + 訪問回数 + 1.0)
-    score = (W_dens * density_normalized) / ((W_dist * distance_normalized) + Node[node_index].W_grid[grid_x][grid_y] + 1.0);
+    // // --- 割り算ベースのスコア計算式 ---
+    // // スコア = (W_dens × 混雑度) / ((W_dist × 距離) + 訪問回数 + 1.0)
+    // score = (W_dens * density_normalized) / ((W_dist * distance_normalized) + Node[node_index].W_grid[grid_x][grid_y] + 1.0);
+    // // W_mapを加算して避難エリア内を優先
+    // score += Node[node_index].Map_grid[grid_x][grid_y].W_map;
+
+    // --- exp関数を使った割り算ベースのスコア計算式 ---
+    // スコア = 正規化混雑度 / (exp(W_dist × 正規化距離) + 訪問回数)
+    score = (W_dens * density_normalized) / (exp(W_dist * distance_normalized) + Node[node_index].W_grid[grid_x][grid_y] + 1.0);
     // W_mapを加算して避難エリア内を優先
     score += Node[node_index].Map_grid[grid_x][grid_y].W_map;
 
