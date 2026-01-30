@@ -727,19 +727,23 @@ void move_new_direction()
                             // }
                         }
                     }else if(distination_flag[count] == 1){
-                        // // 目的地に向かって移動する前に、現在の交差点に待ち客がいるか確認
-                        // int current_x = (int)Node[count].n_X;
-                        // int current_y = (int)Node[count].n_Y;
-                        
-                        // // 現在の交差点に待ち客がいる場合は移動せずにその場に留まる
-                        // if (Trans[current_x][current_y].wp_Exist == 1) {
-                        //     // 待ち客がいるのでその場に留まる（次のステップでallrideon()が乗客を拾う）
-                        //     // 目的地フラグはリセットして、乗車後に再設定
-                        //     distination_flag[count] = 0;
-                        // } else {
                             int target_x = Node[count].target_grid_x;
                             int target_y = Node[count].target_grid_y;
+                            
+                            // 目標グリッドのインデックスを計算
+                            int target_grid_x = target_x / cell_width;
+                            int target_grid_y = target_y / cell_height;
+                            
+                            // grid_countを最新に更新してから、目標グリッド内のinfo==1の数をチェック
+                            P_map(count);
+                            
+                            // 目標グリッド内にinfo==1が1つもなければ、目的地を再設定
+                            if (grid_count[target_grid_x][target_grid_y] == 0) {
+                                distination_flag[count] = 0;
+                                goto score_based_movement;
+                            }
 
+                            
                             int dx = target_x - Node[count].n_insec_X;
                             int dy = target_y - Node[count].n_insec_Y;
 
