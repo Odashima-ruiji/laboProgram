@@ -35,7 +35,7 @@ int main()
     // csv出力するための数値
     FILE *fp;
     char *fname = "test.csv";
-    //char *fname = "ver.2_60_40_dens10_dist50.csv";
+    //char *fname = "ver.2_div_exp_60_40_dens10_dist10.csv";
 
     char *node = "node";
     char *node0 = "node0";
@@ -47,7 +47,7 @@ int main()
     fp = fopen(fname, "w");
     if (fp == NULL)
     {
-        printf("%sファイルが開けません¥n", fname);
+        printf("%sファイルが開けません\n", fname);
     }
 
     FILE *fp2;
@@ -624,7 +624,7 @@ int main()
 
     // score.csvファイルにNode0のscore, dens, distの値を出力
     FILE *fp_score;
-    fp_score = fopen("score_20_20.csv", "w");
+    fp_score = fopen("score_10_15.csv", "w");
     if (fp_score == NULL) {
         printf("score.csvファイルが開けません\n");
     } else {
