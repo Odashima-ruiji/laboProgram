@@ -7,7 +7,7 @@ score_10_20.csvファイルからscore, dens, dist, W_gridの値を読み込ん�
 import matplotlib.pyplot as plt
 import numpy as np
 
-def read_score_10_15_csv(filename):
+def read_score_10_50_csv(filename):
     """
     score.csvファイルを読み込み、score, dens, dist, W_gridの配列を返す
     """
@@ -54,9 +54,24 @@ def read_score_10_15_csv(filename):
     return np.array(score_data), np.array(dens_data), np.array(dist_data), np.array(wgrid_data)
 
 
-def plot_data(score_data, dens_data, dist_data, wgrid_data, save_filename='score_plot.png'):
+def plot_data(score_data, dens_data, dist_data, wgrid_data, save_filename='score_plot.png',
+              x_range=(500, 3000), score_y_range=(0, 100), dens_y_range=(0, 30), 
+              dist_y_range=(0, 30), wgrid_y_range=(0, 20)):
     """
     4つのデータを折れ線グラフとして描画
+    
+    Parameters:
+    -----------
+    x_range : tuple, default=(500, 3000)
+        x軸（時間ステップ）の範囲 (min, max)
+    score_y_range : tuple, default=(0, 120)
+        Scoreグラフのy軸範囲 (min, max)
+    dens_y_range : tuple, default=(0, 20)
+        Densityグラフのy軸範囲 (min, max)
+    dist_y_range : tuple, default=(0, 20)
+        Distanceグラフのy軸範囲 (min, max)
+    wgrid_y_range : tuple, default=(0, 20)
+        W_gridグラフのy軸範囲 (min, max)
     """
     # 0でない値のみを抽出（実際のシミュレーション時間のみ）
     # Twaitまでのデータのみを取得
@@ -87,8 +102,8 @@ def plot_data(score_data, dens_data, dist_data, wgrid_data, save_filename='score
     else:
         axes[1].text(0.5, 0.5, 'No Data (All Zero)', ha='center', va='center', 
                     transform=axes[1].transAxes, fontsize=14, color='red')
-    axes[1].set_ylabel('Normalized Density', fontsize=12)
-    axes[1].set_title('Density Component (Normalized)', fontsize=12)
+    axes[1].set_ylabel('Density', fontsize=12)
+    axes[1].set_title('Density Component', fontsize=12)
     axes[1].grid(True, alpha=0.3)
     
     # Distance (normalized) のプロット
@@ -98,8 +113,8 @@ def plot_data(score_data, dens_data, dist_data, wgrid_data, save_filename='score
     else:
         axes[2].text(0.5, 0.5, 'No Data (All Zero)', ha='center', va='center', 
                     transform=axes[2].transAxes, fontsize=14, color='red')
-    axes[2].set_ylabel('Normalized Distance', fontsize=12)
-    axes[2].set_title('Distance Component (Normalized)', fontsize=12)
+    axes[2].set_ylabel('Distance', fontsize=12)
+    axes[2].set_title('Distance Component', fontsize=12)
     axes[2].grid(True, alpha=0.3)
     
     # W_grid のプロット
@@ -114,12 +129,18 @@ def plot_data(score_data, dens_data, dist_data, wgrid_data, save_filename='score
     axes[3].set_title('Visit Penalty (W_grid)', fontsize=12)
     axes[3].grid(True, alpha=0.3)
     
-    # 全てのサブプロットにx軸範囲を500-3000に固定
-    for ax in axes:
-        ax.set_xlim(500, 3000)
-        ax.set_ylim(0, 20)
-    # scoreのy軸は0-120に設定
-    axes[0].set_ylim(0, 120)
+    # 各サブプロットにx軸とy軸範囲を個別に設定
+    axes[0].set_xlim(x_range)
+    axes[0].set_ylim(score_y_range)
+    
+    axes[1].set_xlim(x_range)
+    axes[1].set_ylim(dens_y_range)
+    
+    axes[2].set_xlim(x_range)
+    axes[2].set_ylim(dist_y_range)
+    
+    axes[3].set_xlim(x_range)
+    axes[3].set_ylim(wgrid_y_range)
     
     plt.tight_layout()
     plt.savefig(save_filename, dpi=300, bbox_inches='tight')
@@ -127,76 +148,76 @@ def plot_data(score_data, dens_data, dist_data, wgrid_data, save_filename='score
     plt.show()
 
 
-def plot_combined(score_data, dens_data, dist_data, wgrid_data, save_filename='score_combined.png'):
-    """
-    4つのデータを1つのグラフに重ねて表示（正規化済み）
-    """
-    # 0でない値のみを抽出
-    non_zero_indices = np.where(score_data != 0)[0]
-    if len(non_zero_indices) > 0:
-        max_index = non_zero_indices[-1] + 1
-    else:
-        max_index = len(score_data)
+# def plot_combined(score_data, dens_data, dist_data, wgrid_data, save_filename='score_combined.png'):
+#     """
+#     4つのデータを1つのグラフに重ねて表示（正規化済み）
+#     """
+#     # 0でない値のみを抽出
+#     non_zero_indices = np.where(score_data != 0)[0]
+#     if len(non_zero_indices) > 0:
+#         max_index = non_zero_indices[-1] + 1
+#     else:
+#         max_index = len(score_data)
     
-    # 時間軸（500からスタート）
-    time_steps = np.arange(500, 500 + max_index)
+#     # 時間軸（500からスタート）
+#     time_steps = np.arange(500, 500 + max_index)
     
-    plt.figure(figsize=(14, 6))
+#     plt.figure(figsize=(14, 6))
     
-    # Scoreは必ずプロット
-    plt.plot(time_steps, score_data[:max_index], label='Score', color='blue', linewidth=1.5, alpha=0.7)
+#     # Scoreは必ずプロット
+#     plt.plot(time_steps, score_data[:max_index], label='Score', color='blue', linewidth=1.5, alpha=0.7)
     
-    # Densityは0でない場合のみプロット
-    dens_nonzero_count = np.count_nonzero(dens_data[:max_index])
-    if dens_nonzero_count > 0:
-        plt.plot(time_steps, dens_data[:max_index], label='Density (normalized)', color='green', linewidth=1.5, alpha=0.7)
+#     # Densityは0でない場合のみプロット
+#     dens_nonzero_count = np.count_nonzero(dens_data[:max_index])
+#     if dens_nonzero_count > 0:
+#         plt.plot(time_steps, dens_data[:max_index], label='Density (normalized)', color='green', linewidth=1.5, alpha=0.7)
     
-    # Distanceは0でない場合のみプロット
-    dist_nonzero_count = np.count_nonzero(dist_data[:max_index])
-    if dist_nonzero_count > 0:
-        plt.plot(time_steps, dist_data[:max_index], label='Distance (normalized)', color='orange', linewidth=1.5, alpha=0.7)
+#     # Distanceは0でない場合のみプロット
+#     dist_nonzero_count = np.count_nonzero(dist_data[:max_index])
+#     if dist_nonzero_count > 0:
+#         plt.plot(time_steps, dist_data[:max_index], label='Distance (normalized)', color='orange', linewidth=1.5, alpha=0.7)
     
-    # W_gridは0でない場合のみプロット
-    wgrid_nonzero_count = np.count_nonzero(wgrid_data[:max_index])
-    if wgrid_nonzero_count > 0:
-        plt.plot(time_steps, wgrid_data[:max_index], label='W_grid (penalty)', color='purple', linewidth=1.5, alpha=0.7)
+#     # W_gridは0でない場合のみプロット
+#     wgrid_nonzero_count = np.count_nonzero(wgrid_data[:max_index])
+#     if wgrid_nonzero_count > 0:
+#         plt.plot(time_steps, wgrid_data[:max_index], label='W_grid (penalty)', color='purple', linewidth=1.5, alpha=0.7)
     
-    plt.xlabel('Time Step (Twait)', fontsize=12)
-    plt.ylabel('Value', fontsize=12)
-    plt.title('Node0 Score Components Over Time (Combined)', fontsize=14, fontweight='bold')
-    plt.legend(loc='best', fontsize=11)
-    plt.grid(True, alpha=0.3)
-    plt.axhline(y=0, color='red', linestyle='--', linewidth=0.8, alpha=0.5)
+#     plt.xlabel('Time Step (Twait)', fontsize=12)
+#     plt.ylabel('Value', fontsize=12)
+#     plt.title('Node0 Score Components Over Time (Combined)', fontsize=14, fontweight='bold')
+#     plt.legend(loc='best', fontsize=11)
+#     plt.grid(True, alpha=0.3)
+#     plt.axhline(y=0, color='red', linestyle='--', linewidth=0.8, alpha=0.5)
     
-    # データなしの警告を表示
-    missing_data = []
-    if dens_nonzero_count == 0:
-        missing_data.append("Density")
-    if dist_nonzero_count == 0:
-        missing_data.append("Distance")
-    if wgrid_nonzero_count == 0:
-        missing_data.append("W_grid")
+#     # データなしの警告を表示
+#     missing_data = []
+#     if dens_nonzero_count == 0:
+#         missing_data.append("Density")
+#     if dist_nonzero_count == 0:
+#         missing_data.append("Distance")
+#     if wgrid_nonzero_count == 0:
+#         missing_data.append("W_grid")
     
-    if missing_data:
-        warning_text = "Note: " + ", ".join(missing_data) + " data is all zero"
-        plt.text(0.5, 0.95, warning_text, ha='center', va='top', 
-                transform=plt.gca().transAxes, fontsize=10, color='red', 
-                bbox=dict(boxstyle='round', facecolor='yellow', alpha=0.5))
+#     if missing_data:
+#         warning_text = "Note: " + ", ".join(missing_data) + " data is all zero"
+#         plt.text(0.5, 0.95, warning_text, ha='center', va='top', 
+#                 transform=plt.gca().transAxes, fontsize=10, color='red', 
+#                 bbox=dict(boxstyle='round', facecolor='yellow', alpha=0.5))
     
-    # x軸範囲を500-3000に固定
-    plt.xlim(500, 3000)
-    # y軸範囲を0-20に固定
-    plt.ylim(0, 20)
+#     # x軸範囲を500-3000に固定
+#     plt.xlim(500, 3000)
+#     # y軸範囲を0-20に固定
+#     plt.ylim(0, 20)
     
-    plt.tight_layout()
-    plt.savefig(save_filename, dpi=300, bbox_inches='tight')
-    print(f'グラフを {save_filename} に保存しました')
-    plt.show()
+#     plt.tight_layout()
+#     plt.savefig(save_filename, dpi=300, bbox_inches='tight')
+#     print(f'グラフを {save_filename} に保存しました')
+#     plt.show()
 
 
-def print_statistics(score_data, dens_data, dist_data, wgrid_data):
+def print_statistics(score_data, dens_data, dist_data, wgrid_data, csv_filename):
     """
-    データの統計情報を表示
+    データの統計情報をCSVファイルの先頭に追記
     """
     # 0でないデータのみを対象
     score_nonzero = score_data[score_data != 0]
@@ -204,67 +225,85 @@ def print_statistics(score_data, dens_data, dist_data, wgrid_data):
     dist_nonzero = dist_data[dist_data != 0]
     wgrid_nonzero = wgrid_data[wgrid_data != 0]
     
-    print("\n===== 統計情報 =====")
-    print(f"Scoreデータ数: {len(score_nonzero)}")
-    print(f"Densデータ数: {len(dens_nonzero)}")
-    print(f"Distデータ数: {len(dist_nonzero)}")
-    print(f"W_gridデータ数: {len(wgrid_nonzero)}")
+    # 元のファイルを読み込む
+    with open(csv_filename, 'r') as f:
+        original_content = f.read()
     
-    print("\n[Score]")
+    # 統計情報を文字列として生成
+    stats_lines = []
+    stats_lines.append("===== 統計情報 =====")
+    stats_lines.append(f"Scoreデータ数: {len(score_nonzero)}")
+    stats_lines.append(f"Densデータ数: {len(dens_nonzero)}")
+    stats_lines.append(f"Distデータ数: {len(dist_nonzero)}")
+    stats_lines.append(f"W_gridデータ数: {len(wgrid_nonzero)}")
+    stats_lines.append("")
+    
+    stats_lines.append("[Score]")
     if len(score_nonzero) > 0:
-        print(f"  平均: {np.mean(score_nonzero):.4f}")
-        print(f"  標準偏差: {np.std(score_nonzero):.4f}")
-        print(f"  最小値: {np.min(score_nonzero):.4f}")
-        print(f"  最大値: {np.max(score_nonzero):.4f}")
+        stats_lines.append(f"  平均: {np.mean(score_nonzero):.4f}")
+        stats_lines.append(f"  標準偏差: {np.std(score_nonzero):.4f}")
+        stats_lines.append(f"  最小値: {np.min(score_nonzero):.4f}")
+        stats_lines.append(f"  最大値: {np.max(score_nonzero):.4f}")
     else:
-        print("  データなし")
+        stats_lines.append("  データなし")
+    stats_lines.append("")
     
-    print("\n[Density (normalized)]")
+    stats_lines.append("[Density (normalized)]")
     if len(dens_nonzero) > 0:
-        print(f"  平均: {np.mean(dens_nonzero):.4f}")
-        print(f"  標準偏差: {np.std(dens_nonzero):.4f}")
-        print(f"  最小値: {np.min(dens_nonzero):.4f}")
-        print(f"  最大値: {np.max(dens_nonzero):.4f}")
+        stats_lines.append(f"  平均: {np.mean(dens_nonzero):.4f}")
+        stats_lines.append(f"  標準偏差: {np.std(dens_nonzero):.4f}")
+        stats_lines.append(f"  最小値: {np.min(dens_nonzero):.4f}")
+        stats_lines.append(f"  最大値: {np.max(dens_nonzero):.4f}")
     else:
-        print("  データなし（全て0）")
+        stats_lines.append("  データなし（全て0）")
+    stats_lines.append("")
     
-    print("\n[Distance (normalized)]")
+    stats_lines.append("[Distance (normalized)]")
     if len(dist_nonzero) > 0:
-        print(f"  平均: {np.mean(dist_nonzero):.4f}")
-        print(f"  標準偏差: {np.std(dist_nonzero):.4f}")
-        print(f"  最小値: {np.min(dist_nonzero):.4f}")
-        print(f"  最大値: {np.max(dist_nonzero):.4f}")
+        stats_lines.append(f"  平均: {np.mean(dist_nonzero):.4f}")
+        stats_lines.append(f"  標準偏差: {np.std(dist_nonzero):.4f}")
+        stats_lines.append(f"  最小値: {np.min(dist_nonzero):.4f}")
+        stats_lines.append(f"  最大値: {np.max(dist_nonzero):.4f}")
     else:
-        print("  データなし（全て0）")
+        stats_lines.append("  データなし（全て0）")
+    stats_lines.append("")
     
-    print("\n[W_grid (penalty)]")
+    stats_lines.append("[W_grid (penalty)]")
     if len(wgrid_nonzero) > 0:
-        print(f"  平均: {np.mean(wgrid_nonzero):.4f}")
-        print(f"  標準偏差: {np.std(wgrid_nonzero):.4f}")
-        print(f"  最小値: {np.min(wgrid_nonzero):.4f}")
-        print(f"  最大値: {np.max(wgrid_nonzero):.4f}")
+        stats_lines.append(f"  平均: {np.mean(wgrid_nonzero):.4f}")
+        stats_lines.append(f"  標準偏差: {np.std(wgrid_nonzero):.4f}")
+        stats_lines.append(f"  最小値: {np.min(wgrid_nonzero):.4f}")
+        stats_lines.append(f"  最大値: {np.max(wgrid_nonzero):.4f}")
     else:
-        print("  データなし（全て0）")
-    print("==================\n")
+        stats_lines.append("  データなし（全て0）")
+    stats_lines.append("==================")
+    stats_lines.append("")
+    
+    # ファイルの先頭に統計情報を追記
+    with open(csv_filename, 'w') as f:
+        f.write('\n'.join(stats_lines) + '\n\n')
+        f.write(original_content)
+    
+    print(f"\n統計情報を {csv_filename} の先頭に追記しました")
 
 
 if __name__ == '__main__':
     # CSVファイルの読み込み
-    csv_filename = 'build/app/score_10_15.csv'
+    csv_filename = 'build/app/score_10_50.csv'
     
     try:
-        score_data, dens_data, dist_data, wgrid_data = read_score_10_15_csv(csv_filename)
+        score_data, dens_data, dist_data, wgrid_data = read_score_10_50_csv(csv_filename)
         print(f'{csv_filename} を読み込みました')
         print(f'Score データ数: {len(score_data)}')
         print(f'Dens データ数: {len(dens_data)}')
         print(f'Dist データ数: {len(dist_data)}')
         print(f'W_grid データ数: {len(wgrid_data)}')
         
-        # 統計情報の表示
-        print_statistics(score_data, dens_data, dist_data, wgrid_data)
+        # 統計情報の表示とCSVファイルへの追記
+        print_statistics(score_data, dens_data, dist_data, wgrid_data, csv_filename)
         
         # グラフの作成
-        plot_data(score_data, dens_data, dist_data, wgrid_data, 'score_plot_10_15.png')
+        plot_data(score_data, dens_data, dist_data, wgrid_data, 'score_plot_10_50.png')
         #plot_combined(score_data, dens_data, dist_data, wgrid_data, 'score_combined.png')
         
     except FileNotFoundError:

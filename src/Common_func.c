@@ -1654,39 +1654,39 @@ void find_best_grid_in_all_map(int node_index)
         double density_max = 50.0;  // 密度の推定最大値
         double distance_max = sqrt(Ax * Ax + Ay * Ay);  // マップの対角線距離（約84.85）
         
-        // // Min-Max正規化（0〜1の範囲にスケーリング）
-        // double density_normalized = density / density_max;
-        // double distance_normalized = distance / distance_max;
+        // Min-Max正規化（0〜1の範囲にスケーリング）
+        double density_normalized = density / density_max;
+        double distance_normalized = distance / distance_max;
         
-        // // 正規化値が1を超えないようにクリップ
-        // if (density_normalized > 1.0) density_normalized = 1.0;
-        // if (distance_normalized > 1.0) distance_normalized = 1.0;
-
-        // Node0_score[Twait] = best_score;
-        // Node0_dens[Twait] = density_normalized;
-        // Node0_dist[Twait] = distance_normalized;
-        // Node0_W_grid[Twait] = Node[node_index].W_grid[best_grid_x][best_grid_y];
-
-
-
-        // --- 対数変換正規化 ---
-        double log_dens = log(density + 1.0);
-        double log_dist = log(distance + 1.0);
-
-        double log_dens_max = log(density_max + 1.0);
-        double log_dist_max = log(distance_max + 1.0);
-
-        double log_density_normalized = log_dens / log_dens_max;
-        double log_distance_normalized = log_dist / log_dist_max;
-
         // 正規化値が1を超えないようにクリップ
-        if (log_density_normalized > 1.0) log_density_normalized = 1.0;
-        if (log_distance_normalized > 1.0) log_distance_normalized = 1.0;
-    
+        if (density_normalized > 1.0) density_normalized = 1.0;
+        if (distance_normalized > 1.0) distance_normalized = 1.0;
+
         Node0_score[Twait] = best_score;
-        Node0_dens[Twait] = log_density_normalized;
-        Node0_dist[Twait] = log_distance_normalized;
+        Node0_dens[Twait] = density;
+        Node0_dist[Twait] = distance;
         Node0_W_grid[Twait] = Node[node_index].W_grid[best_grid_x][best_grid_y];
+
+
+
+        // // --- 対数変換正規化 ---
+        // double log_dens = log(density + 1.0);
+        // double log_dist = log(distance + 1.0);
+
+        // double log_dens_max = log(density_max + 1.0);
+        // double log_dist_max = log(distance_max + 1.0);
+
+        // double log_density_normalized = log_dens / log_dens_max;
+        // double log_distance_normalized = log_dist / log_dist_max;
+
+        // // 正規化値が1を超えないようにクリップ
+        // if (log_density_normalized > 1.0) log_density_normalized = 1.0;
+        // if (log_distance_normalized > 1.0) log_distance_normalized = 1.0;
+    
+        // Node0_score[Twait] = best_score;
+        // Node0_dens[Twait] = log_density_normalized;
+        // Node0_dist[Twait] = log_distance_normalized;
+        // Node0_W_grid[Twait] = Node[node_index].W_grid[best_grid_x][best_grid_y];
     }
     
     // 結果をノード構造体に格納
