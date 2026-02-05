@@ -19,7 +19,7 @@
 #include "globals.h"
 #include "base_struct.h"
 #include "base_func.h"
-#include "placement_60_40.h"
+#include "placement_100_0.h"
 #include "Common_func.h"
 #include "move.h"
 #include "my_func.h"
@@ -35,7 +35,7 @@ int main()
     // csv出力するための数値
     FILE *fp;
     //char *fname = "test.csv";
-    char *fname = "ver.2_division_exp_60_40_dens10_dist25.csv";
+    char *fname = "ver.2_division_exp_100_0_dens10_dist25.csv";
 
     char *node = "node";
     char *node0 = "node0";
@@ -103,7 +103,7 @@ int main()
     // FILE *gp_waiting = NULL;
 
     // --------------------------------------------------------------------------------------------------------------------
-    for (int jc = 0; jc < 5; jc++)
+    for (int jc = 0; jc < 10; jc++)
     {
         // 各ループで乱数シードを設定
         //srand((int)RANDOM_SEED + jc + 1);
