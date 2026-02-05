@@ -23,7 +23,7 @@
 
 #define refdistance 250 // ノードが参照する距離(格子分)
 #define reftime 30      // ノードが参照する時間差
-#define EPIDEMIC
+//#define EPIDEMIC
 #define circle
 //#define two
 #define dis_center
