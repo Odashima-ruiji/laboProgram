@@ -106,7 +106,7 @@ int main()
     for (int jc = 0; jc < 1; jc++)
     {
         // 各ループで乱数シードを設定
-        srand((int)RANDOM_SEED + jc + 2);
+        srand((int)RANDOM_SEED + jc + 3);
         
         Twait = 0;
         allstep = 0;
@@ -624,7 +624,7 @@ int main()
 
     // score.csvファイルにNode0のscore, dens, distの値を出力
     FILE *fp_score;
-    fp_score = fopen("score_10_50.csv", "w");
+    fp_score = fopen("score_10_30.csv", "w");
     if (fp_score == NULL) {
         printf("score.csvファイルが開けません\n");
     } else {

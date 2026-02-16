@@ -1480,31 +1480,7 @@ void P_map(int node_index)
             }
         }
     }
-    
-    // 平滑化処理：隣接セルも考慮して密集地点を判定
-    // smoothed_count配列はグローバル変数として定義済み
-    for (int i = 0; i < grid_size; i++) {
-        for (int j = 0; j < grid_size; j++) {
-            int total = grid_count[i][j];
-            
-            // 8方向の隣接セルを加算
-            for (int di = -1; di <= 1; di++) {
-                for (int dj = -1; dj <= 1; dj++) {
-                    if (di == 0 && dj == 0) continue; // 自分自身は既に加算済み
-                    
-                    int ni = i + di;
-                    int nj = j + dj;
-                    
-                    // 範囲内チェック
-                    if (ni >= 0 && ni < grid_size && nj >= 0 && nj < grid_size) {
-                        total += grid_count[ni][nj];
-                    }
-                }
-            }
-            
-            smoothed_count[i][j] = total;
-        }
-    }
+
     
     // 密集地点の判定と出力（デバッグ用）
     // printf("Node[%d] 密集地点検出結果（閾値: %d人）:\n", node_index, threshold);
@@ -1548,7 +1524,7 @@ double calculate_direction_score(int node_index, int target_x, int target_y)
     if (grid_y >= grid_size) grid_y = grid_size - 1;
     
     // その場所の混雑度を取得
-    double density = (double)smoothed_count[grid_x][grid_y];
+    double density = (double)grid_count[grid_x][grid_y];
     
     // Node[node_index]からの距離を計算
     double distance = sqrt2(target_x - Node[node_index].n_X, target_y - Node[node_index].n_Y);
@@ -1643,7 +1619,7 @@ void find_best_grid_in_all_map(int node_index)
     
     if(node_index == 0){    
         // その場所の混雑度を取得
-        double density = (double)smoothed_count[best_grid_x/cell_width][best_grid_y/cell_height];
+        double density = (double)grid_count[best_grid_x/cell_width][best_grid_y/cell_height];
         
         // Node[node_index]からの距離を計算
         double distance = sqrt2(best_grid_x - Node[node_index].n_X, best_grid_y - Node[node_index].n_Y);
@@ -1740,7 +1716,7 @@ void re_find_best_grid_in_all_map(int node_index)
     
     if(node_index == 0){    
         // その場所の混雑度を取得
-        double density = (double)smoothed_count[best_grid_x][best_grid_y];
+        double density = (double)grid_count[best_grid_x][best_grid_y];
         
         // Node[node_index]からの距離を計算
         double distance = sqrt2(best_grid_x - Node[node_index].n_X, best_grid_y - Node[node_index].n_Y);

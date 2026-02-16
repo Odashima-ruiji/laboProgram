@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-score_10_20.csvファイルからscore, dens, dist, W_gridの値を読み込んで折れ線グラフを作成
+score_10_0.csvファイルからscore, dens, dist, W_gridの値を読み込んで折れ線グラフを作成
 """
 
 import matplotlib.pyplot as plt
 import numpy as np
 
-def read_score_10_50_csv(filename):
+def read_score_10_30_csv(filename):
     """
     score.csvファイルを読み込み、score, dens, dist, W_gridの配列を返す
     """
@@ -289,10 +289,10 @@ def print_statistics(score_data, dens_data, dist_data, wgrid_data, csv_filename)
 
 if __name__ == '__main__':
     # CSVファイルの読み込み
-    csv_filename = 'build/app/score_10_50.csv'
+    csv_filename = 'build/app/score_10_30.csv'
     
     try:
-        score_data, dens_data, dist_data, wgrid_data = read_score_10_50_csv(csv_filename)
+        score_data, dens_data, dist_data, wgrid_data = read_score_10_30_csv(csv_filename)
         print(f'{csv_filename} を読み込みました')
         print(f'Score データ数: {len(score_data)}')
         print(f'Dens データ数: {len(dens_data)}')
@@ -303,7 +303,7 @@ if __name__ == '__main__':
         print_statistics(score_data, dens_data, dist_data, wgrid_data, csv_filename)
         
         # グラフの作成
-        plot_data(score_data, dens_data, dist_data, wgrid_data, 'score_plot_10_50.png')
+        plot_data(score_data, dens_data, dist_data, wgrid_data, 'score_plot_nogrid_10_30.png')
         #plot_combined(score_data, dens_data, dist_data, wgrid_data, 'score_combined.png')
         
     except FileNotFoundError:

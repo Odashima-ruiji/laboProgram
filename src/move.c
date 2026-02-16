@@ -346,7 +346,7 @@ void move_new_direction()
                 int all_density_zero = 1; // すべて0と仮定
                 for (int i = 0; i < grid_size; i++) {
                     for (int j = 0; j < grid_size; j++) {
-                        if (smoothed_count[i][j] > 0) {
+                        if (grid_count[i][j] > 0) {
                             all_density_zero = 0; // 1つでも0より大きければフラグを下ろす
                             break;
                         }
