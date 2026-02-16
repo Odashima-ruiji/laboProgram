@@ -27,6 +27,7 @@
 #define EPIDEMIC
 #define circle
 // #define two
+//#define smooth
 #define dis_center
 
 #endif
