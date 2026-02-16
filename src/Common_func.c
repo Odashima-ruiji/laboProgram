@@ -1532,7 +1532,7 @@ double calculate_direction_score(int node_index, int target_x, int target_y)
     // --- 正規化処理 ---
     // density: 0〜50の範囲を想定（平滑化後の現実的な最大値）
     // distance: 0〜マップ対角線の長さ（sqrt(Ax^2 + Ay^2) ≈ 84.85）
-    double density_max = 50.0;  // 密度の推定最大値
+    double density_max = 9.0;  // 密度の推定最大値
     //double distance_max = sqrt(Ax * Ax + Ay * Ay);  // マップの対角線距離（約84.85）
     double distance_max = 30.0;
     
@@ -1627,7 +1627,7 @@ void find_best_grid_in_all_map(int node_index)
         // --- 正規化処理 ---
         // density: 0〜50の範囲を想定（平滑化後の現実的な最大値）
         // distance: 0〜マップ対角線の長さ（sqrt(Ax^2 + Ay^2) ≈ 84.85）
-        double density_max = 50.0;  // 密度の推定最大値
+        double density_max = 9.0;  // 密度の推定最大値
         double distance_max = sqrt(Ax * Ax + Ay * Ay);  // マップの対角線距離（約84.85）
         
         // Min-Max正規化（0〜1の範囲にスケーリング）
@@ -1724,7 +1724,7 @@ void re_find_best_grid_in_all_map(int node_index)
         // --- 正規化処理 ---
         // density: 0〜50の範囲を想定（平滑化後の現実的な最大値）
         // distance: 0〜マップ対角線の長さ（sqrt(Ax^2 + Ay^2) ≈ 84.85）
-        double density_max = 50.0;  // 密度の推定最大値
+        double density_max = 9.0;  // 密度の推定最大値
         double distance_max = sqrt(Ax * Ax + Ay * Ay);  // マップの対角線距離（約84.85）
         
         // Min-Max正規化（0〜1の範囲にスケーリング）
