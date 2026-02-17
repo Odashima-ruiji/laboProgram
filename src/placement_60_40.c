@@ -27,103 +27,173 @@ void Dist_Init_p(void)
  * --------------------------------------------------------- */
 void Dist_Init_n(void)
 {
-    for (int i = 0; i < 8; i++)
-    {
-        do
+    if(N_ALL_NUM == 100){
+        for (int i = 0; i < 8; i++)
         {
-            Node[i].n_X = randAxAy();
-            Node[i].n_Y = center_y - 2 * i;
-        } while (((sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) < area_disaster) || (sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) > area_disaster + 2)) || (Node[i].n_X > center_x || Node[i].n_Y > center_y));
-    }
-    for (int i = 8; i < 10; i++)
-    {
-        do
+            do
+            {
+                Node[i].n_X = randAxAy();
+                Node[i].n_Y = center_y - 2 * i;
+            } while (((sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) < area_disaster) || (sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) > area_disaster + 2)) || (Node[i].n_X > center_x || Node[i].n_Y > center_y));
+        }
+        for (int i = 8; i < 10; i++)
         {
-            Node[i].n_X = randAxAy();
-            Node[i].n_Y = randAxAy();
-        } while (((sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) < area_disaster) || (sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) > area_disaster + 2)) || (Node[i].n_X > center_x || Node[i].n_Y > center_y));
-    }
-    for (int i = 10; i < 18; i++)
-    {
-        do
+            do
+            {
+                Node[i].n_X = randAxAy();
+                Node[i].n_Y = randAxAy();
+            } while (((sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) < area_disaster) || (sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) > area_disaster + 2)) || (Node[i].n_X > center_x || Node[i].n_Y > center_y));
+        }
+        for (int i = 10; i < 18; i++)
         {
-            Node[i].n_X = randAxAy();
-            Node[i].n_Y = center_y + 2 * (i - 10) + 1;
-        } while (((sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) < area_disaster) || (sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) > area_disaster + 2)) || (Node[i].n_X > center_x || Node[i].n_Y < center_y));
-    }
-    for (int i = 18; i < 20; i++)
-    {
-        do
+            do
+            {
+                Node[i].n_X = randAxAy();
+                Node[i].n_Y = center_y + 2 * (i - 10) + 1;
+            } while (((sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) < area_disaster) || (sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) > area_disaster + 2)) || (Node[i].n_X > center_x || Node[i].n_Y < center_y));
+        }
+        for (int i = 18; i < 20; i++)
         {
-            Node[i].n_X = randAxAy();
-            Node[i].n_Y = randAxAy();
-        } while (((sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) < area_disaster) || (sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) > area_disaster + 2)) || (Node[i].n_X > center_x || Node[i].n_Y < center_y));
-    }
-    for (int i = 20; i < 28; i++)
-    {
-        do
+            do
+            {
+                Node[i].n_X = randAxAy();
+                Node[i].n_Y = randAxAy();
+            } while (((sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) < area_disaster) || (sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) > area_disaster + 2)) || (Node[i].n_X > center_x || Node[i].n_Y < center_y));
+        }
+        for (int i = 20; i < 28; i++)
         {
-            Node[i].n_X = randAxAy();
-            Node[i].n_Y = center_y + 2 * (i - 20);
-        } while (((sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) < area_disaster) || (sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) > area_disaster + 2)) || (Node[i].n_X < center_x || Node[i].n_Y < center_y));
-    }
-    for (int i = 28; i < 30; i++)
-    {
-        do
+            do
+            {
+                Node[i].n_X = randAxAy();
+                Node[i].n_Y = center_y + 2 * (i - 20);
+            } while (((sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) < area_disaster) || (sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) > area_disaster + 2)) || (Node[i].n_X < center_x || Node[i].n_Y < center_y));
+        }
+        for (int i = 28; i < 30; i++)
         {
-            Node[i].n_X = randAxAy();
-            Node[i].n_Y = randAxAy();
-        } while (((sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) < area_disaster) || (sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) > area_disaster + 2)) || (Node[i].n_X < center_x || Node[i].n_Y < center_y));
-    }
-    for (int i = 30; i < 38; i++)
-    {
-        do
+            do
+            {
+                Node[i].n_X = randAxAy();
+                Node[i].n_Y = randAxAy();
+            } while (((sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) < area_disaster) || (sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) > area_disaster + 2)) || (Node[i].n_X < center_x || Node[i].n_Y < center_y));
+        }
+        for (int i = 30; i < 38; i++)
         {
-            Node[i].n_X = randAxAy();
-            Node[i].n_Y = center_y - 2 * (i - 30) - 1;
-        } while (((sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) < area_disaster) || (sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) > area_disaster + 2)) || (Node[i].n_X < center_x || Node[i].n_Y > center_y));
-    }
-    for (int i = 38; i < 40; i++)
-    {
-        do
+            do
+            {
+                Node[i].n_X = randAxAy();
+                Node[i].n_Y = center_y - 2 * (i - 30) - 1;
+            } while (((sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) < area_disaster) || (sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) > area_disaster + 2)) || (Node[i].n_X < center_x || Node[i].n_Y > center_y));
+        }
+        for (int i = 38; i < 40; i++)
         {
-            Node[i].n_X = randAxAy();
-            Node[i].n_Y = randAxAy();
-        } while (((sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) < area_disaster) || (sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) > area_disaster + 2)) || (Node[i].n_X < center_x || Node[i].n_Y > center_y));
-    }
-    // for(int i = 0; i < 10; i++)
-    // {
-    //     do
-    //     {
-    //         Node[i].n_X = randAxAy();
-    //         Node[i].n_Y = randAxAy();
-    //     } while ((sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) < area_disaster) || (sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) > area_disaster + 2));
-    // }
-    for (int i = 40; i < N_ALL_NUM; i++)
-    {
-        do
+            do
+            {
+                Node[i].n_X = randAxAy();
+                Node[i].n_Y = randAxAy();
+            } while (((sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) < area_disaster) || (sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) > area_disaster + 2)) || (Node[i].n_X < center_x || Node[i].n_Y > center_y));
+        }
+        // for(int i = 0; i < 10; i++)
+        // {
+        //     do
+        //     {
+        //         Node[i].n_X = randAxAy();
+        //         Node[i].n_Y = randAxAy();
+        //     } while ((sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) < area_disaster) || (sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) > area_disaster + 2));
+        // }
+        for (int i = 40; i < N_ALL_NUM; i++)
         {
-            Node[i].n_X = randAxAy();
-            Node[i].n_Y = randAxAy();
-            Node[i].move_flag = 10;
-        } while ((sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) < area_disaster) || (sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) > area_disaster + 2));
-    }
-    for (int i = 0; i < N_ALL_NUM; i++)
-    {
-        Node[i].n_insec_X = (int)Node[i].n_X;
-        Node[i].n_insec_Y = (int)Node[i].n_Y;
-        Node[i].p_num = -1;
-        Node[i].p_num2 = -1;
-        Node[i].n_xD = -1;
-        Node[i].n_xD2 = -1;
-        Node[i].n_yD = -1;
-        Node[i].n_yD2 = -1;
-        Node[i].p_on = 0;
-        Node[i].v = v_f;
+            do
+            {
+                Node[i].n_X = randAxAy();
+                Node[i].n_Y = randAxAy();
+                Node[i].move_flag = 10;
+            } while ((sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) < area_disaster) || (sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) > area_disaster + 2));
+        }
+        for (int i = 0; i < N_ALL_NUM; i++)
+        {
+            Node[i].n_insec_X = (int)Node[i].n_X;
+            Node[i].n_insec_Y = (int)Node[i].n_Y;
+            Node[i].p_num = -1;
+            Node[i].p_num2 = -1;
+            Node[i].n_xD = -1;
+            Node[i].n_xD2 = -1;
+            Node[i].n_yD = -1;
+            Node[i].n_yD2 = -1;
+            Node[i].p_on = 0;
+            Node[i].v = v_f;
 
-        int rand4 = rand() % 4;
-        Node[i].move_pattern = rand4;
+            int rand4 = rand() % 4;
+            Node[i].move_pattern = rand4;
+        }
+    }else if(N_ALL_NUM == 50){
+        for (int i = 0; i < 5; i++)
+        {
+            do
+            {
+                Node[i].n_X = randAxAy();
+                Node[i].n_Y = center_y - 2 * i;
+            } while (((sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) < area_disaster) || (sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) > area_disaster + 2)) || (Node[i].n_X > center_x || Node[i].n_Y > center_y));
+        }
+        for (int i = 5; i < 10; i++)
+        {
+            do
+            {
+                Node[i].n_X = randAxAy();
+                Node[i].n_Y = center_y + 2 * (i - 5) + 1;
+            } while (((sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) < area_disaster) || (sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) > area_disaster + 2)) || (Node[i].n_X > center_x || Node[i].n_Y < center_y));
+        }
+        for (int i = 10; i < 15; i++)
+        {
+            do
+            {
+                Node[i].n_X = randAxAy();
+                Node[i].n_Y = center_y + 2 * (i - 10);
+
+            } while (((sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) < area_disaster) || (sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) > area_disaster + 2)) || (Node[i].n_X < center_x || Node[i].n_Y < center_y));
+        }
+        for (int i = 15; i < 20; i++)
+        {
+            do
+            {
+                Node[i].n_X = randAxAy();
+                Node[i].n_Y = center_y - 2 * (i - 15) - 1;
+            } while (((sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) < area_disaster) || (sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) > area_disaster + 2)) || (Node[i].n_X < center_x || Node[i].n_Y > center_y));
+        }
+        // for(int i = 0; i < 10; i++)
+        // {
+        //     do
+        //     {
+        //         Node[i].n_X = randAxAy();
+        //         Node[i].n_Y = randAxAy();
+        //     } while ((sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) < area_disaster) || (sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) > area_disaster + 2));
+        // }
+        for (int i = 20; i < N_ALL_NUM; i++)
+        {
+            do
+            {
+                Node[i].n_X = randAxAy();
+                Node[i].n_Y = randAxAy();
+                Node[i].move_flag = 10;
+            } while ((sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) < area_disaster) || (sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) > area_disaster + 2));
+        }
+        for (int i = 0; i < N_ALL_NUM; i++)
+        {
+            Node[i].n_insec_X = (int)Node[i].n_X;
+            Node[i].n_insec_Y = (int)Node[i].n_Y;
+            Node[i].p_num = -1;
+            Node[i].p_num2 = -1;
+            Node[i].n_xD = -1;
+            Node[i].n_xD2 = -1;
+            Node[i].n_yD = -1;
+            Node[i].n_yD2 = -1;
+            Node[i].p_on = 0;
+            Node[i].v = v_f;
+
+            int rand4 = rand() % 4;
+            Node[i].move_pattern = rand4;
+        }
     }
+    
 }
 
 // 配置関数のための補助関数 ------------------------------------------------------------------------------------------------------------------
