@@ -18,7 +18,7 @@
 #include "globals.h"
 #include "base_struct.h"
 #include "base_func.h"
-#include "placement_100_0.h"
+#include "placement_40_60.h"
 #include "Common_func.h"
 #include "move.h"
 #include "my_func.h"
@@ -33,7 +33,7 @@ int main()
     // csv出力のための設定----------------------------------------------------------------------------------------------
     // csv出力するための数値
     FILE *fp;
-    char *fname = "test_noepidemic_100_0.csv";
+    char *fname = "test_40_60_N50P200.csv";
 
     char *node = "node";
     char *node0 = "node0";
@@ -97,7 +97,7 @@ int main()
     */
 
     // --------------------------------------------------------------------------------------------------------------------
-    for (int jc = 0; jc < 10; jc++)
+    for (int jc = 0; jc < 5; jc++)
     {
         //srand((int)RANDOM_SEED + jc + 1);
         Twait = 0;

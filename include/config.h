@@ -4,9 +4,9 @@
 #ifndef _config_h
 #define _config_h
 
-#define N_ALL_NUM 100 // ノードの数
-#define P_ALL_NUM 400 // 人間の数
-#define P_goal 400    // 目標ゴール人数
+#define N_ALL_NUM 50 // ノードの数
+#define P_ALL_NUM 200 // 人間の数
+#define P_goal 200    // 目標ゴール人数
 #define TRUE 1        // trueかfalseかのマクロ定義
 #define FALSE 0
 #define qsize 5000 // 交差点のキューの大きさ
@@ -23,7 +23,7 @@
 
 #define refdistance 250 // ノードが参照する距離(格子分)
 #define reftime 30      // ノードが参照する時間差
-//#define EPIDEMIC
+#define EPIDEMIC
 #define circle
 //#define two
 #define dis_center
