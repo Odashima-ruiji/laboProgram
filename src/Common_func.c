@@ -1474,7 +1474,7 @@ void P_map(int node_index)
             }
         }
     }
-    
+#ifdef smooth
     // 平滑化処理：隣接セルも考慮して密集地点を判定
     // smoothed_count配列はグローバル変数として定義済み
     for (int i = 0; i < grid_size; i++) {
@@ -1499,6 +1499,7 @@ void P_map(int node_index)
             smoothed_count[i][j] = total;
         }
     }
+#endif
     
     // 密集地点の判定と出力（デバッグ用）
     // printf("Node[%d] 密集地点検出結果（閾値: %d人）:\n", node_index, threshold);
@@ -1541,8 +1542,12 @@ double calculate_direction_score(int node_index, int target_x, int target_y)
     if (grid_y < 0) grid_y = 0;
     if (grid_y >= grid_size) grid_y = grid_size - 1;
     
+#ifdef smooth
     // その場所の混雑度を取得
     double density = (double)smoothed_count[grid_x][grid_y];
+#else
+    double density = (double)grid_count[grid_x][grid_y];
+#endif
     
     // Node[node_index]からの距離を計算
     double distance = sqrt2(target_x - Node[node_index].n_X, target_y - Node[node_index].n_Y);
@@ -1550,7 +1555,11 @@ double calculate_direction_score(int node_index, int target_x, int target_y)
     // --- 正規化処理 ---
     // density: 0〜50の範囲を想定（平滑化後の現実的な最大値）
     // distance: 0〜マップ対角線の長さ（sqrt(Ax^2 + Ay^2) ≈ 84.85）
+#ifdef smooth
     double density_max = 50.0;  // 密度の推定最大値
+#else
+    double density_max = 9.0;  // 密度の推定最大値（平滑化なし: 3×3=9セルが上限）
+#endif  
     //double distance_max = sqrt(Ax * Ax + Ay * Ay);  // マップの対角線距離（約84.85）
     double distance_max = 30.0;
     
@@ -1692,4 +1701,3 @@ void re_find_best_grid_in_all_map(int node_index)
     // printf("Node[%d] 最高スコアグリッド: (%d, %d) スコア: %.2f\n", 
     //        node_index, best_grid_x, best_grid_y, best_score);
 }
-
