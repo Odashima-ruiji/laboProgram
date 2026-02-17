@@ -338,6 +338,7 @@ void move_new_direction()
             if (Node[count].p_on == 0)
             { // ノードが乗客を乗せておらず、目的地設定がない場合　スコアベースで移動
 
+                score_based_movement:
                 P_map(count);
                 // 全マップで最もスコアが高いグリッドを目的地として設定
                 //find_best_grid_in_all_map(count);
@@ -575,11 +576,9 @@ void move_new_direction()
                         count += 1;
                     }
                 } else {
-                    score_based_movement:
                     int current_grid_x = (int)(Node[count].n_X / cell_width);
                     int current_grid_y = (int)(Node[count].n_Y / cell_height);
                     
-                    // // まず、現在の交差点に待ち客がいるか確認（どの状態でも最優先でチェック）
                     // int current_x = (int)Node[count].n_X;
                     // int current_y = (int)Node[count].n_Y;
                     // if (Trans[current_x][current_y].wp_Exist == 1) {
