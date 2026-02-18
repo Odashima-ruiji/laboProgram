@@ -185,6 +185,306 @@ void Dist_Init_n(void)
             int rand4 = rand() % 4;
             Node[i].move_pattern = rand4;
         }
+    }else if(N_ALL_NUM == 75){
+        /* 内側(中心方向)45台 (60%), 外側30台 (40%) */
+        /* Q1: 左上 (X < center, Y < center) - Y固定 8台 */
+        for (int i = 0; i < 8; i++)
+        {
+            do
+            {
+                Node[i].n_X = randAxAy();
+                Node[i].n_Y = center_y - 2 * i;
+            } while (((sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) < area_disaster) || (sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) > area_disaster + 2)) || (Node[i].n_X > center_x || Node[i].n_Y > center_y));
+        }
+        /* Q1: 左上 - ランダム 4台 */
+        for (int i = 8; i < 12; i++)
+        {
+            do
+            {
+                Node[i].n_X = randAxAy();
+                Node[i].n_Y = randAxAy();
+            } while (((sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) < area_disaster) || (sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) > area_disaster + 2)) || (Node[i].n_X > center_x || Node[i].n_Y > center_y));
+        }
+        /* Q2: 左下 (X < center, Y > center) - Y固定 8台 */
+        for (int i = 12; i < 20; i++)
+        {
+            do
+            {
+                Node[i].n_X = randAxAy();
+                Node[i].n_Y = center_y + 2 * (i - 12) + 1;
+            } while (((sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) < area_disaster) || (sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) > area_disaster + 2)) || (Node[i].n_X > center_x || Node[i].n_Y < center_y));
+        }
+        /* Q2: 左下 - ランダム 3台 */
+        for (int i = 20; i < 23; i++)
+        {
+            do
+            {
+                Node[i].n_X = randAxAy();
+                Node[i].n_Y = randAxAy();
+            } while (((sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) < area_disaster) || (sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) > area_disaster + 2)) || (Node[i].n_X > center_x || Node[i].n_Y < center_y));
+        }
+        /* Q3: 右下 (X > center, Y > center) - Y固定 8台 */
+        for (int i = 23; i < 31; i++)
+        {
+            do
+            {
+                Node[i].n_X = randAxAy();
+                Node[i].n_Y = center_y + 2 * (i - 23);
+            } while (((sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) < area_disaster) || (sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) > area_disaster + 2)) || (Node[i].n_X < center_x || Node[i].n_Y < center_y));
+        }
+        /* Q3: 右下 - ランダム 3台 */
+        for (int i = 31; i < 34; i++)
+        {
+            do
+            {
+                Node[i].n_X = randAxAy();
+                Node[i].n_Y = randAxAy();
+            } while (((sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) < area_disaster) || (sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) > area_disaster + 2)) || (Node[i].n_X < center_x || Node[i].n_Y < center_y));
+        }
+        /* Q4: 右上 (X > center, Y < center) - Y固定 8台 */
+        for (int i = 34; i < 42; i++)
+        {
+            do
+            {
+                Node[i].n_X = randAxAy();
+                Node[i].n_Y = center_y - 2 * (i - 34) - 1;
+            } while (((sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) < area_disaster) || (sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) > area_disaster + 2)) || (Node[i].n_X < center_x || Node[i].n_Y > center_y));
+        }
+        /* Q4: 右上 - ランダム 3台 */
+        for (int i = 42; i < 45; i++)
+        {
+            do
+            {
+                Node[i].n_X = randAxAy();
+                Node[i].n_Y = randAxAy();
+            } while (((sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) < area_disaster) || (sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) > area_disaster + 2)) || (Node[i].n_X < center_x || Node[i].n_Y > center_y));
+        }
+        /* 外側へ向かう車両 30台 (move_flag = 10) */
+        for (int i = 45; i < N_ALL_NUM; i++)
+        {
+            do
+            {
+                Node[i].n_X = randAxAy();
+                Node[i].n_Y = randAxAy();
+                Node[i].move_flag = 10;
+            } while ((sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) < area_disaster) || (sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) > area_disaster + 2));
+        }
+        for (int i = 0; i < N_ALL_NUM; i++)
+        {
+            Node[i].n_insec_X = (int)Node[i].n_X;
+            Node[i].n_insec_Y = (int)Node[i].n_Y;
+            Node[i].p_num = -1;
+            Node[i].p_num2 = -1;
+            Node[i].n_xD = -1;
+            Node[i].n_xD2 = -1;
+            Node[i].n_yD = -1;
+            Node[i].n_yD2 = -1;
+            Node[i].p_on = 0;
+            Node[i].v = v_f;
+
+            int rand4 = rand() % 4;
+            Node[i].move_pattern = rand4;
+        }
+    }else if(N_ALL_NUM == 125){
+        /* 内側(中心方向)75台 (60%), 外側50台 (40%) */
+        /* Q1: 左上 - Y固定 8台 */
+        for (int i = 0; i < 8; i++)
+        {
+            do
+            {
+                Node[i].n_X = randAxAy();
+                Node[i].n_Y = center_y - 2 * i;
+            } while (((sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) < area_disaster) || (sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) > area_disaster + 2)) || (Node[i].n_X > center_x || Node[i].n_Y > center_y));
+        }
+        /* Q1: 左上 - ランダム 11台 */
+        for (int i = 8; i < 19; i++)
+        {
+            do
+            {
+                Node[i].n_X = randAxAy();
+                Node[i].n_Y = randAxAy();
+            } while (((sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) < area_disaster) || (sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) > area_disaster + 2)) || (Node[i].n_X > center_x || Node[i].n_Y > center_y));
+        }
+        /* Q2: 左下 - Y固定 8台 */
+        for (int i = 19; i < 27; i++)
+        {
+            do
+            {
+                Node[i].n_X = randAxAy();
+                Node[i].n_Y = center_y + 2 * (i - 19) + 1;
+            } while (((sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) < area_disaster) || (sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) > area_disaster + 2)) || (Node[i].n_X > center_x || Node[i].n_Y < center_y));
+        }
+        /* Q2: 左下 - ランダム 11台 */
+        for (int i = 27; i < 38; i++)
+        {
+            do
+            {
+                Node[i].n_X = randAxAy();
+                Node[i].n_Y = randAxAy();
+            } while (((sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) < area_disaster) || (sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) > area_disaster + 2)) || (Node[i].n_X > center_x || Node[i].n_Y < center_y));
+        }
+        /* Q3: 右下 - Y固定 8台 */
+        for (int i = 38; i < 46; i++)
+        {
+            do
+            {
+                Node[i].n_X = randAxAy();
+                Node[i].n_Y = center_y + 2 * (i - 38);
+            } while (((sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) < area_disaster) || (sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) > area_disaster + 2)) || (Node[i].n_X < center_x || Node[i].n_Y < center_y));
+        }
+        /* Q3: 右下 - ランダム 10台 */
+        for (int i = 46; i < 56; i++)
+        {
+            do
+            {
+                Node[i].n_X = randAxAy();
+                Node[i].n_Y = randAxAy();
+            } while (((sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) < area_disaster) || (sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) > area_disaster + 2)) || (Node[i].n_X < center_x || Node[i].n_Y < center_y));
+        }
+        /* Q4: 右上 - Y固定 8台 */
+        for (int i = 56; i < 64; i++)
+        {
+            do
+            {
+                Node[i].n_X = randAxAy();
+                Node[i].n_Y = center_y - 2 * (i - 56) - 1;
+            } while (((sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) < area_disaster) || (sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) > area_disaster + 2)) || (Node[i].n_X < center_x || Node[i].n_Y > center_y));
+        }
+        /* Q4: 右上 - ランダム 11台 */
+        for (int i = 64; i < 75; i++)
+        {
+            do
+            {
+                Node[i].n_X = randAxAy();
+                Node[i].n_Y = randAxAy();
+            } while (((sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) < area_disaster) || (sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) > area_disaster + 2)) || (Node[i].n_X < center_x || Node[i].n_Y > center_y));
+        }
+        /* 外側へ向かう車両 50台 (move_flag = 10) */
+        for (int i = 75; i < N_ALL_NUM; i++)
+        {
+            do
+            {
+                Node[i].n_X = randAxAy();
+                Node[i].n_Y = randAxAy();
+                Node[i].move_flag = 10;
+            } while ((sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) < area_disaster) || (sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) > area_disaster + 2));
+        }
+        for (int i = 0; i < N_ALL_NUM; i++)
+        {
+            Node[i].n_insec_X = (int)Node[i].n_X;
+            Node[i].n_insec_Y = (int)Node[i].n_Y;
+            Node[i].p_num = -1;
+            Node[i].p_num2 = -1;
+            Node[i].n_xD = -1;
+            Node[i].n_xD2 = -1;
+            Node[i].n_yD = -1;
+            Node[i].n_yD2 = -1;
+            Node[i].p_on = 0;
+            Node[i].v = v_f;
+
+            int rand4 = rand() % 4;
+            Node[i].move_pattern = rand4;
+        }
+    }else if(N_ALL_NUM == 150){
+        /* 内側(中心方向)90台 (60%), 外側60台 (40%) */
+        /* Q1: 左上 - Y固定 8台 */
+        for (int i = 0; i < 8; i++)
+        {
+            do
+            {
+                Node[i].n_X = randAxAy();
+                Node[i].n_Y = center_y - 2 * i;
+            } while (((sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) < area_disaster) || (sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) > area_disaster + 2)) || (Node[i].n_X > center_x || Node[i].n_Y > center_y));
+        }
+        /* Q1: 左上 - ランダム 15台 */
+        for (int i = 8; i < 23; i++)
+        {
+            do
+            {
+                Node[i].n_X = randAxAy();
+                Node[i].n_Y = randAxAy();
+            } while (((sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) < area_disaster) || (sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) > area_disaster + 2)) || (Node[i].n_X > center_x || Node[i].n_Y > center_y));
+        }
+        /* Q2: 左下 - Y固定 8台 */
+        for (int i = 23; i < 31; i++)
+        {
+            do
+            {
+                Node[i].n_X = randAxAy();
+                Node[i].n_Y = center_y + 2 * (i - 23) + 1;
+            } while (((sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) < area_disaster) || (sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) > area_disaster + 2)) || (Node[i].n_X > center_x || Node[i].n_Y < center_y));
+        }
+        /* Q2: 左下 - ランダム 14台 */
+        for (int i = 31; i < 45; i++)
+        {
+            do
+            {
+                Node[i].n_X = randAxAy();
+                Node[i].n_Y = randAxAy();
+            } while (((sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) < area_disaster) || (sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) > area_disaster + 2)) || (Node[i].n_X > center_x || Node[i].n_Y < center_y));
+        }
+        /* Q3: 右下 - Y固定 8台 */
+        for (int i = 45; i < 53; i++)
+        {
+            do
+            {
+                Node[i].n_X = randAxAy();
+                Node[i].n_Y = center_y + 2 * (i - 45);
+            } while (((sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) < area_disaster) || (sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) > area_disaster + 2)) || (Node[i].n_X < center_x || Node[i].n_Y < center_y));
+        }
+        /* Q3: 右下 - ランダム 15台 */
+        for (int i = 53; i < 68; i++)
+        {
+            do
+            {
+                Node[i].n_X = randAxAy();
+                Node[i].n_Y = randAxAy();
+            } while (((sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) < area_disaster) || (sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) > area_disaster + 2)) || (Node[i].n_X < center_x || Node[i].n_Y < center_y));
+        }
+        /* Q4: 右上 - Y固定 8台 */
+        for (int i = 68; i < 76; i++)
+        {
+            do
+            {
+                Node[i].n_X = randAxAy();
+                Node[i].n_Y = center_y - 2 * (i - 68) - 1;
+            } while (((sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) < area_disaster) || (sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) > area_disaster + 2)) || (Node[i].n_X < center_x || Node[i].n_Y > center_y));
+        }
+        /* Q4: 右上 - ランダム 14台 */
+        for (int i = 76; i < 90; i++)
+        {
+            do
+            {
+                Node[i].n_X = randAxAy();
+                Node[i].n_Y = randAxAy();
+            } while (((sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) < area_disaster) || (sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) > area_disaster + 2)) || (Node[i].n_X < center_x || Node[i].n_Y > center_y));
+        }
+        /* 外側へ向かう車両 60台 (move_flag = 10) */
+        for (int i = 90; i < N_ALL_NUM; i++)
+        {
+            do
+            {
+                Node[i].n_X = randAxAy();
+                Node[i].n_Y = randAxAy();
+                Node[i].move_flag = 10;
+            } while ((sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) < area_disaster) || (sqrt2(Node[i].n_X - center_x, Node[i].n_Y - center_y) > area_disaster + 2));
+        }
+        for (int i = 0; i < N_ALL_NUM; i++)
+        {
+            Node[i].n_insec_X = (int)Node[i].n_X;
+            Node[i].n_insec_Y = (int)Node[i].n_Y;
+            Node[i].p_num = -1;
+            Node[i].p_num2 = -1;
+            Node[i].n_xD = -1;
+            Node[i].n_xD2 = -1;
+            Node[i].n_yD = -1;
+            Node[i].n_yD2 = -1;
+            Node[i].p_on = 0;
+            Node[i].v = v_f;
+
+            int rand4 = rand() % 4;
+            Node[i].move_pattern = rand4;
+        }
     }
     
 }
