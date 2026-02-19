@@ -347,7 +347,7 @@ void move_new_direction()
                 int all_density_zero = 1; // すべて0と仮定
                 for (int i = 0; i < grid_size; i++) {
                     for (int j = 0; j < grid_size; j++) {
-#ifdef smooth
+                        #ifdef smooth
                         if (smoothed_count[i][j] > 0) {
 #else
                         if (grid_count[i][j] > 0) {
@@ -583,7 +583,6 @@ void move_new_direction()
                     int current_grid_x = (int)(Node[count].n_X / cell_width);
                     int current_grid_y = (int)(Node[count].n_Y / cell_height);
                     
-                    // // まず、現在の交差点に待ち客がいるか確認（どの状態でも最優先でチェック）
                     // int current_x = (int)Node[count].n_X;
                     // int current_y = (int)Node[count].n_Y;
                     // if (Trans[current_x][current_y].wp_Exist == 1) {
