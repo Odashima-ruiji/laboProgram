@@ -19,7 +19,7 @@
 #include "globals.h"
 #include "base_struct.h"
 #include "base_func.h"
-#include "placement_60_40.h"
+#include "placement_100_0.h"
 #include "Common_func.h"
 #include "move.h"
 #include "my_func.h"
@@ -34,8 +34,8 @@ int main()
     // csv出力のための設定----------------------------------------------------------------------------------------------
     // csv出力するための数値
     FILE *fp;
-    char *fname = "test.csv";
-    //char *fname = "ver.2_division_exp_60_40_dens10_dist25.csv";
+    //char *fname = "test.csv";
+    char *fname = "ver.2_division_exp_100_0_dens10_dist25_N150P400.csv";
 
     char *node = "node";
     char *node0 = "node0";

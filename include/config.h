@@ -4,7 +4,7 @@
 #ifndef _config_h
 #define _config_h
 
-#define N_ALL_NUM 100 // ノードの数
+#define N_ALL_NUM 150 // ノードの数
 #define P_ALL_NUM 400 // 人間の数
 #define P_goal 400    // 目標ゴール人数
 #define TRUE 1        // trueかfalseかのマクロ定義
