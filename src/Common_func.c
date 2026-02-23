@@ -1586,6 +1586,10 @@ double calculate_direction_score(int node_index, int target_x, int target_y)
     // W_mapを加算して避難エリア内を優先
     score += Node[node_index].Map_grid[grid_x][grid_y].W_map;
 
+    // //分数計算ベースのスコア計算
+    // score = (density_normalized) *((1 - distance_normalized)/(1 + W_dist * distance_normalized) + Node[node_index].W_grid[grid_x][grid_y]);
+    // score += Node[node_index].Map_grid[grid_x][grid_y].W_map;
+
 
     // // --- 対数変換正規化 ---
     // double log_dens = log(density + 1.0);
