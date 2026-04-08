@@ -1582,13 +1582,19 @@ double calculate_direction_score(int node_index, int target_x, int target_y)
 
     // --- exp関数を使った割り算ベースのスコア計算式 ---
     // スコア = 正規化混雑度 / (exp(W_dist × 正規化距離) + 訪問回数)
-    score = (W_dens * density_normalized) / (exp(W_dist * distance_normalized) + Node[node_index].W_grid[grid_x][grid_y] + 1.0);
+    score = (W_dens * density_normalized) / (exp(W_dist * distance_normalized) + Node[node_index].W_grid[grid_x][grid_y] );
     // W_mapを加算して避難エリア内を優先
     score += Node[node_index].Map_grid[grid_x][grid_y].W_map;
 
-    // //分数計算ベースのスコア計算
-    // score = (density_normalized) *((1 - distance_normalized)/(1 + W_dist * distance_normalized) + Node[node_index].W_grid[grid_x][grid_y]);
+    // // --- 分子にもexp関数を使った割り算ベースのスコア計算式 ---
+    // // スコア = 正規化混雑度 / (exp(W_dist × 正規化距離) + 訪問回数)
+    // score = (exp(density_normalized) - 1.0) / (exp(W_dist * distance_normalized) + Node[node_index].W_grid[grid_x][grid_y]);
+    // // W_mapを加算して避難エリア内を優先
     // score += Node[node_index].Map_grid[grid_x][grid_y].W_map;
+
+    // // //分数計算ベースのスコア計算
+    // // score = (density_normalized) *((1 - distance_normalized)/(1 + W_dist * distance_normalized) + Node[node_index].W_grid[grid_x][grid_y]);
+    // // score += Node[node_index].Map_grid[grid_x][grid_y].W_map;
 
 
     // // --- 対数変換正規化 ---
